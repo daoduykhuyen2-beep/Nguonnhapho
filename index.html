@@ -724,6 +724,10 @@ a{text-decoration:none;color:inherit}
         <input type="file" id="fimg" accept="image/*,video/*" multiple style="display:none" onchange="let n=this.files.length;document.getElementById('fimg-lbl').textContent=n>0?n+' tệp đã chọn':'Nhấn để chọn ảnh / video (tối đa 5 tệp)';prevImgs(this)">
         <div id="fimg-preview" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
       </div>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;font-size:14px">
+        <input type="checkbox" id="fsold" style="width:18px;height:18px;accent-color:#dc2626">
+        <span>🔴 Căn nhà đã được <strong>chốt</strong> (đã bán/đã cho thuê)</span>
+      </label>
       <button id="post-btn" onclick="subPost()" style="width:100%;background:var(--gold);color:var(--dark);font-weight:700;font-size:15px;padding:13px;border-radius:8px;border:none;cursor:pointer;margin-top:4px">📤 Tải lên</button>
     </div>
   </div>
@@ -737,10 +741,11 @@ a{text-decoration:none;color:inherit}
   </div>
   <div style="padding:0 12px 8px;max-width:700px;margin:0 auto">
     <div id="upost-tabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
-      <button class="fpill on" onclick="fUPost(this,'all')">Tất cả</button>
-      <button class="fpill" onclick="fUPost(this,'owner')">🏠 Chủ nhà</button>
-      <button class="fpill" onclick="fUPost(this,'broker')">🏢 Môi giới</button>
-      <button class="fpill" onclick="fUPost(this,'admin')" style="border-color:#dc2626;color:#dc2626">📢 Thông báo</button>
+      <button class="fpill on" data-filter="all" onclick="fUPost(this,'all')">Tất cả</button>
+      <button class="fpill" data-filter="owner" onclick="fUPost(this,'owner')">🏠 Chủ nhà</button>
+      <button class="fpill" data-filter="broker" onclick="fUPost(this,'broker')">🏢 Môi giới</button>
+      <button class="fpill" data-filter="admin" onclick="fUPost(this,'admin')" style="border-color:#dc2626;color:#dc2626">📢 Thông báo</button>
+      <button class="fpill" onclick="fUPost(this,'chot')" data-filter="chot">🔴 Đã chốt</button>
     </div>
     <div id="upost-list"></div>
   </div>
@@ -1695,7 +1700,7 @@ async function subPost(){
     imgUrls=await uploadImages(Array.from(fileInput.files));
   }
   // Save as user post
-  addUserPost({name:n,phone:ph,email:em,role:ro,pty:ty,district:di,street:st,price:pr,area:ar,floors:fl,front:fm,legal:le,desc:de,imgs:imgUrls});
+  addUserPost({name:n,phone:ph,email:em,role:ro,pty:ty,district:di,street:st,price:pr,area:ar,floors:fl,front:fm,legal:le,desc:de,imgs:imgUrls,sold:document.getElementById("fsold")?.checked?1:0});
   // Notify
   addNotif('user_post','📋 Có người vừa đăng tin mới!',n+' · '+ty+' · '+di+' · '+st+' · '+pr);
   sendMail('Đăng tin mới từ '+n,'Tên: '+n+' | SĐT: '+ph+' | Email: '+em+' | Loại: '+ty+' | Quận: '+di+' | Đường: '+st+' | Giá: '+pr+' | Mô tả: '+de);
@@ -1725,7 +1730,8 @@ function addUserPost(data){
     price:data.price,area:data.area||'',floors:data.floors||'',
     front:data.front||'',legal:data.legal||'',
     desc:data.desc||'',
-    imgs:data.imgs||[]
+    imgs:data.imgs||[],
+    sold:data.sold||0
   };
   posts.unshift(post);
   saveUPosts(posts);
@@ -1747,6 +1753,7 @@ function renderUPosts(filter='all'){
   if(filter==='owner')posts=posts.filter(p=>p.type==='owner');
   else if(filter==='broker')posts=posts.filter(p=>p.type==='broker');
   else if(filter==='admin')posts=posts.filter(p=>p.type==='admin');
+  else if(filter==='chot') posts=posts.filter(p=>p.sold);
   posts.sort((a,b)=>(b.boosted||0)-(a.boosted||0)||(b.ts-a.ts));
   if(!posts.length){
     el.innerHTML='<div class="pg-empty"><div class="pg-ei">📋</div><p>Chưa có tin đăng nào</p></div>';
@@ -1766,14 +1773,24 @@ function renderUPosts(filter='all'){
       ${imgs}
     </div>`;
     return`<div class="nptag" style="border-left:4px solid ${p.type==='broker'?'#7c3aed':'#059669'}">
-      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${badge}${boostedBadge}<span style="font-size:11px;color:#9ca3af;margin-left:auto">${ago}</span></div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${badge}${boostedBadge}<span style="font-size:11px;color:#9ca3af;margin-left:auto">${ago}</span>${p.sold?'<span style="background:#dc2626;color:#fff;font-size:11px;padding:2px 8px;border-radius:12px;font-weight:600">🔴 Đã chốt</span>':''}</div>
       <div style="font-weight:700;font-size:14px;margin-top:4px">${p.pty||''} — ${p.district||''} · ${p.street||''}</div>
       <div style="font-size:13px;color:#059669;font-weight:600">${p.price||''}${p.area?' · '+p.area+'m²':''}</div>
       ${p.desc?'<div style="font-size:12px;color:#6b7280;margin-top:2px">'+p.desc+'</div>':''}
       ${imgs}
       <div style="font-size:11px;color:#9ca3af;margin-top:4px">${p.name} · ${p.role}</div>
+      <div style="margin-top:8px"><button onclick="markSold('${p.id}')" style="font-size:12px;padding:4px 12px;border-radius:8px;border:1px solid ${p.sold?'#dc2626':'#059669'};background:${p.sold?'#fef2f2':'#f0fdf4'};color:${p.sold?'#dc2626':'#059669'};cursor:pointer">${p.sold?'↩️ Bỏ chốt':'✅ Đánh dấu đã chốt'}</button></div>
     </div>`;
   }).join('');
+}
+function markSold(id){
+  const posts=getUPosts();
+  const idx=posts.findIndex(p=>p.id===id);
+  if(idx<0)return;
+  posts[idx].sold=posts[idx].sold?0:1;
+  saveUPosts(posts);
+  renderUPosts(document.querySelector('#upost-tabs .fpill.on')?.dataset?.filter||'all');
+  toast(posts[idx].sold?'✅ Đã đánh dấu căn đã chốt':'↩️ Đã bỏ đánh dấu chốt');
 }
 
 function fUPost(btn,f){
