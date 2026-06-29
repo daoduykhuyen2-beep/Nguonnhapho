@@ -1505,153 +1505,57 @@ init();
 // Tin đăng tự xóa sau 2 tháng nhưng lịch sử tổng bài vẫn giữ
 // ================================================================
 const PLANS = [
-  {
-    id: 'free',
-    name: 'Tài Khoản Free',
-    icon: '🆓',
-    color: '#6b7280',
-    badge: '',
-    badgeColor: '',
-    price: 0,
-    posts: 3,
-    highlight: false,
-    tag: '',
-    desc: 'Dành cho người mới bắt đầu đăng tin thử nghiệm',
-    features: [
-      { icon: '📋', text: '3 tin đăng / tháng', ok: true },
-      { icon: '🕐', text: 'Tin tự xóa sau 2 tháng', ok: true },
-      { icon: '📊', text: 'Lịch sử tổng bài đăng được lưu', ok: true },
-      { icon: '📞', text: 'Nút liên hệ Zalo / Gọi điện', ok: true },
-      { icon: '⏱', text: 'Duyệt tin trong 48 giờ', ok: true },
-      { icon: '✗', text: 'Không có huy hiệu xác minh', ok: false },
-      { icon: '✗', text: 'Không ưu tiên hiển thị', ok: false },
-    ]
-  },
-  {
-    id: 'verified',
-    name: 'Đã Xác Minh',
-    icon: '✅',
-    color: '#2563eb',
-    badge: 'XÁC MINH',
-    badgeColor: '#2563eb',
-    price: 100000,
-    posts: 15,
-    highlight: false,
-    tag: '',
-    desc: 'Tài khoản được Nguồn Nhà Phố HCM xác minh danh tính',
-    features: [
-      { icon: '📋', text: '15 tin đăng / tháng', ok: true },
-      { icon: '✅', text: 'Huy hiệu ĐÃ XÁC MINH trên mỗi tin', ok: true },
-      { icon: '🕐', text: 'Tin tự xóa sau 2 tháng', ok: true },
-      { icon: '📊', text: 'Lịch sử tổng bài đăng được lưu', ok: true },
-      { icon: '⏱', text: 'Duyệt tin trong 24 giờ', ok: true },
-      { icon: '📈', text: 'Thống kê lượt xem tin đăng', ok: true },
-      { icon: '✗', text: 'Không ưu tiên TOP danh sách', ok: false },
-    ]
-  },
-  {
-    id: 'trusted',
-    name: 'Uy Tín',
-    icon: '🏅',
-    color: '#d97706',
-    badge: 'UY TÍN',
-    badgeColor: '#d97706',
-    price: 200000,
-    posts: 30,
-    highlight: true,
-    tag: 'ĐƯỢC CHỌN NHIỀU',
-    desc: 'Dành cho môi giới chuyên nghiệp có kinh nghiệm tại HCM',
-    features: [
-      { icon: '📋', text: '30 tin đăng / tháng', ok: true },
-      { icon: '🏅', text: 'Huy hiệu UY TÍN — tăng độ tin cậy', ok: true },
-      { icon: '🔝', text: 'Ưu tiên hiển thị trên danh sách', ok: true },
-      { icon: '🕐', text: 'Tin tự xóa sau 2 tháng', ok: true },
-      { icon: '📊', text: 'Lịch sử tổng bài đăng được lưu', ok: true },
-      { icon: '⏱', text: 'Duyệt tin trong 4 giờ', ok: true },
-      { icon: '📈', text: 'Thống kê chi tiết: xem, gọi, Zalo', ok: true },
-      { icon: '🎁', text: 'Tặng 1 lần đẩy tin 7 ngày / tháng', ok: true },
-    ]
-  },
-  {
-    id: 'partner',
-    name: 'Đối Tác NHPHCM',
-    icon: '👑',
-    color: '#c9922a',
-    badge: 'ĐỐI TÁC',
-    badgeColor: '#c9922a',
-    price: 399000,
-    posts: 50,
-    highlight: false,
-    tag: 'TOÀN DIỆN',
-    desc: 'Đối tác chính thức của Nguồn Nhà Phố HCM — ưu tiên tối đa',
-    features: [
-      { icon: '📋', text: '50 tin đăng / tháng', ok: true },
-      { icon: '👑', text: 'Huy hiệu ĐỐI TÁC NHPHCM — nổi bật nhất', ok: true },
-      { icon: '📌', text: 'Ghim tin CỐ ĐỊNH đầu trang chủ', ok: true },
-      { icon: '🕐', text: 'Tin tự xóa sau 2 tháng', ok: true },
-      { icon: '📊', text: 'Lịch sử tổng bài đăng được lưu', ok: true },
-      { icon: '⚡', text: 'Duyệt tin NGAY LẬP TỨC', ok: true },
-      { icon: '📈', text: 'Báo cáo hiệu quả hàng tuần', ok: true },
-      { icon: '🎁', text: 'Tặng 1 lần đẩy tin 1 tháng / quý', ok: true },
-      { icon: '🤝', text: 'Hỗ trợ 1-1 trực tiếp Mr. Duy Khuyến', ok: true },
-      { icon: '🏠', text: 'Xuất hiện trang Đối tác trên website', ok: true },
-    ]
-  },
+  {id:'free',name:'Tài Khoản Free',icon:'🆓',color:'#6b7280',price:0,yearPrice:0,posts:3,badge:'',highlight:false,tag:'',
+   features:[
+    {icon:'📋',text:'3 tin đăng / tháng'},
+    {icon:'🕐',text:'Tin tự xóa sau 2 tháng'},
+    {icon:'📊',text:'Lịch sử tổng số tin đã đăng'},
+    {icon:'📞',text:'Nút liên hệ Zalo / Gọi điện'},
+    {icon:'⏱',text:'Duyệt tin trong 48 giờ'},
+    {icon:'❌',text:'Không có huy hiệu xác minh'},
+  ]},
+  {id:'verified',name:'Đã Xác Minh',icon:'✅',color:'#2563eb',price:100000,yearPrice:80000,posts:15,badge:'XÁC MINH',highlight:false,tag:'',
+   features:[
+    {icon:'📋',text:'15 tin đăng / tháng'},
+    {icon:'🕐',text:'Tin tự xóa sau 2 tháng'},
+    {icon:'📊',text:'Lịch sử tổng số tin đã đăng'},
+    {icon:'✅',text:'Huy hiệu ĐÃ XÁC MINH trên tin'},
+    {icon:'⚡',text:'Duyệt tin trong 24 giờ'},
+    {icon:'🔔',text:'Thông báo khi có khách quan tâm'},
+  ]},
+  {id:'trusted',name:'Uy Tín',icon:'🏅',color:'#7c3aed',price:200000,yearPrice:160000,posts:30,badge:'UY TÍN',highlight:true,tag:'PHỔ BIẾN',
+   features:[
+    {icon:'📋',text:'30 tin đăng / tháng'},
+    {icon:'🕐',text:'Tin tự xóa sau 2 tháng'},
+    {icon:'📊',text:'Lịch sử tổng số tin đã đăng'},
+    {icon:'🏅',text:'Huy hiệu UY TÍN — tăng độ tin cậy'},
+    {icon:'🔝',text:'Tin ưu tiên hiển thị đầu danh sách'},
+    {icon:'⚡',text:'Duyệt tin trong 4 giờ'},
+    {icon:'🎁',text:'Tặng 1 lần đẩy tin miễn phí/tháng'},
+    {icon:'💬',text:'Hỗ trợ 1-1 Zalo cùng Mr. Duy'},
+  ]},
+  {id:'partner',name:'Đối Tác NHPHCM',icon:'🤝',color:'#c9922a',price:399000,yearPrice:319000,posts:50,badge:'ĐỐI TÁC',highlight:false,tag:'CAO CẤP',
+   features:[
+    {icon:'📋',text:'50 tin đăng / tháng'},
+    {icon:'🕐',text:'Tin tự xóa sau 2 tháng'},
+    {icon:'📊',text:'Lịch sử tổng số tin đã đăng'},
+    {icon:'🤝',text:'Huy hiệu ĐỐI TÁC Nguồn Nhà Phố HCM'},
+    {icon:'📌',text:'Ghim tin CỐ ĐỊNH đầu trang'},
+    {icon:'⚡',text:'Duyệt tin NGAY LẬP TỨC'},
+    {icon:'🎁',text:'Tặng 3 lần đẩy tin miễn phí/tháng'},
+    {icon:'🏠',text:'Banner nổi bật trang chủ'},
+    {icon:'🤝',text:'Hỗ trợ ưu tiên 24/7'},
+  ]},
 ];
 
 // Gói đẩy tin — giá anh tự quyết định
 const PUSH_PACKS = [
-  {
-    name: 'Đẩy tin 7 ngày',
-    icon: '⚡',
-    price: 79000,
-    days: 7,
-    unit: '/ 7 ngày',
-    hot: false,
-    badge: '',
-    highlight: [
-      'Đẩy lên TOP ngay sau thanh toán',
-      'Tự động đẩy 1 lần/ngày trong 7 ngày',
-      'Khung giờ vàng 8h sáng & 20h tối',
-      'Phù hợp nhà phố 5–15 tỷ',
-      'Tăng 5–8x lượt xem',
-    ]
-  },
-  {
-    name: 'Đẩy tin 15 ngày',
-    icon: '🔥',
-    price: 149000,
-    days: 15,
-    unit: '/ 15 ngày',
-    hot: true,
-    badge: 'PHỔ BIẾN',
-    highlight: [
-      'Đẩy lên TOP ngay sau thanh toán',
-      'Tự động đẩy 1 lần/ngày trong 15 ngày',
-      'Khung giờ vàng 8h & 12h & 20h',
-      'Badge 🔥 Nổi bật trên card tin',
-      'Phù hợp BĐS 10–30 tỷ',
-      'Tăng 10–15x lượt xem',
-    ]
-  },
-  {
-    name: 'Đẩy tin 1 tháng',
-    icon: '👑',
-    price: 249000,
-    days: 30,
-    unit: '/ 30 ngày',
-    hot: false,
-    badge: 'TIẾT KIỆM',
-    highlight: [
-      'Đẩy lên TOP ngay sau thanh toán',
-      'Tự động đẩy 2 lần/ngày trong 30 ngày',
-      'Khung giờ vàng 8h & 12h & 17h & 20h',
-      'Badge 👑 VIP nổi bật trên card tin',
-      'Xuất hiện đầu trang Tin tức',
-      'Phù hợp môi giới chuyên nghiệp',
-      'Tăng 15–25x lượt xem',
-    ]
-  },
+  {name:'Đẩy tin 7 ngày',icon:'🔥',price:79000,unit:'/ 7 ngày',perDay:'~11k/ngày',days:7,hot:false,badge:'',
+   highlight:['7 ngày hiển thị TOP đầu danh sách','Tự động đẩy mỗi ngày 1 lần','Huy hiệu 🔥 Nổi bật trên tin','Phù hợp nhà phố 5-15 tỷ']},
+  {name:'Đẩy tin 15 ngày',icon:'⚡',price:149000,unit:'/ 15 ngày',perDay:'~10k/ngày',days:15,hot:true,badge:'PHỔ BIẾN',
+   highlight:['15 ngày TOP đầu danh sách','Đẩy 2 lần/ngày: 8h sáng & 20h tối','Huy hiệu ⚡ Nổi bật trên tin','Tiết kiệm hơn gói 7 ngày','Phù hợp BĐS 10-25 tỷ']},
+  {name:'Đẩy tin 1 tháng',icon:'🚀',price:249000,unit:'/ 30 ngày',perDay:'~8k/ngày',days:30,hot:false,badge:'TIẾT KIỆM NHẤT',
+   highlight:['30 ngày đẩy tự động','Hẹn giờ 5 khung: 7h 9h 12h 17h 20h','Huy hiệu 🚀 VIP trên tin','Tiết kiệm nhất chỉ ~8k/ngày','Phù hợp môi giới chuyên nghiệp']},
 ];
 
 
@@ -1693,58 +1597,35 @@ function renderPricingCards(){
   const c=document.getElementById('pricingCards');
   if(!c)return;
   c.innerHTML=PLANS.map(p=>{
-    const btnBg=p.price===0?'#f1f5f9':p.highlight?'#d97706':'var(--dark)';
-    const btnColor=p.price===0?'#6b7280':'#fff';
-    const borderColor=p.highlight?'#d97706':p.id==='partner'?'var(--gold)':'#e5e7eb';
-    const shadow=p.highlight?'box-shadow:0 8px 28px rgba(217,119,6,.2)':'';
-    return `<div style="background:#fff;border-radius:14px;border:2px solid ${borderColor};position:relative;overflow:hidden;display:flex;flex-direction:column;${shadow}">
-      ${p.tag?`<div style="background:${p.highlight?'#d97706':p.id==='partner'?'var(--gold)':'#16a34a'};color:${p.id==='partner'||p.highlight?'#fff':'#fff'};font-size:10px;font-weight:700;padding:5px;text-align:center;letter-spacing:.07em">${p.tag}</div>`:'<div style="height:0px"></div>'}
-
-      <!-- Header -->
-      <div style="padding:18px 18px 14px;text-align:center;border-bottom:1px solid #f1f5f9">
-        <div style="font-size:34px;margin-bottom:5px">${p.icon}</div>
-        <div style="font-size:14px;font-weight:700;color:${p.color};margin-bottom:3px">${p.name}</div>
-        <div style="font-size:11px;color:#9ca3af;margin-bottom:10px">${p.desc}</div>
-        <div style="font-size:26px;font-weight:700;color:var(--dark);line-height:1">${p.price===0?'Miễn phí':new Intl.NumberFormat('vi-VN').format(p.price)+'đ'}</div>
-        <div style="font-size:11px;color:#9ca3af;margin-top:3px">${p.price===0?'Mãi mãi':'/tháng'}</div>
-      </div>
-
-      <!-- Số tin -->
-      <div style="padding:8px 16px;background:${p.id==='free'?'#f9fafb':p.highlight?'#fffbeb':p.id==='partner'?'var(--gold-light)':'#f0f9ff'};border-bottom:1px solid #f1f5f9;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px">
-        <span style="font-size:18px;font-weight:700;color:${p.color}">${p.posts}</span>
-        <span style="font-size:12px;color:#6b7280">tin đăng / tháng</span>
-        ${p.badge?`<span style="background:${p.badgeColor};color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px">${p.badge}</span>`:''}
-      </div>
-
-      <!-- Ghi chú tin tự xóa -->
-      <div style="padding:6px 16px;background:#fef9ec;border-bottom:1px solid #fef3dc;font-size:10px;color:#92650a;text-align:center">
-        🕐 Tin tự xóa sau 2 tháng · 📊 Lịch sử tổng bài đăng được lưu lại
-      </div>
-
-      <!-- Features -->
-      <div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:7px">
-        ${p.features.filter(f=>f.ok).map(f=>`
-          <div style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:#374151">
-            <span style="color:#16a34a;font-weight:700;flex-shrink:0;margin-top:1px">✓</span>
-            <span>${f.text}</span>
-          </div>`).join('')}
-        ${p.features.filter(f=>!f.ok).map(f=>`
-          <div style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:#9ca3af">
-            <span style="color:#d1d5db;font-weight:700;flex-shrink:0;margin-top:1px">✗</span>
-            <span>${f.text}</span>
-          </div>`).join('')}
-      </div>
-
-      <!-- CTA -->
-      <div style="padding:12px 16px 16px">
-        <button onclick="selectPlan('${p.id}')"
-          style="width:100%;background:${btnBg};color:${btnColor};font-weight:700;font-size:13px;padding:12px;border-radius:8px;border:none;cursor:pointer"
-          onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-          ${p.price===0?'Bắt đầu miễn phí →':'Đăng ký '+p.name+' →'}
-        </button>
-        ${p.id==='free'?'<div style="font-size:10px;color:#9ca3af;text-align:center;margin-top:5px">Không cần thẻ tín dụng</div>':''}
-      </div>
-    </div>`;
+    const price=billingCycle==='year'?p.yearPrice:p.price;
+    const yearSave=p.price>0?Math.round((1-p.yearPrice/p.price)*100):0;
+    const isFree=p.price===0;
+    const borderColor=p.highlight?'#7c3aed':p.id==='partner'?'var(--gold)':'#e5e7eb';
+    const btnBg=isFree?'#f1f5f9':p.highlight?'#7c3aed':p.id==='partner'?'var(--gold)':p.color;
+    const btnColor=isFree?'#6b7280':p.id==='partner'?'var(--dark)':'#fff';
+    return '<div style="background:#fff;border-radius:14px;border:2px solid '+borderColor+';position:relative;overflow:hidden;display:flex;flex-direction:column;'+(p.highlight?'box-shadow:0 8px 28px rgba(124,58,237,.15)':'')+'">'
+      +(p.tag?'<div style="background:'+(p.highlight?'#7c3aed':p.id==='partner'?'var(--gold)':'#16a34a')+';color:'+(p.id==='partner'?'var(--dark)':'#fff')+';font-size:10px;font-weight:700;padding:5px;text-align:center;letter-spacing:.06em">'+p.tag+'</div>':'')
+      +'<div style="padding:'+(p.tag?'16px':'20px')+' 18px 14px;text-align:center;border-bottom:1px solid #f1f5f9">'
+        +'<div style="font-size:36px;margin-bottom:6px">'+p.icon+'</div>'
+        +'<div style="font-size:15px;font-weight:700;color:'+p.color+';margin-bottom:10px">'+p.name+'</div>'
+        +'<div style="font-size:30px;font-weight:700;color:var(--dark);line-height:1">'+(isFree?'0đ':new Intl.NumberFormat('vi-VN').format(price)+'đ')+'</div>'
+        +'<div style="font-size:11px;color:#9ca3af;margin-top:4px">'+(isFree?'Miễn phí mãi mãi':billingCycle==='month'?'/tháng':'/tháng · '+new Intl.NumberFormat('vi-VN').format(price*12)+'đ/năm')+'</div>'
+        +(billingCycle==='year'&&yearSave>0?'<div style="background:#d1fae5;color:#065f46;font-size:10px;font-weight:700;padding:2px 10px;border-radius:10px;display:inline-block;margin-top:6px">Tiết kiệm '+yearSave+'%</div>':'')
+      +'</div>'
+      +'<div style="padding:6px 16px 8px;background:'+(p.highlight?'#f5f3ff':p.id==='partner'?'var(--gold-light)':p.id==='verified'?'#eff6ff':'#f9fafb')+';border-bottom:1px solid #f1f5f9;text-align:center">'
+        +'<span style="font-size:13px;font-weight:700;color:'+p.color+'">'+p.posts+' tin đăng / tháng</span>'
+      +'</div>'
+      +'<div style="padding:14px 16px 0;flex:1;display:flex;flex-direction:column;gap:7px">'
+        +p.features.map(f=>'<div style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:#374151"><span style="flex-shrink:0;font-size:14px;line-height:1.3">'+f.icon+'</span><span>'+f.text+'</span></div>').join('')
+      +'</div>'
+      +'<div style="padding:14px 16px 18px">'
+        +(p.badge?'<div style="background:'+(p.id==='verified'?'#dbeafe':p.id==='trusted'?'#ede9fe':'var(--gold-light)')+';color:'+(p.id==='verified'?'#2563eb':p.id==='trusted'?'#7c3aed':'#92650a')+';font-size:10px;font-weight:700;padding:3px 12px;border-radius:20px;display:inline-block;margin-bottom:10px">'+(p.id==='verified'?'✅':p.id==='trusted'?'🏅':'🤝')+' Huy hiệu '+p.badge+'</div>':'')
+        +'<button onclick="selectPlan(''+p.id+'')" style="width:100%;background:'+btnBg+';color:'+btnColor+';font-weight:700;font-size:13px;padding:12px;border-radius:8px;border:none;cursor:pointer">'
+          +(isFree?'Bắt đầu miễn phí →':'Đăng ký '+p.name+' →')
+        +'</button>'
+        +(isFree?'<div style="font-size:10px;color:#9ca3af;text-align:center;margin-top:5px">Không cần thẻ tín dụng</div>':'')
+      +'</div>'
+    +'</div>';
   }).join('');
   renderCompareTable();
   renderPushCards();
@@ -1755,56 +1636,43 @@ function renderCompareTable(){
   const el=document.getElementById('compareTable');
   if(!el)return;
   const rows=[
-    ['Số tin đăng / tháng', '3 tin', '15 tin', '30 tin', '50 tin'],
-    ['Huy hiệu tài khoản', '—', '✓ Đã Xác Minh', '✓ Uy Tín 🏅', '✓ Đối Tác NHPHCM 👑'],
-    ['Tự xóa sau 2 tháng', '✓', '✓', '✓', '✓'],
-    ['Lịch sử tổng bài đăng', '✓ Lưu lại', '✓ Lưu lại', '✓ Lưu lại', '✓ Lưu lại'],
-    ['Ưu tiên hiển thị', '—', '—', '✓ TOP danh sách', '✓ Ghim cố định'],
-    ['Thời gian duyệt tin', '48 giờ', '24 giờ', '4 giờ', 'Ngay lập tức'],
-    ['Thống kê lượt xem', '—', '✓ Cơ bản', '✓ Chi tiết', '✓ Đầy đủ + báo cáo tuần'],
-    ['Tặng đẩy tin miễn phí', '—', '—', '1 lần 7 ngày/tháng', '1 lần 1 tháng/quý'],
-    ['Hỗ trợ', 'Cộng đồng', 'Zalo', '1-1 Mr. Duy', '1-1 ưu tiên tuyệt đối'],
-    ['Xuất hiện trang Đối tác', '—', '—', '—', '✓'],
-    ['Giá / tháng', 'Miễn phí', '100,000đ', '200,000đ', '399,000đ'],
+    ['Số tin đăng/tháng','3 tin','15 tin','30 tin','50 tin'],
+    ['Tin tự xóa sau','2 tháng','2 tháng','2 tháng','2 tháng'],
+    ['Lịch sử tổng tin đã đăng','✓','✓','✓','✓'],
+    ['Huy hiệu tài khoản','—','✅ Xác Minh','🏅 Uy Tín','🤝 Đối Tác'],
+    ['Ưu tiên hiển thị','—','—','✓ Đầu DS','✓ Ghim cố định'],
+    ['Thời gian duyệt tin','48 giờ','24 giờ','4 giờ','Ngay lập tức'],
+    ['Tặng đẩy tin/tháng','—','—','1 lần','3 lần'],
+    ['Hỗ trợ','Cộng đồng','Ưu tiên','1-1 Zalo','24/7'],
+    ['Giá/tháng','Miễn phí','100,000đ','200,000đ','399,000đ'],
   ];
-  const colors=['#6b7280','#2563eb','#d97706','#c9922a'];
-  el.innerHTML=rows.map(r=>`<tr style="border-bottom:1px solid #f9fafb">
-    <td style="padding:8px 14px;font-size:12px;color:#374151;font-weight:500;white-space:nowrap">${r[0]}</td>
-    ${r.slice(1).map((v,i)=>`<td style="padding:8px 14px;text-align:center;font-size:12px;
-      color:${v==='—'?'#d1d5db':v.startsWith('✓')?'#16a34a':colors[i]};
-      font-weight:${v.startsWith('✓')?700:i===3&&r[0]==='Giá / tháng'?700:400}">
-      ${v}</td>`).join('')}
-  </tr>`).join('');
+  const colors=['#6b7280','#2563eb','#7c3aed','#c9922a'];
+  el.innerHTML=rows.map(r=>'<tr style="border-bottom:1px solid #f1f5f9"><td style="padding:9px 16px;font-size:12px;color:#374151;font-weight:500">'+r[0]+'</td>'
+    +r.slice(1).map((v,i)=>'<td style="padding:9px 16px;text-align:center;font-size:12px;color:'+(v==='—'?'#d1d5db':v.startsWith('✓')||v.startsWith('✅')||v.startsWith('🏅')||v.startsWith('🤝')?'#16a34a':colors[i])+';font-weight:'+(v!=='—'&&v!=='2 tháng'?600:400)+'">'+v+'</td>').join('')
+  +'</tr>').join('');
 }
-
 function renderPushCards(){
-  const grid=document.getElementById('pushCards');
-  if(!grid)return;
-  grid.style.gridTemplateColumns='repeat(3,1fr)';
-  grid.innerHTML=PUSH_PACKS.map(p=>`
-    <div style="border:2px solid ${p.hot?'#d97706':'#e5e7eb'};border-radius:12px;position:relative;background:${p.hot?'#fffbeb':'#fff'};display:flex;flex-direction:column;overflow:hidden">
-      ${p.badge?`<div style="background:${p.hot?'#d97706':p.badge==='TIẾT KIỆM'?'#16a34a':'var(--dark)'};color:#fff;font-size:10px;font-weight:700;padding:6px;text-align:center;letter-spacing:.07em">${p.badge}</div>`:'<div style="height:0"></div>'}
-      <div style="padding:16px;text-align:center;border-bottom:1px solid #f1f5f9">
-        <div style="font-size:32px;margin-bottom:6px">${p.icon}</div>
-        <div style="font-size:15px;font-weight:700;color:var(--dark);margin-bottom:10px">${p.name}</div>
-        <div style="font-size:28px;font-weight:700;color:${p.hot?'#d97706':'var(--dark)'};line-height:1">${new Intl.NumberFormat('vi-VN').format(p.price)}đ</div>
-        <div style="font-size:11px;color:#9ca3af;margin-top:4px">${p.unit}</div>
-      </div>
-      <div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:6px">
-        ${p.highlight.map(h=>`<div style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:#374151">
-          <span style="color:#16a34a;font-weight:700;flex-shrink:0;margin-top:1px">✓</span><span>${h}</span>
-        </div>`).join('')}
-      </div>
-      <div style="padding:12px 16px 16px">
-        <button onclick="buyPush('${p.name}',${p.price})"
-          style="width:100%;background:${p.hot?'#d97706':'var(--dark)'};color:#fff;font-size:13px;font-weight:700;padding:11px;border-radius:8px;border:none;cursor:pointer"
-          onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-          Mua ngay ${p.name} →
-        </button>
-      </div>
-    </div>`).join('');
+  const grids=['pushCards','pushCards-main'].map(id=>document.getElementById(id)).filter(Boolean);
+  const inner=PUSH_PACKS.map(p=>
+    '<div style="border:2px solid '+(p.hot?'var(--gold)':'#e5e7eb')+';border-radius:14px;position:relative;background:'+(p.hot?'var(--gold-light)':'#fff')+';display:flex;flex-direction:column;overflow:hidden">'
+      +(p.badge?'<div style="background:'+(p.hot?'var(--gold)':p.badge==='TIẾT KIỆM NHẤT'?'#16a34a':'var(--dark)')+';color:'+(p.hot?'var(--dark)':'#fff')+';font-size:10px;font-weight:700;padding:5px;text-align:center">'+p.badge+'</div>':'')
+      +'<div style="padding:16px 14px 12px;text-align:center;border-bottom:1px solid #f1f5f9">'
+        +'<div style="font-size:32px;margin-bottom:6px">'+p.icon+'</div>'
+        +'<div style="font-size:14px;font-weight:700;color:var(--dark);margin-bottom:8px">'+p.name+'</div>'
+        +'<div style="font-size:28px;font-weight:700;color:var(--gold);line-height:1">'+new Intl.NumberFormat('vi-VN').format(p.price)+'đ</div>'
+        +'<div style="font-size:11px;color:#9ca3af;margin-top:3px">'+p.unit+'</div>'
+        +'<div style="background:#fef3dc;color:#92650a;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:5px">'+p.perDay+'</div>'
+      +'</div>'
+      +'<div style="padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:6px">'
+        +p.highlight.map(h=>'<div style="display:flex;align-items:flex-start;gap:6px;font-size:11px;color:#374151"><span style="color:#16a34a;font-weight:700;flex-shrink:0">✓</span>'+h+'</div>').join('')
+      +'</div>'
+      +'<div style="padding:10px 14px 14px">'
+        +'<button onclick="buyPush(''+p.name+'','+p.price+','+p.days+')" style="width:100%;background:'+(p.hot?'var(--gold)':'var(--dark)')+';color:'+(p.hot?'var(--dark)':'#fff')+';font-size:12px;font-weight:700;padding:10px;border-radius:8px;border:none;cursor:pointer">Mua ngay →</button>'
+      +'</div>'
+    +'</div>'
+  ).join('');
+  grids.forEach(g=>{g.style.gridTemplateColumns='repeat(3,1fr)';g.innerHTML=inner;});
 }
-
 function renderFaq(){
   const el=document.getElementById('faqList');
   if(!el)return;
@@ -2168,6 +2036,179 @@ document.addEventListener('DOMContentLoaded', function() {
 // Init auth
 updateNavAuth();
 
+
+// ================================================================
+// TIN TUC - NEWS SYSTEM
+// ================================================================
+let _newsFiltered = [], _newsPage = 1, _newsPerPage = 9;
+let _newsSrc = 'all', _newsTopic = 'all', _newsSort = 'newest';
+
+function _detectSrc(url) {
+  if (!url) return 'other';
+  if (url.includes('cafef')) return 'cafef';
+  if (url.includes('vnexpress')) return 'vnexpress';
+  if (url.includes('batdongsan')) return 'batdongsan';
+  if (url.includes('nhadat24h')) return 'nhadat24h';
+  if (url.includes('dantri')) return 'dantri';
+  if (url.includes('thoibao') || url.includes('thoibaotaichinhvietnam')) return 'thoibao';
+  if (url.includes('homedy')) return 'homedy';
+  if (url.includes('nhadep')) return 'nhadepvn';
+  return 'other';
+}
+
+function _detectTopic(cat) {
+  if (!cat) return 'all';
+  const c = cat.toLowerCase();
+  if (c.includes('tr\u01b0\u1eddng') || c.includes('th\u1ecb tr')) return 'thi-truong';
+  if (c.includes('ph\u00e1p l\u00fd') || c.includes('ph\u00e1p l')) return 'phap-ly';
+  if (c.includes('nh\u00e0 ph\u1ed1') || c.includes('nh\u00e0 ph')) return 'nha-pho';
+  if (c.includes('\u0111\u1ea7u t\u01b0') || c.includes('ph\u00e2n t\u00edch')) return 'dau-tu';
+  if (c.includes('t\u00e0i ch\u00ednh') || c.includes('l\u00e3i su\u1ea5t')) return 'tai-chinh';
+  if (c.includes('h\u1ea1 t\u1ea7ng') || c.includes('metro') || c.includes('c\u01a1 s\u1edf')) return 'ha-tang';
+  return 'all';
+}
+
+function loadAllNews(forceRefresh) {
+  const loading = document.getElementById('news-loading');
+  const mainGrid = document.getElementById('newsMainGrid');
+  if (loading) loading.style.display = 'block';
+  if (mainGrid) mainGrid.style.display = 'none';
+
+  // Add src and topic to NEWS items
+  const enriched = NEWS.map(n => ({
+    ...n,
+    src: _detectSrc(n.url),
+    topic: _detectTopic(n.cat)
+  }));
+
+  setTimeout(function() {
+    _newsFiltered = enriched;
+    _newsPage = 1;
+    _applyNewsFilters();
+    if (loading) loading.style.display = 'none';
+    if (mainGrid) mainGrid.style.display = 'block';
+    const timeEl = document.getElementById('news-update-time');
+    if (timeEl) {
+      const now = new Date();
+      timeEl.textContent = 'C\u1eadp nh\u1eadt: ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+    }
+  }, 600);
+}
+
+function renderNews() {
+  loadAllNews(false);
+}
+
+function _applyNewsFilters() {
+  const enriched = NEWS.map(n => ({
+    ...n,
+    src: _detectSrc(n.url),
+    topic: _detectTopic(n.cat)
+  }));
+  _newsFiltered = enriched.filter(n => {
+    const srcOk = _newsSrc === 'all' || n.src === _newsSrc;
+    const topicOk = _newsTopic === 'all' || n.topic === _newsTopic || _newsTopic === 'all';
+    return srcOk && topicOk;
+  });
+  if (_newsSort === 'source') _newsFiltered.sort((a,b) => a.src.localeCompare(b.src));
+  else if (_newsSort === 'topic') _newsFiltered.sort((a,b) => a.cat.localeCompare(b.cat));
+  _newsPage = 1;
+  _renderNewsGrid();
+}
+
+function _renderNewsGrid() {
+  const grid = document.getElementById('newsGrid');
+  const countEl = document.getElementById('news-result-count');
+  const moreBtn = document.getElementById('news-load-more');
+  const featuredEl = document.getElementById('news-featured');
+
+  if (!grid) return;
+
+  const total = _newsFiltered.length;
+  const shown = _newsFiltered.slice(0, _newsPage * _newsPerPage);
+  const remaining = total - shown.length;
+
+  if (countEl) countEl.textContent = 'Hi\u1ec3n th\u1ecb ' + shown.length + ' / ' + total + ' tin';
+  if (moreBtn) moreBtn.style.display = remaining > 0 ? 'block' : 'none';
+
+  // Featured - first item shown large
+  if (featuredEl && shown.length > 0) {
+    const f = shown[0];
+    featuredEl.innerHTML = `<div onclick="window.open('${f.url}','_blank')" style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;padding:20px;cursor:pointer;display:flex;gap:16px;align-items:flex-start;transition:box-shadow .2s" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.12)'" onmouseout="this.style.boxShadow='none'">
+      <div style="font-size:40px;flex-shrink:0">${f.img}</div>
+      <div>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <span style="background:#fef3dc;color:#92650a;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px">N\u1ed4I B\u1eacT</span>
+          <span style="background:#f3f4f6;color:#374151;font-size:10px;padding:3px 8px;border-radius:4px">${f.cat}</span>
+        </div>
+        <div style="font-size:16px;font-weight:700;color:#0d1b2a;margin-bottom:8px;line-height:1.4">${f.title}</div>
+        <div style="font-size:13px;color:#4b5563;line-height:1.5;margin-bottom:10px">${f.summary}</div>
+        <div style="font-size:11px;color:#9ca3af">\uD83D\uDCC5 ${f.date} &nbsp;&nbsp; \uD83D\uDD17 ${f.url.replace(/https?:\/\//, '').split('/')[0]}</div>
+      </div>
+    </div>`;
+  }
+
+  // Regular grid (skip first = featured)
+  const gridItems = shown.slice(1);
+  grid.innerHTML = gridItems.map(n => `
+    <div class="news-card" onclick="window.open('${n.url}','_blank')">
+      <div class="news-img">${n.img}</div>
+      <div class="news-body">
+        <div class="news-cat">${n.cat}</div>
+        <div class="news-title">${n.title}</div>
+        <div class="news-sum">${n.summary}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span class="news-date">\uD83D\uDCC5 ${n.date}</span>
+          <span style="font-size:10px;color:#9ca3af">${n.url.replace(/https?:\/\//, '').split('/')[0]}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterSource(btn, src) {
+  _newsSrc = src;
+  document.querySelectorAll('.src-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  _applyNewsFilters();
+}
+
+function filterTopic(btn, topic) {
+  _newsTopic = topic;
+  document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  _applyNewsFilters();
+}
+
+function sortNews() {
+  const sel = document.getElementById('news-sort');
+  if (sel) _newsSort = sel.value;
+  _applyNewsFilters();
+}
+
+function loadMoreNews() {
+  _newsPage++;
+  _renderNewsGrid();
+}
+
+// ================================================================
+// BUY PUSH PLAN
+// ================================================================
+function buyPush(planId) {
+  const PUSH_PLANS = {
+    'hot3': { name: 'G\u00f3i HOT 3 ng\u00e0y', price: 99000, days: 3 },
+    'pro7': { name: 'G\u00f3i PRO 7 ng\u00e0y', price: 199000, days: 7 },
+    'vip30': { name: 'G\u00f3i VIP 30 ng\u00e0y', price: 349000, days: 30 }
+  };
+  const plan = PUSH_PLANS[planId];
+  if (!plan) return;
+  if (!currentUser) { toast('\uD83D\uDD12 Vui l\u00f2ng \u0111\u0103ng nh\u1eadp \u0111\u1ec3 mua g\u00f3i \u0111\u1ea9y tin'); openAuth('login'); return; }
+  const fmt = (n) => n.toLocaleString('vi-VN') + '\u0111';
+  toast('\uD83D\uDE80 G\u00f3i ' + plan.name + ' - ' + fmt(plan.price) + '. Vui l\u00f2ng chuy\u1ec3n kho\u1ea3n v\u00e0 g\u1eedi x\u00e1c nh\u1eadn qua Zalo 0987.645.314');
+  setTimeout(() => {
+    switchPricingTab('topup');
+  }, 1500);
+}
 </script>
 
 <!-- FLOATING CHAT BUTTONS -->
