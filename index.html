@@ -349,6 +349,13 @@ a{text-decoration:none;color:inherit}
         <span class="fpill" data-f2="4" onclick="fF2(this,'4')">4 tầng</span>
         <span class="fpill" data-f2="5" onclick="fF2(this,'5')">5+ tầng</span>
       </div></div>
+<div class="fsec"><div class="fst">Diện tích</div><div class="fpills">
+<span class="fpill on" data-a2="all" onclick="fA2(this,'all')">Tất cả</span>
+<span class="fpill" data-a2="u30" onclick="fA2(this,'u30')">Dưới 30m²</span>
+<span class="fpill" data-a2="30-60" onclick="fA2(this,'30-60')">30–60m²</span>
+<span class="fpill" data-a2="60-100" onclick="fA2(this,'60-100')">60–100m²</span>
+<span class="fpill" data-a2="o100" onclick="fA2(this,'o100')">Trên 100m²</span>
+</div></div>
       <button class="abtn" onclick="runFilter()">Áp dụng</button>
     </div>
     <div>
@@ -725,6 +732,36 @@ a{text-decoration:none;color:inherit}
   </div>
 </div>
 
+<!-- SUBSCRIBE -->
+<section id="sec-subscribe" style="background:linear-gradient(135deg,#0d1b2a 0%,#1a2f45 100%);padding:48px 20px;text-align:center">
+  <div style="max-width:600px;margin:0 auto">
+    <div style="font-size:32px;margin-bottom:8px">🔔</div>
+    <h2 style="color:#fff;font-size:22px;font-weight:700;margin-bottom:8px">Nhận thông báo nhà mới <em style="color:#c9922a">ngay lập tức</em></h2>
+    <p style="color:#94a3b8;font-size:14px;margin-bottom:28px">Đăng ký nhận thông báo qua Email hoặc Zalo khi có nhà mới đúng nhu cầu của bạn</p>
+    <div style="display:flex;flex-direction:column;gap:16px;max-width:480px;margin:0 auto">
+      <div style="background:rgba(255,255,255,0.06);border-radius:14px;padding:20px">
+        <div style="color:#fff;font-weight:600;font-size:15px;margin-bottom:12px">📧 Nhận tin qua Email</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input id="subEmail" type="email" placeholder="Nhập email của bạn..." style="flex:1;min-width:180px;padding:10px 14px;border-radius:8px;border:1.5px solid #334155;background:#1e293b;color:#fff;font-size:14px;outline:none">
+          <select id="subDist" style="padding:10px 14px;border-radius:8px;border:1.5px solid #334155;background:#1e293b;color:#fff;font-size:13px">
+            <option value="">Tất cả quận</option>
+            <option>Quận 1</option><option>Quận 3</option><option>Quận 5</option>
+            <option>Quận 7</option><option>Bình Thạnh</option><option>Tân Bình</option>
+            <option>Gò Vấp</option><option>Bình Tân</option><option>Thủ Đức</option>
+          </select>
+        </div>
+        <button onclick="subEmailFn()" style="width:100%;margin-top:10px;padding:11px;background:#c9922a;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer">📧 Đăng ký nhận Email</button>
+      </div>
+      <div style="background:rgba(255,255,255,0.06);border-radius:14px;padding:20px">
+        <div style="color:#fff;font-weight:600;font-size:15px;margin-bottom:12px">💬 Nhận tin qua Zalo</div>
+        <p style="color:#94a3b8;font-size:13px;margin-bottom:12px">Nhắn tin Zalo để được thêm vào nhóm thông báo nhà mới theo khu vực</p>
+        <button onclick="window.open('https://zalo.me/0987645314','_blank')" style="width:100%;padding:11px;background:#0068ff;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer">💬 Nhắn Zalo Mr. Duy ngay</button>
+      </div>
+    </div>
+    <p style="color:#475569;font-size:12px;margin-top:20px">🔒 Thông tin của bạn được bảo mật tuyệt đối · Hủy đăng ký bất cứ lúc nào</p>
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer class="footer">
   <div class="fi">
@@ -756,6 +793,7 @@ a{text-decoration:none;color:inherit}
       <a href="https://www.facebook.com/61586993497940" target="_blank">Facebook Page</a>
       <a href="https://zalo.me/0987645314" target="_blank">Zalo OA</a>
       <a onclick="gp('news')">Tin tức BĐS</a>
+<a onclick="document.getElementById('sec-subscribe').scrollIntoView({behavior:'smooth'})">🔔 Đăng ký thông báo</a>
       <a href="tel:0987645314">Gọi ngay</a>
     </div>
   </div>
@@ -781,7 +819,7 @@ const DATA=[{"q":"Bình Tân","p":"Tân Kỳ Tân Quý","d":"","t":"","m":"","g"
 const ICONS={"Quận 1": "🏙️", "Quận 2": "🌆", "Quận 3": "🏛️", "Quận 4": "⚓", "Quận 5": "🏮", "Quận 6": "🌉", "Quận 7": "🏢", "Quận 8": "🏭", "Quận 10": "🏫", "Quận 11": "🏪", "Quận 12": "🏬", "Bình Thạnh": "🌿", "Tân Bình": "✈️", "Gò Vấp": "🌳", "Phú Nhuận": "💎", "Bình Tân": "🛒", "Tân Phú": "🏬", "Thủ Đức": "🎓", "Bình Chánh": "🌾", "Nhà Bè": "⚓", "Cần Giờ": "🌊", "Hóc Môn": "🏗️"};
 const PHOTOS={"Quận 1": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&q=70", "Quận 2": "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=70", "Quận 3": "https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?w=400&q=70", "Quận 4": "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&q=70", "Quận 5": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=400&q=70", "Quận 6": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=70", "Quận 7": "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400&q=70", "Quận 8": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=70", "Quận 10": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=70", "Quận 11": "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=70", "Quận 12": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&q=70", "Bình Thạnh": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=70", "Tân Bình": "https://images.unsplash.com/photo-1576941089067-2de3c901e126?w=400&q=70", "Gò Vấp": "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=400&q=70", "Phú Nhuận": "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=70", "Bình Tân": "https://images.unsplash.com/photo-1599427303058-f04cbcf4756f?w=400&q=70", "Tân Phú": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&q=70", "Thủ Đức": "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=70", "Bình Chánh": "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&q=70", "Nhà Bè": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=70", "Cần Giờ": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=70", "Hóc Môn": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=70"};
 const DISTS=[...new Set(DATA.map(r=>r.q))].sort((a,b)=>{const o=['Quận 1','Quận 2','Quận 3','Quận 4','Quận 5','Quận 6','Quận 7','Quận 8','Quận 10','Quận 11','Bình Thạnh','Bình Tân','Gò Vấp','Phú Nhuận','Tân Bình','Tân Phú','Thủ Đức'];return o.indexOf(a)-o.indexOf(b);});
-const SNEWS=[{"title": "Nhà phố TP.HCM tăng giá 18% nửa đầu 2026", "src": "cafef", "url": "https://cafef.vn/bat-dong-san.chn", "img": "📈", "topic": "thi-truong", "sum": "Các quận trung tâm ghi nhận mức tăng giá bình quân 18%. Quận 1, 3 và Bình Thạnh dẫn đầu đà tăng.", "date": "2026-06-29T08:00:00"}, {"title": "Luật Đất đai 2025: Điểm mới nhà đầu tư cần biết", "src": "vnexpress", "url": "https://vnexpress.net/bat-dong-san", "img": "⚖️", "topic": "phap-ly", "sum": "Luật Đất đai 2025 có hiệu lực với nhiều thay đổi về quy trình cấp sổ đỏ và quyền sử dụng đất.", "date": "2026-06-25T09:00:00"}, {"title": "Shophouse mặt tiền — xu hướng đầu tư HOT nhất 2026", "src": "cafef", "url": "https://cafef.vn/bat-dong-san.chn", "img": "🏪", "topic": "dau-tu", "sum": "Shophouse tầng trệt kết hợp nhà ở tiếp tục được săn đón tại TP.HCM, đặc biệt các trục đường thương mại lớn.", "date": "2026-06-22T10:00:00"}, {"title": "Lãi suất vay mua nhà 2026: Ngân hàng nào thấp nhất?", "src": "vnexpress", "url": "https://vnexpress.net/kinh-doanh", "img": "🏦", "topic": "tai-chinh", "sum": "Các ngân hàng lớn cạnh tranh với gói vay mua nhà lãi suất từ 7.5%/năm trong 12 tháng đầu.", "date": "2026-06-20T08:00:00"}, {"title": "Cơ hội đầu tư nhà phố Tân Bình, Gò Vấp 2026", "src": "batdongsan", "url": "https://batdongsan.com.vn/tin-tuc", "img": "🔍", "topic": "dau-tu", "sum": "Với hạ tầng hoàn thiện và mức giá hợp lý, Tân Bình và Gò Vấp đang nổi lên là điểm đến hấp dẫn.", "date": "2026-06-18T09:00:00"}, {"title": "Metro số 1 vận hành: BĐS dọc tuyến tăng mạnh", "src": "vnexpress", "url": "https://vnexpress.net/bat-dong-san", "img": "🚇", "topic": "ha-tang", "sum": "Sau khi Metro số 1 chính thức vận hành, BĐS các quận dọc tuyến đặc biệt Thủ Đức tăng đột biến.", "date": "2026-06-15T07:00:00"}, {"title": "Nhà phố hẻm ô tô Bình Thạnh: Cơ hội đầu tư tiềm năng", "src": "nhadat24h", "url": "https://nhadat24h.net/tin-tuc", "img": "🌿", "topic": "nha-pho", "sum": "Khu vực hẻm ô tô tại Bình Thạnh có thanh khoản tốt, giá 5-12 tỷ, phù hợp ở lẫn đầu tư.", "date": "2026-06-12T08:00:00"}, {"title": "Bình Chánh, Nhà Bè nổi lên là khu vực BĐS tiềm năng 2026", "src": "batdongsan", "url": "https://batdongsan.com.vn/tin-tuc", "img": "🌾", "topic": "dau-tu", "sum": "Hạ tầng kết nối được đẩy mạnh, Bình Chánh và Nhà Bè đang thu hút đầu tư nhà phố với giá còn mềm.", "date": "2026-06-10T09:00:00"}];
+const SNEWS=[{"title":"Nhà phố TP.HCM tăng giá 18% nửa đầu 2026","src":"cafef","url":"https://cafef.vn/bat-dong-san.chn","img":"📈","topic":"thi-truong","sum":"Các quận trung tâm ghi nhận mức tăng giá bình quân 18%. Quận 1, 3 và Bình Thạnh dẫn đầu đà tăng.","date":"2026-06-29T08:00:00"},{"title":"Luật Đất đai 2025: Điểm mới nhà đầu tư cần biết","src":"vnexpress","url":"https://vnexpress.net/bat-dong-san","img":"⚖️","topic":"phap-ly","sum":"Luật Đất đai 2025 có hiệu lực với nhiều thay đổi về quy trình cấp sổ đỏ và quyền sử dụng đất.","date":"2026-06-25T09:00:00"},{"title":"Shophouse mặt tiền — xu hướng đầu tư HOT nhất 2026","src":"cafef","url":"https://cafef.vn/bat-dong-san.chn","img":"🏪","topic":"dau-tu","sum":"Shophouse tầng trệt kết hợp nhà ở tiếp tục được săn đón mạnh tại các quận vùng ven TP.HCM.","date":"2026-06-24T10:00:00"},{"title":"Lãi suất vay mua nhà 2026: Ngân hàng nào thấp nhất?","src":"vnexpress","url":"https://vnexpress.net/bat-dong-san","img":"🏦","topic":"tai-chinh","sum":"Techcombank, VIB và Sacombank đang có gói lãi suất ưu đãi từ 6,9% mỗi năm cho năm đầu tiên.","date":"2026-06-23T08:30:00"},{"title":"Metro số 1 vận hành: BĐS dọc tuyến tăng mạnh","src":"cafef","url":"https://cafef.vn/bat-dong-san.chn","img":"🚇","topic":"ha-tang","sum":"Kể từ khi Metro số 1 vận hành thương mại, giá nhà phố tại Bình Thạnh, Thủ Đức tăng 12-20%.","date":"2026-06-22T09:00:00"},{"title":"Cơ hội đầu tư nhà phố Tân Bình, Gò Vấp 2026","src":"batdongsan","url":"https://batdongsan.com.vn/tin-tuc","img":"💰","topic":"dau-tu","sum":"Giá nhà phố Tân Bình và Gò Vấp vẫn thấp hơn 30-40% so với các quận trung tâm, tiềm năng tăng trưởng cao.","date":"2026-06-21T10:00:00"},{"title":"Nhà phố hẻm ô tô Bình Thạnh: Cơ hội vàng còn lại","src":"nhadat24h","url":"https://nhadat24h.net/tin-tuc","img":"🏠","topic":"nha-pho","sum":"Nhà phố hẻm thông xe hơi tại Bình Thạnh còn dưới 8 tỷ đang khan hiếm dần, nhiều nhà đầu tư tích cực gom hàng.","date":"2026-06-20T08:00:00"},{"title":"Quy hoạch vành đai 3 TP.HCM: Khu vực nào hưởng lợi?","src":"cafef","url":"https://cafef.vn/bat-dong-san.chn","img":"🛣️","topic":"ha-tang","sum":"Dự án vành đai 3 kết nối các tỉnh lân cận, mở ra nhiều khu vực BĐS mới tiềm năng quanh TP.HCM.","date":"2026-06-19T09:30:00"},{"title":"Sổ đỏ nhà phố TPHCM: Quy trình cấp mới 2026","src":"vnexpress","url":"https://vnexpress.net/bat-dong-san","img":"📋","topic":"phap-ly","sum":"UBND TP.HCM rút ngắn thời gian cấp sổ đỏ xuống còn 15 ngày làm việc theo quy trình mới.","date":"2026-06-18T10:00:00"},{"title":"Bình Chánh, Nhà Bè nổi lên là khu vực BĐS tiềm năng","src":"homedy","url":"https://homedy.com/tin-tuc","img":"🌱","topic":"thi-truong","sum":"Hạ tầng cầu đường hoàn thiện, Bình Chánh và Nhà Bè thu hút làn sóng đầu tư BĐS mới trong năm 2026.","date":"2026-06-17T09:00:00"},{"title":"Nhà phố 4 tầng dưới 10 tỷ: Còn tìm được không?","src":"batdongsan","url":"https://batdongsan.com.vn/tin-tuc","img":"🏘️","topic":"nha-pho","sum":"Phân khúc nhà phố 4 tầng dưới 10 tỷ ngày càng khan hiếm, chỉ còn tập trung ở Bình Tân, Tân Phú.","date":"2026-06-16T08:00:00"},{"title":"Kinh nghiệm mua nhà phố lần đầu: 7 điều cần biết","src":"nhadat24h","url":"https://nhadat24h.net/tin-tuc","img":"📌","topic":"nha-pho","sum":"Từ kiểm tra pháp lý đến thương lượng giá, 7 bước quan trọng giúp người mua nhà phố lần đầu tránh bẫy.","date":"2026-06-15T10:00:00"},{"title":"Thị trường BĐS TPHCM tháng 6/2026: Thanh khoản tốt","src":"cafef","url":"https://cafef.vn/bat-dong-san.chn","img":"📊","topic":"thi-truong","sum":"Lượng giao dịch nhà phố trong tháng 6 tăng 25% so với cùng kỳ, tín hiệu tích cực cho thị trường.","date":"2026-06-14T09:00:00"},{"title":"Nhà mặt tiền kinh doanh — bài toán đầu tư sinh lời","src":"homedy","url":"https://homedy.com/tin-tuc","img":"🏬","topic":"dau-tu","sum":"Nhà mặt tiền cho thuê tại TP.HCM có tỷ suất sinh lời 4-6% mỗi năm, ổn định hơn gửi tiết kiệm ngân hàng.","date":"2026-06-13T08:30:00"},{"title":"Vay mua nhà năm 2026: Chiến lược tối ưu dòng tiền","src":"vnexpress","url":"https://vnexpress.net/bat-dong-san","img":"💳","topic":"tai-chinh","sum":"Chuyên gia tư vấn chiến lược vay 50-70% giá trị nhà, kỳ hạn 15-20 năm để tối ưu dòng tiền hàng tháng.","date":"2026-06-12T10:00:00"},{"title":"Thủ Đức — thành phố mới: BĐS sắp bùng nổ giai đoạn 2","src":"batdongsan","url":"https://batdongsan.com.vn/tin-tuc","img":"🌆","topic":"thi-truong","sum":"Hạ tầng Thủ Đức tiếp tục hoàn thiện với Metro số 1 và hàng loạt dự án giao thông lớn, BĐS hưởng lợi.","date":"2026-06-11T09:00:00"},{"title":"Tổng hợp giá nhà phố 15 quận TPHCM tháng 6/2026","src":"nhadat24h","url":"https://nhadat24h.net/tin-tuc","img":"🗺️","topic":"nha-pho","sum":"Quận 1 cao nhất 180-350tr mỗi m2, Quận 7 dao động 50-90tr mỗi m2, Bình Tân và Tân Phú thấp nhất từ 30tr mỗi m2.","date":"2026-06-10T08:00:00"},{"title":"Lô góc có thực sự đáng mua hơn nhà thường không?","src":"homedy","url":"https://homedy.com/tin-tuc","img":"🔲","topic":"nha-pho","sum":"Phân tích ưu nhược điểm nhà lô góc: thông thoáng, 2 mặt tiền nhưng giá cao hơn 15-25% và chi phí xây dựng lớn hơn.","date":"2026-06-09T10:00:00"},{"title":"Hạ tầng giao thông TPHCM 2026: Công trình nào tác động BĐS nhiều nhất?","src":"cafef","url":"https://cafef.vn/bat-dong-san.chn","img":"🚧","topic":"ha-tang","sum":"Top 5 công trình hạ tầng đang và sắp triển khai tác động mạnh nhất đến giá BĐS khu vực xung quanh.","date":"2026-06-08T09:00:00"},{"title":"Nhà phố Gò Vấp: Điểm nóng BĐS cuối 2026","src":"batdongsan","url":"https://batdongsan.com.vn/tin-tuc","img":"🔥","topic":"thi-truong","sum":"Gò Vấp với hơn 246 căn đang bán, mức giá từ 3-15 tỷ, hạ tầng ngày càng hoàn thiện thu hút nhiều người mua ở thực.","date":"2026-06-07T08:00:00"}];
 const NEWS_SOURCES=[
   {id:'cafef',name:'CafeF BĐS',color:'#e74c3c',url:'https://cafef.vn/bat-dong-san.chn',rss:'https://api.rss2json.com/v1/api.json?rss_url=https://cafef.vn/rss/bat-dong-san.rss&count=12'},
   {id:'vnexpress',name:'VnExpress',color:'#1a56db',url:'https://vnexpress.net/bat-dong-san',rss:'https://api.rss2json.com/v1/api.json?rss_url=https://vnexpress.net/rss/bat-dong-san.rss&count=12'},
@@ -817,6 +855,7 @@ let aT='all',aP='all',aF='all',aD='';
 let popPr=0,bill='month',curTop=200000;
 let cUser=JSON.parse(localStorage.getItem('nhphcm_user')||'null');
 let allNews=[],fNews=[],nDisp=0,nSrc='all',nTop='all';
+let fArea='all';
 
 // UTILS
 function vnd(n){return new Intl.NumberFormat('vi-VN').format(n);}
@@ -851,7 +890,14 @@ function runFilter(){
     const mq=!q||(r.p+' '+r.e+' '+r.q).toLowerCase().includes(q);
     const md=!aD||r.q===aD;
     return mq&&md&&(aT==='all'||r.b===aT)&&inPR(r.g,aP)&&flOk(r.t,aF);
-  });
+  
+    const area=parseFloat(r.d)||0;
+    if(fArea==='u30'&&area>=30)return false;
+    if(fArea==='30-60'&&(area<30||area>60))return false;
+    if(fArea==='60-100'&&(area<60||area>100))return false;
+    if(fArea==='o100'&&area<=100)return false;
+  return true;
+  })
   if(so==='pa')filt.sort((a,b)=>pp(a.g)-pp(b.g));
   else if(so==='pd')filt.sort((a,b)=>pp(b.g)-pp(a.g));
   else if(so==='aa')filt.sort((a,b)=>parseFloat(a.d||0)-parseFloat(b.d||0));
@@ -864,6 +910,8 @@ function fF(el,v){document.querySelectorAll('[data-f]').forEach(e=>e.classList.r
 function fT2(el,v){document.querySelectorAll('[data-t2]').forEach(e=>e.classList.remove('on'));el.classList.add('on');aT=v;runFilter();}
 function fP2(el,v){document.querySelectorAll('[data-p2]').forEach(e=>e.classList.remove('on'));el.classList.add('on');aP=v;runFilter();}
 function fF2(el,v){document.querySelectorAll('[data-f2]').forEach(e=>e.classList.remove('on'));el.classList.add('on');aF=v;runFilter();}
+function fA2(el,v){document.querySelectorAll('[data-a2]').forEach(x=>{x.classList.remove('on');});el.classList.add('on');fArea=v;runFilter();}
+function subEmailFn(){const e=document.getElementById('subEmail');const d=document.getElementById('subDist');if(!e||!e.value||!e.value.includes('@')){alert('Vui lòng nhập email hợp lệ!');return;}const dist=d?d.value:'';const msg='Xin chào Mr. Duy! Tôi muốn đăng ký nhận thông báo nhà mới qua email: '+e.value+(dist?' - Khu vực: '+dist:'');window.open('https://zalo.me/0987645314?text='+encodeURIComponent(msg),'_blank');const t=document.getElementById('toast');if(t){t.textContent='✅ Đã gửi yêu cầu đăng ký!';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}e.value='';}
 function clearF(){aD='';aT='all';aP='all';aF='all';const qh=document.getElementById('q-h');if(qh)qh.value='';const dh=document.getElementById('ds-h');if(dh)dh.value='';['data-t','data-t2','data-p','data-p2','data-f','data-f2'].forEach(a=>{document.querySelectorAll('['+a+']').forEach(e=>e.classList.remove('on'));const def=document.querySelector('['+a+'="all"]');if(def)def.classList.add('on');});setDT('');runFilter();}
 function setDT(d){aD=d;['dTabs','dTabs2'].forEach(id=>{const el=document.getElementById(id);if(el)el.querySelectorAll('.dtab').forEach(t=>t.classList.toggle('active',t.dataset.d===d));});}
 
