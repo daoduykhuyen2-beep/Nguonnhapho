@@ -1067,7 +1067,7 @@ function gp(p){
   if(p==='post'&&!cUser){toast('👤 Vui lòng đăng nhập để đăng tin');openAuth('login');return;}
   if(p==='dashboard'){if(!cUser){openAuth('login');return;}updDash();}
   document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
-  const el=document.getElementById('page-'+p);if(el)el.classList.add('active');
+  const el=document.getElementById('page-'+p);if(el)el.style.display="";el.classList.add('active');
   document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
   const nl=document.getElementById('nl-'+p);if(nl)nl.classList.add('active');
   window.scrollTo(0,0);
