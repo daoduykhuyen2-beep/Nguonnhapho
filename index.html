@@ -560,6 +560,58 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div style="max-width:1100px;margin:0 auto;padding:24px 14px">
     <!-- PRICING CARDS -->
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px" id="pricingCards">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px">
+        <div style="background:#fff;border:2px solid #e5e7eb;border-radius:14px;padding:24px;text-align:center">
+          <div style="display:inline-block;background:#f1f5f9;color:#64748b;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:12px">MIEN PHI</div>
+          <div style="font-size:26px;font-weight:800;color:#0d1b2a;margin-bottom:4px">0 d</div>
+          <div style="font-size:13px;color:#6b7280;margin-bottom:16px">/thang</div>
+          <ul style="list-style:none;text-align:left;margin-bottom:20px;font-size:13px;display:flex;flex-direction:column;gap:7px">
+            <li>2 tin dang / thang</li>
+            <li>Hien thi co ban</li>
+            <li>Khong day tin</li>
+          </ul>
+          <button onclick="choosePlan('free',0,'month')" style="width:100%;background:#f1f5f9;color:#374151;font-weight:700;font-size:13px;padding:10px;border-radius:8px;border:none;cursor:pointer">Dang dung mien phi</button>
+        </div>
+        <div style="background:#fff;border:2px solid #e5e7eb;border-radius:14px;padding:24px;text-align:center">
+          <div style="display:inline-block;background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:12px">NEN TANG</div>
+          <div style="font-size:26px;font-weight:800;color:#0d1b2a;margin-bottom:4px" id="price-basic-month">490.000 d</div>
+          <div style="font-size:13px;color:#6b7280;margin-bottom:16px">/thang</div>
+          <ul style="list-style:none;text-align:left;margin-bottom:20px;font-size:13px;display:flex;flex-direction:column;gap:7px">
+            <li>10 tin dang / thang</li>
+            <li>Hien thi uu tien</li>
+            <li>5 luot day tin / thang</li>
+            <li>Ho tro Zalo 24h</li>
+          </ul>
+          <button onclick="choosePlan('basic',490000,'month')" style="width:100%;background:#1d4ed8;color:#fff;font-weight:700;font-size:13px;padding:10px;border-radius:8px;border:none;cursor:pointer">Chon goi nay</button>
+        </div>
+        <div style="background:#fff;border:2.5px solid #c9922a;border-radius:14px;padding:24px;text-align:center;position:relative;box-shadow:0 4px 20px rgba(201,146,42,.15)">
+          <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#c9922a;color:#fff;font-size:11px;font-weight:700;padding:4px 16px;border-radius:20px;white-space:nowrap">PHO BIEN NHAT</div>
+          <div style="display:inline-block;background:#fef3dc;color:#92650a;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:12px">CHUYEN NGHIEP</div>
+          <div style="font-size:26px;font-weight:800;color:#c9922a;margin-bottom:4px" id="price-pro-month">990.000 d</div>
+          <div style="font-size:13px;color:#6b7280;margin-bottom:16px">/thang</div>
+          <ul style="list-style:none;text-align:left;margin-bottom:20px;font-size:13px;display:flex;flex-direction:column;gap:7px">
+            <li>30 tin dang / thang</li>
+            <li>Hien thi noi bat</li>
+            <li>20 luot day tin / thang</li>
+            <li>Ho tro Zalo uu tien</li>
+            <li>Bao cao luot xem</li>
+          </ul>
+          <button onclick="choosePlan('pro',990000,'month')" style="width:100%;background:#c9922a;color:#0d1b2a;font-weight:700;font-size:13px;padding:10px;border-radius:8px;border:none;cursor:pointer">Chon goi nay</button>
+        </div>
+        <div style="background:#0d1b2a;border:2px solid #c9922a;border-radius:14px;padding:24px;text-align:center">
+          <div style="display:inline-block;background:#c9922a;color:#0d1b2a;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:12px">VIP</div>
+          <div style="font-size:26px;font-weight:800;color:#c9922a;margin-bottom:4px" id="price-vip-month">2.490.000 d</div>
+          <div style="font-size:13px;color:#94a3b8;margin-bottom:16px">/thang</div>
+          <ul style="list-style:none;text-align:left;margin-bottom:20px;font-size:13px;color:#e2e8f0;display:flex;flex-direction:column;gap:7px">
+            <li>Khong gioi han tin</li>
+            <li>Hien thi TOP dau trang</li>
+            <li>Day tin khong gioi han</li>
+            <li>Ho tro 1-1 qua Zalo</li>
+            <li>Tu van chien luoc</li>
+          </ul>
+          <button onclick="choosePlan('vip',2490000,'month')" style="width:100%;background:#c9922a;color:#0d1b2a;font-weight:700;font-size:13px;padding:10px;border-radius:8px;border:none;cursor:pointer">Chon goi VIP</button>
+        </div>
+      </div>
     </div>
 
     <!-- PAYMENT SECTION (hidden until plan selected) -->
@@ -735,7 +787,42 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <th style="padding:10px 16px;text-align:center;border-bottom:1px solid #e5e7eb;color:var(--gold)">VIP</th>
             </tr>
           </thead>
-          <tbody id="compareTable"></tbody>
+          <tbody id="compareTable">
+          <tr style="background:#f8fafc">
+            <td style="padding:10px 12px;font-size:13px;font-weight:600;border-bottom:1px solid #e5e7eb">So tin dang/thang</td>
+            <td style="padding:10px 12px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:13px">2 tin</td>
+            <td style="padding:10px 12px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:13px">10 tin</td>
+            <td style="padding:10px 12px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:13px">30 tin</td>
+            <td style="padding:10px 12px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:13px;color:#c9922a;font-weight:700">Khong gioi han</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;font-size:13px;font-weight:600;border-bottom:1px solid #e5e7eb">Luot day tin/thang</td>
+            <td style="padding:10px 12px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:13px">-</td>
+            <td style="padding:10px 12px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:13px">5 lan</td>
+            <td style="padding:10px 12px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:13px">20 lan</td>
+            <td style="padding:10px 12px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:13px;color:#c9922a;font-weight:700">Khong gioi han</td>
+          </tr>
+          <tr style="background:#f8fafc">
+            <td style="padding:10px 12px;font-size:13px;font-weight:600;border-bottom:1px solid #e5e7eb">Uu tien hien thi</td>
+            <td style="padding:10px 12px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:13px">-</td>
+            <td style="padding:10px 12px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:13px">Co ban</td>
+            <td style="padding:10px 12px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:13px">Noi bat</td>
+            <td style="padding:10px 12px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:13px;color:#c9922a;font-weight:700">TOP dau</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;font-size:13px;font-weight:600;border-bottom:1px solid #e5e7eb">Ho tro Zalo</td>
+            <td style="padding:10px 12px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:13px">-</td>
+            <td style="padding:10px 12px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:13px">24h</td>
+            <td style="padding:10px 12px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:13px">Uu tien</td>
+            <td style="padding:10px 12px;text-align:center;border-bottom:1px solid #e5e7eb;font-size:13px;color:#c9922a;font-weight:700">1-1</td>
+          </tr>
+          <tr style="background:#f8fafc">
+            <td style="padding:10px 12px;font-size:13px;font-weight:600">Gia/thang</td>
+            <td style="padding:10px 12px;text-align:center;font-size:13px;font-weight:700">Mien phi</td>
+            <td style="padding:10px 12px;text-align:center;font-size:13px;font-weight:700;color:#1d4ed8">490.000d</td>
+            <td style="padding:10px 12px;text-align:center;font-size:13px;font-weight:700;color:#c9922a">990.000d</td>
+            <td style="padding:10px 12px;text-align:center;font-size:13px;font-weight:700;color:#c9922a">2.490.000d</td>
+          </tr></tbody>
         </table>
       </div>
     </div>
@@ -743,13 +830,75 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <!-- PUSH TIN SECTION -->
     <div style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;margin-top:14px;overflow:hidden">
       <div style="padding:14px 20px;border-bottom:1px solid #e5e7eb;font-size:14px;font-weight:700;color:var(--dark)">🚀 Gói đẩy tin — Tăng lượt xem nhanh</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px" id="pushCards"></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px" id="pushCards">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:20px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div><div style="font-size:15px;font-weight:700;color:#0d1b2a;margin-bottom:4px">Goi day 5 lan</div><div style="font-size:13px;color:#6b7280">Day 5 tin len top - tang luot xem ngay</div></div>
+            <div style="text-align:right;flex-shrink:0"><div style="font-size:18px;font-weight:800;color:#c9922a;margin-bottom:8px">99.000d</div><button onclick="choosePlan('push5',99000,'oneshot')" style="background:#c9922a;color:#0d1b2a;font-weight:700;font-size:13px;padding:8px 18px;border-radius:7px;border:none;cursor:pointer">Mua ngay</button></div>
+          </div>
+          <div style="background:#fff;border:1.5px solid #c9922a;border-radius:12px;padding:20px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div><div style="font-size:15px;font-weight:700;color:#0d1b2a;margin-bottom:4px">Goi day 15 lan PHO BIEN</div><div style="font-size:13px;color:#6b7280">Day 15 tin len top - Tiet kiem 33%</div></div>
+            <div style="text-align:right;flex-shrink:0"><div style="font-size:18px;font-weight:800;color:#c9922a;margin-bottom:8px">199.000d</div><button onclick="choosePlan('push15',199000,'oneshot')" style="background:#c9922a;color:#0d1b2a;font-weight:700;font-size:13px;padding:8px 18px;border-radius:7px;border:none;cursor:pointer">Mua ngay</button></div>
+          </div>
+          <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:20px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div><div style="font-size:15px;font-weight:700;color:#0d1b2a;margin-bottom:4px">Goi day 30 lan</div><div style="font-size:13px;color:#6b7280">Day 30 tin len top - Tiet kiem 45%</div></div>
+            <div style="text-align:right;flex-shrink:0"><div style="font-size:18px;font-weight:800;color:#c9922a;margin-bottom:8px">349.000d</div><button onclick="choosePlan('push30',349000,'oneshot')" style="background:#c9922a;color:#0d1b2a;font-weight:700;font-size:13px;padding:8px 18px;border-radius:7px;border:none;cursor:pointer">Mua ngay</button></div>
+          </div>
+        </div></div>
     </div>
 
     <!-- FAQ -->
     <div style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;margin-top:14px;padding:20px">
       <div style="font-size:14px;font-weight:700;color:var(--dark);margin-bottom:14px">❓ Câu hỏi thường gặp</div>
-      <div id="faqList"></div>
+      <div id="faqList">
+        <details style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:8px">
+          <summary style="font-size:14px;font-weight:600;cursor:pointer;padding:16px 20px;list-style:none">Tin dang cua toi duoc hien thi nhu the nao?</summary>
+          <div style="padding:12px 20px 16px;font-size:13px;color:#6b7280;border-top:1px solid #f1f5f9">Sau khi Mr. Duy Khuyen xac nhan, tin se xuat hien trong danh sach nha pho tren website. Goi Pro va VIP duoc uu tien hien thi o vi tri noi bat hon.</div>
+        </details>
+        <details style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:8px">
+          <summary style="font-size:14px;font-weight:600;cursor:pointer;padding:16px 20px;list-style:none">Lam sao de day tin len dau?</summary>
+          <div style="padding:12px 20px 16px;font-size:13px;color:#6b7280;border-top:1px solid #f1f5f9">Mua goi day tin hoac nang cap len goi Pro/VIP. Moi lan day, tin se len dau danh sach trong 24-48 gio.</div>
+        </details>
+        <details style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:8px">
+          <summary style="font-size:14px;font-weight:600;cursor:pointer;padding:16px 20px;list-style:none">Thanh toan nhu the nao?</summary>
+          <div style="padding:12px 20px 16px;font-size:13px;color:#6b7280;border-top:1px solid #f1f5f9">Chuyen khoan ngan hang (Techcombank 6666 6666 6736 / Vietcombank 0591000348307 / MBBank SDT 0987.645.314), vi MoMo hoac ZaloPay. Sau do lien he qua Zalo 0987.645.314 de kich hoat.</div>
+        </details>
+        <details style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:8px">
+          <summary style="font-size:14px;font-weight:600;cursor:pointer;padding:16px 20px;list-style:none">Huy goi co duoc hoan tien khong?</summary>
+          <div style="padding:12px 20px 16px;font-size:13px;color:#6b7280;border-top:1px solid #f1f5f9">Goi dang ky theo thang, co the khong gia han khi het han. Neu co van de vui long lien he Mr. Duy Khuyen de duoc ho tro.</div>
+        </details>
+        <details style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:8px">
+          <summary style="font-size:14px;font-weight:600;cursor:pointer;padding:16px 20px;list-style:none">
+            Tin đăng của tôi được hiển thị như thế nào?
+          </summary>
+          <div style="padding:12px 20px 16px;font-size:13px;color:#6b7280;border-top:1px solid #f1f5f9">
+            Sau khi Mr. Duy Khuyến xác nhận, tin của bạn sẽ xuất hiện trong danh sách nhà phố trên website. Gói Pro và VIP được ưu tiên hiển thị ở vị trí nổi bật hơn.
+          </div>
+        </details>
+        <details style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:8px">
+          <summary style="font-size:14px;font-weight:600;cursor:pointer;padding:16px 20px;list-style:none">
+            Làm sao để đẩy tin lên đầu?
+          </summary>
+          <div style="padding:12px 20px 16px;font-size:13px;color:#6b7280;border-top:1px solid #f1f5f9">
+            Bạn có thể mua gói đẩy tin hoặc nâng cấp lên gói Pro/VIP để được đẩy tin tự động. Mỗi lần đẩy, tin sẽ được đưa lên đầu danh sách trong 24-48 giờ.
+          </div>
+        </details>
+        <details style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:8px">
+          <summary style="font-size:14px;font-weight:600;cursor:pointer;padding:16px 20px;list-style:none">
+            Thanh toán như thế nào?
+          </summary>
+          <div style="padding:12px 20px 16px;font-size:13px;color:#6b7280;border-top:1px solid #f1f5f9">
+            Chuyển khoản ngân hàng (Techcombank 6666 6666 6736 / Vietcombank 0591000348307 / MBBank SĐT 0987.645.314), ví MoMo hoặc ZaloPay. Sau khi chuyển khoản, liên hệ Mr. Duy Khuyến qua Zalo 0987.645.314 để kích hoạt.
+          </div>
+        </details>
+        <details style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:8px">
+          <summary style="font-size:14px;font-weight:600;cursor:pointer;padding:16px 20px;list-style:none">
+            Hủy gói có được hoàn tiền không?
+          </summary>
+          <div style="padding:12px 20px 16px;font-size:13px;color:#6b7280;border-top:1px solid #f1f5f9">
+            Gói đăng ký theo tháng, bạn có thể không gia hạn khi hết hạn. Trong thời gian sử dụng, nếu có vấn đề vui lòng liên hệ trực tiếp Mr. Duy Khuyến để được hỗ trợ.
+          </div>
+        </details></div>
     </div>
   </div>
 </div>
@@ -1152,6 +1301,83 @@ function init(){
 }
 init();
 </script>
-  <script src="auth.js"></script>
+  <script src="auth.js">
+// ===== PRICING FUNCTIONS =====
+const PLAN_CONFIG = {
+  free:   {name:'Mien phi', icon:'FREE', priceM:0, priceY:0, desc:'2 tin dang / thang'},
+  basic:  {name:'Nen tang', icon:'BASIC', priceM:490000, priceY:392000, desc:'10 tin dang / thang'},
+  pro:    {name:'Chuyen nghiep', icon:'PRO', priceM:990000, priceY:792000, desc:'30 tin dang / thang'},
+  vip:    {name:'VIP', icon:'VIP', priceM:2490000, priceY:1992000, desc:'Khong gioi han tin'},
+  push5:  {name:'Day 5 lan', icon:'PUSH', priceM:99000, priceY:99000, desc:'Day 5 tin len top'},
+  push15: {name:'Day 15 lan', icon:'PUSH', priceM:199000, priceY:199000, desc:'Day 15 tin len top'},
+  push30: {name:'Day 30 lan', icon:'PUSH', priceM:349000, priceY:349000, desc:'Day 30 tin len top'}
+};
+
+let _currentBilling = 'month';
+
+function setBilling(type) {
+  _currentBilling = type;
+  const mBtn = document.getElementById('billing-month');
+  const yBtn = document.getElementById('billing-year');
+  if(mBtn){mBtn.style.background=type==='month'?'var(--gold)':'transparent';mBtn.style.color=type==='month'?'var(--dark)':'#6b7280';}
+  if(yBtn){yBtn.style.background=type==='year'?'var(--gold)':'transparent';yBtn.style.color=type==='year'?'var(--dark)':'#6b7280';}
+  ['basic','pro','vip'].forEach(p=>{
+    const el=document.getElementById('price-'+p+'-month');
+    if(el&&PLAN_CONFIG[p]){const price=type==='year'?PLAN_CONFIG[p].priceY:PLAN_CONFIG[p].priceM;el.textContent=price.toLocaleString('vi-VN')+' d';}
+  });
+}
+
+function choosePlan(planId, price, billing) {
+  const plan=PLAN_CONFIG[planId];
+  if(!plan) return;
+  const ps=document.getElementById('paySection');
+  if(ps){
+    ps.style.display='block';
+    const n=document.getElementById('pay-plan-name');
+    const p2=document.getElementById('pay-plan-price');
+    const actualPrice=billing==='year'&&plan.priceY?plan.priceY:plan.priceM;
+    if(n) n.textContent=plan.name;
+    if(p2) p2.textContent=actualPrice>0?actualPrice.toLocaleString('vi-VN')+'d':'Mien phi';
+    const ckFmt=document.getElementById('ck-format-display');
+    if(ckFmt) ckFmt.textContent='NHPHCM '+plan.name.toUpperCase()+' + SDT';
+    const ckC=document.getElementById('ck-content');
+    if(ckC) ckC.textContent='NHPHCM '+plan.name.toUpperCase()+' + SDT';
+    ps.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+}
+
+function selectPayMethod(method) {
+  document.querySelectorAll('.pay-method').forEach(el=>el.classList.remove('on'));
+  const t=document.getElementById('pm-'+method);
+  if(t) t.classList.add('on');
+  ['pay-bank','pay-momo','pay-zalo-pay','pay-qr'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  const panelId=method==='zalo'?'pay-zalo-pay':method==='qr'?'pay-qr':method==='momo'?'pay-momo':'pay-bank';
+  const panel=document.getElementById(panelId);
+  if(panel) panel.style.display='block';
+}
+
+function selectBank(bank) {
+  document.querySelectorAll('[id^="btab-"]').forEach(el=>{el.style.color='#6b7280';el.style.borderBottom='2px solid transparent';});
+  const tab=document.getElementById('btab-'+bank);
+  if(tab){tab.style.color='var(--gold)';tab.style.borderBottom='2px solid var(--gold)';}
+  ['binfo-tcb','binfo-vcb','binfo-mb'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  const map={tcb:'binfo-tcb',vcb:'binfo-vcb',mb:'binfo-mb'};
+  const info=document.getElementById(map[bank]);
+  if(info) info.style.display='block';
+}
+
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(()=>{
+    const orig=btn?btn.textContent:'';
+    if(btn) btn.textContent='Copied!';
+    setTimeout(()=>{if(btn) btn.textContent=orig;},1500);
+    toast('Da sao chep!');
+  }).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    toast('Da sao chep!');
+  });
+}
+</script>
 </body>
 </html>
