@@ -323,6 +323,7 @@ a{text-decoration:none;color:inherit}
     <a onclick="gp('pricing')" id="nl-pricing">Gói dịch vụ</a>
     <a onclick="gp('post')" id="nl-post">Đăng tin</a>
     <a onclick="gp('notif')" id="nl-notif">📋 Tin Đăng</a>
+    <a onclick="gp('admin')" id="nl-admin" style="display:none;color:#a5b4fc">🔐 Quản trị</a>
     <a onclick="gp('fav')" id="nl-fav">❤️ Yêu thích</a>
     <a onclick="gp('cart')" id="nl-cart">🛒 Giỏ hàng</a>
   </div>
@@ -847,6 +848,9 @@ a{text-decoration:none;color:inherit}
         <button onclick="gp('post')" style="margin-top:9px;background:var(--gold);color:var(--dark);font-size:11px;font-weight:700;padding:7px 14px;border-radius:5px;border:none;cursor:pointer">Đăng tin đầu tiên</button>
       </div>
     </div>
+    <div id="d-admin-btn" style="display:none;margin-bottom:8px">
+      <button onclick="gp('admin')" style="width:100%;background:linear-gradient(135deg,#1e1b4b,#312e81);color:#fff;font-weight:700;padding:11px;border-radius:8px;border:none;cursor:pointer;font-size:14px">🔐 Trang Quản trị Admin</button>
+    </div>
     <div style="text-align:center;margin-top:12px">
       <button onclick="doLogout()" style="background:none;border:1.5px solid #e5e7eb;color:#6b7280;font-size:12px;padding:7px 17px;border-radius:6px;cursor:pointer">Đăng xuất</button>
     </div>
@@ -1062,6 +1066,7 @@ function gp(p){
   document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
   const nl=document.getElementById('nl-'+p);if(nl)nl.classList.add('active');
   window.scrollTo(0,0);
+  if(p==='admin'){if(!isAdmin()){toast('❌ Bạn không có quyền quản trị');return;}adminLoadPosts();}
   if(p==='pricing')setTimeout(()=>{rPlans();rPush();rFaq();rComp();},50);
   if(p==='news')setTimeout(()=>loadNews(false),50);
   if(p==='notif')renderNPage();
@@ -1608,7 +1613,8 @@ function doLogin(){
   if(!usr){toast('❌ Tài khoản không tồn tại');return;}
   if(usr.pass!==btoa(p)){toast('❌ Sai mật khẩu');return;}
   cUser=usr;localStorage.setItem('nhphcm_user',JSON.stringify(usr));
-  clAuth();updNav();toast('👋 Chào mừng '+usr.name+'!');gp('dashboard');
+  if(usr.email==='daoduykhuyen2@gmail.com')usr.role='admin';
+  cUser=usr;clAuth();updNav();updAdminNav();toast('👋 Chào mừng '+usr.name+(usr.role==='admin'?' 👑 Admin':'')+'!');gp('dashboard');updDash();
 }
 function doReg(){
   const n=(document.getElementById('rg-n')||{}).value?.trim();
@@ -1656,6 +1662,9 @@ function updDash(){
   document.getElementById('d-pico').textContent=pl.icon;
   se('d-pname',pl.name);se('d-pdesc',pl.desc);
   se('d-rem',pl.posts);se('d-act','0');se('d-tot',cUser.totalPosts||0);se('d-vw',Object.values(VIEWS).reduce((a,b)=>a+b,0));
+  // Show admin button if admin
+  const admBtn=document.getElementById('d-admin-btn');
+  if(admBtn)admBtn.style.display=isAdmin()?'block':'none';
 }
 
 // ════════════════════════════════════════════════════
@@ -1896,8 +1905,154 @@ function init(){
     localStorage.setItem('nhphcm_v5','1');
   }
 }
+
+// ════════════════════════════════════════════════════
+// ADMIN FUNCTIONS
+// ════════════════════════════════════════════════════
+const ADMIN_EMAIL='daoduykhuyen2@gmail.com';
+
+function isAdmin(){return cUser&&cUser.email===ADMIN_EMAIL;}
+
+function updAdminNav(){
+  const el=document.getElementById('nl-admin');
+  if(el)el.style.display=isAdmin()?'':'none';
+}
+
+function doAdminPost(){
+  if(!isAdmin()){toast('❌ Không có quyền');return;}
+  const title=document.getElementById('adm-title')?.value.trim()||'';
+  const body=document.getElementById('adm-body')?.value.trim()||'';
+  if(!title){toast('⚠️ Vui lòng nhập tiêu đề');return;}
+  const imgs=[];
+  addAdminPost(title,body,imgs);
+  document.getElementById('adm-title').value='';
+  document.getElementById('adm-body').value='';
+  toast('✅ Đã đăng thông báo thành công!');
+  gp('notif');
+}
+
+function doMarketUpdate(){
+  if(!isAdmin()){toast('❌ Không có quyền');return;}
+  const title=document.getElementById('adm-mkt-title')?.value.trim()||'';
+  const body=document.getElementById('adm-mkt-body')?.value.trim()||'';
+  if(!title){toast('⚠️ Vui lòng nhập tiêu đề');return;}
+  addAdminPost('📊 '+title,body,[]);
+  document.getElementById('adm-mkt-title').value='';
+  document.getElementById('adm-mkt-body').value='';
+  toast('✅ Đã đăng cập nhật thị trường!');
+  gp('notif');
+}
+
+function adminLoadPosts(){
+  if(!isAdmin()){toast('❌ Không có quyền');return;}
+  const el=document.getElementById('adm-post-list');
+  if(!el)return;
+  const posts=getUPosts();
+  if(!posts.length){el.innerHTML='<p style="color:#9ca3af;font-size:13px;text-align:center;padding:20px">Chưa có tin đăng nào</p>';return;}
+  el.innerHTML=posts.map((p,idx)=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f3f4f6">
+    <div style="flex:1;font-size:12px">
+      <span style="font-weight:600">${p.type==='admin'?'📢':p.type==='broker'?'🏢':'🏠'} ${p.name||p.pty||'(không tên)'}</span>
+      <span style="color:#9ca3af;margin-left:6px">${timeAgo(p.ts)}</span>
+    </div>
+    <button onclick="adminDeletePost('${p.id}')" style="background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:11px">🗑️ Xóa</button>
+    <button onclick="boostUserPost('${p.id}');adminLoadPosts();toast('⚡ Đã đẩy lên TOP!')" style="background:#fef9c3;border:1px solid #fde68a;color:#92400e;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:11px">⚡ Đẩy</button>
+  </div>`).join('');
+  // Update stats
+  const statsEl=document.getElementById('adm-stats');
+  if(statsEl){
+    const total=posts.length;
+    const admins=posts.filter(p=>p.type==='admin').length;
+    const brokers=posts.filter(p=>p.type==='broker').length;
+    const owners=posts.filter(p=>p.type==='owner').length;
+    statsEl.innerHTML=`
+      <div style="background:#f0fdf4;border-radius:7px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:700;color:#059669">${total}</div><div style="font-size:11px;color:#6b7280">Tổng tin đăng</div></div>
+      <div style="background:#eff6ff;border-radius:7px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:700;color:#2563eb">${admins}</div><div style="font-size:11px;color:#6b7280">Thông báo admin</div></div>
+      <div style="background:#f5f3ff;border-radius:7px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:700;color:#7c3aed">${brokers}</div><div style="font-size:11px;color:#6b7280">Tin môi giới</div></div>
+      <div style="background:#fefce8;border-radius:7px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:700;color:#92400e">${owners}</div><div style="font-size:11px;color:#6b7280">Tin chủ nhà</div></div>
+    `;
+  }
+}
+
+function adminDeletePost(id){
+  if(!isAdmin()){toast('❌ Không có quyền');return;}
+  const posts=getUPosts().filter(p=>p.id!==id);
+  saveUPosts(posts);
+  renderUPosts();
+  adminLoadPosts();
+  toast('🗑️ Đã xóa tin');
+}
+
+function adminClearAllPosts(){
+  if(!isAdmin()){toast('❌ Không có quyền');return;}
+  if(!confirm('Xóa TẤT CẢ tin đăng? Không thể hoàn tác!'))return;
+  saveUPosts([]);
+  renderUPosts();
+  updAdminNav();
+  adminLoadPosts();
+  toast('🗑️ Đã xóa tất cả tin đăng');
+}
+
 init();
 
+
+
+<!-- ══ ADMIN PANEL ══ -->
+<div class="page" id="page-admin" style="display:none">
+  <div class="hero" style="padding:17px 20px 13px;background:linear-gradient(135deg,#1e1b4b,#312e81)">
+    <h1 style="color:#fff">🔐 Quản trị <em style="color:#a5b4fc">Admin</em></h1>
+    <p style="color:#c7d2fe;margin-top:3px">Chỉ dành cho quản trị viên · daoduykhuyen2@gmail.com</p>
+  </div>
+  <div style="max-width:700px;margin:0 auto;padding:12px">
+
+    <!-- ĐĂNG THÔNG BÁO -->
+    <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:16px;margin-bottom:14px">
+      <div style="font-weight:700;font-size:15px;margin-bottom:12px;color:#1e1b4b">📢 Đăng thông báo quan trọng</div>
+      <div style="margin-bottom:8px">
+        <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:4px">TIÊU ĐỀ THÔNG BÁO *</label>
+        <input id="adm-title" placeholder="VD: Thông báo nghỉ lễ 30/4..." style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px">
+      </div>
+      <div style="margin-bottom:8px">
+        <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:4px">NỘI DUNG</label>
+        <textarea id="adm-body" rows="4" placeholder="Nội dung thông báo chi tiết..." style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;resize:none"></textarea>
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:4px">ẢNH KÈM (tùy chọn)</label>
+        <input type="file" id="adm-img" accept="image/*,video/*" multiple style="font-size:12px">
+      </div>
+      <button onclick="doAdminPost()" style="background:#1e1b4b;color:#fff;padding:10px 20px;border-radius:7px;border:none;font-weight:700;cursor:pointer;width:100%">📢 Đăng thông báo</button>
+    </div>
+
+    <!-- QUẢN LÝ TIN ĐĂNG -->
+    <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:16px;margin-bottom:14px">
+      <div style="font-weight:700;font-size:15px;margin-bottom:10px;color:#1e1b4b">📋 Quản lý Tin Đăng</div>
+      <div style="margin-bottom:8px;display:flex;gap:6px">
+        <button onclick="adminLoadPosts()" style="background:#f1f5f9;border:1px solid #e2e8f0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">🔄 Tải danh sách</button>
+        <button onclick="adminClearAllPosts()" style="background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px">🗑️ Xóa tất cả</button>
+      </div>
+      <div id="adm-post-list" style="max-height:400px;overflow-y:auto"></div>
+    </div>
+
+    <!-- CẬP NHẬT TÌNH HÌNH -->
+    <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:16px;margin-bottom:14px">
+      <div style="font-weight:700;font-size:15px;margin-bottom:12px;color:#1e1b4b">📊 Cập nhật tình hình thị trường</div>
+      <div style="margin-bottom:8px">
+        <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:4px">TIÊU ĐỀ</label>
+        <input id="adm-mkt-title" placeholder="VD: Thị trường Q3/2026: Nhà phố hạ giá 5-10%..." style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px">
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:4px">NỘI DUNG CẬP NHẬT</label>
+        <textarea id="adm-mkt-body" rows="5" placeholder="Nhận định, phân tích thị trường, xu hướng giá..." style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;resize:none"></textarea>
+      </div>
+      <button onclick="doMarketUpdate()" style="background:#059669;color:#fff;padding:10px 20px;border-radius:7px;border:none;font-weight:700;cursor:pointer;width:100%">📊 Đăng cập nhật</button>
+    </div>
+
+    <!-- THỐNG KÊ NHANH -->
+    <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:16px">
+      <div style="font-weight:700;font-size:15px;margin-bottom:10px;color:#1e1b4b">📈 Thống kê</div>
+      <div id="adm-stats" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+    </div>
+  </div>
+</div>
 </script>
 </body>
 </html>
