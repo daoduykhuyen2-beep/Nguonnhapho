@@ -2036,6 +2036,179 @@ document.addEventListener('DOMContentLoaded', function() {
 // Init auth
 updateNavAuth();
 
+
+// ================================================================
+// TIN TUC - NEWS SYSTEM
+// ================================================================
+let _newsFiltered = [], _newsPage = 1, _newsPerPage = 9;
+let _newsSrc = 'all', _newsTopic = 'all', _newsSort = 'newest';
+
+function _detectSrc(url) {
+  if (!url) return 'other';
+  if (url.includes('cafef')) return 'cafef';
+  if (url.includes('vnexpress')) return 'vnexpress';
+  if (url.includes('batdongsan')) return 'batdongsan';
+  if (url.includes('nhadat24h')) return 'nhadat24h';
+  if (url.includes('dantri')) return 'dantri';
+  if (url.includes('thoibao') || url.includes('thoibaotaichinhvietnam')) return 'thoibao';
+  if (url.includes('homedy')) return 'homedy';
+  if (url.includes('nhadep')) return 'nhadepvn';
+  return 'other';
+}
+
+function _detectTopic(cat) {
+  if (!cat) return 'all';
+  const c = cat.toLowerCase();
+  if (c.includes('tr\u01b0\u1eddng') || c.includes('th\u1ecb tr')) return 'thi-truong';
+  if (c.includes('ph\u00e1p l\u00fd') || c.includes('ph\u00e1p l')) return 'phap-ly';
+  if (c.includes('nh\u00e0 ph\u1ed1') || c.includes('nh\u00e0 ph')) return 'nha-pho';
+  if (c.includes('\u0111\u1ea7u t\u01b0') || c.includes('ph\u00e2n t\u00edch')) return 'dau-tu';
+  if (c.includes('t\u00e0i ch\u00ednh') || c.includes('l\u00e3i su\u1ea5t')) return 'tai-chinh';
+  if (c.includes('h\u1ea1 t\u1ea7ng') || c.includes('metro') || c.includes('c\u01a1 s\u1edf')) return 'ha-tang';
+  return 'all';
+}
+
+function loadAllNews(forceRefresh) {
+  const loading = document.getElementById('news-loading');
+  const mainGrid = document.getElementById('newsMainGrid');
+  if (loading) loading.style.display = 'block';
+  if (mainGrid) mainGrid.style.display = 'none';
+
+  // Add src and topic to NEWS items
+  const enriched = NEWS.map(n => ({
+    ...n,
+    src: _detectSrc(n.url),
+    topic: _detectTopic(n.cat)
+  }));
+
+  setTimeout(function() {
+    _newsFiltered = enriched;
+    _newsPage = 1;
+    _applyNewsFilters();
+    if (loading) loading.style.display = 'none';
+    if (mainGrid) mainGrid.style.display = 'block';
+    const timeEl = document.getElementById('news-update-time');
+    if (timeEl) {
+      const now = new Date();
+      timeEl.textContent = 'C\u1eadp nh\u1eadt: ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+    }
+  }, 600);
+}
+
+function renderNews() {
+  loadAllNews(false);
+}
+
+function _applyNewsFilters() {
+  const enriched = NEWS.map(n => ({
+    ...n,
+    src: _detectSrc(n.url),
+    topic: _detectTopic(n.cat)
+  }));
+  _newsFiltered = enriched.filter(n => {
+    const srcOk = _newsSrc === 'all' || n.src === _newsSrc;
+    const topicOk = _newsTopic === 'all' || n.topic === _newsTopic || _newsTopic === 'all';
+    return srcOk && topicOk;
+  });
+  if (_newsSort === 'source') _newsFiltered.sort((a,b) => a.src.localeCompare(b.src));
+  else if (_newsSort === 'topic') _newsFiltered.sort((a,b) => a.cat.localeCompare(b.cat));
+  _newsPage = 1;
+  _renderNewsGrid();
+}
+
+function _renderNewsGrid() {
+  const grid = document.getElementById('newsGrid');
+  const countEl = document.getElementById('news-result-count');
+  const moreBtn = document.getElementById('news-load-more');
+  const featuredEl = document.getElementById('news-featured');
+
+  if (!grid) return;
+
+  const total = _newsFiltered.length;
+  const shown = _newsFiltered.slice(0, _newsPage * _newsPerPage);
+  const remaining = total - shown.length;
+
+  if (countEl) countEl.textContent = 'Hi\u1ec3n th\u1ecb ' + shown.length + ' / ' + total + ' tin';
+  if (moreBtn) moreBtn.style.display = remaining > 0 ? 'block' : 'none';
+
+  // Featured - first item shown large
+  if (featuredEl && shown.length > 0) {
+    const f = shown[0];
+    featuredEl.innerHTML = `<div onclick="window.open('${f.url}','_blank')" style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;padding:20px;cursor:pointer;display:flex;gap:16px;align-items:flex-start;transition:box-shadow .2s" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.12)'" onmouseout="this.style.boxShadow='none'">
+      <div style="font-size:40px;flex-shrink:0">${f.img}</div>
+      <div>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <span style="background:#fef3dc;color:#92650a;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px">N\u1ed4I B\u1eacT</span>
+          <span style="background:#f3f4f6;color:#374151;font-size:10px;padding:3px 8px;border-radius:4px">${f.cat}</span>
+        </div>
+        <div style="font-size:16px;font-weight:700;color:#0d1b2a;margin-bottom:8px;line-height:1.4">${f.title}</div>
+        <div style="font-size:13px;color:#4b5563;line-height:1.5;margin-bottom:10px">${f.summary}</div>
+        <div style="font-size:11px;color:#9ca3af">\uD83D\uDCC5 ${f.date} &nbsp;&nbsp; \uD83D\uDD17 ${f.url.replace(/https?:\/\//, '').split('/')[0]}</div>
+      </div>
+    </div>`;
+  }
+
+  // Regular grid (skip first = featured)
+  const gridItems = shown.slice(1);
+  grid.innerHTML = gridItems.map(n => `
+    <div class="news-card" onclick="window.open('${n.url}','_blank')">
+      <div class="news-img">${n.img}</div>
+      <div class="news-body">
+        <div class="news-cat">${n.cat}</div>
+        <div class="news-title">${n.title}</div>
+        <div class="news-sum">${n.summary}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span class="news-date">\uD83D\uDCC5 ${n.date}</span>
+          <span style="font-size:10px;color:#9ca3af">${n.url.replace(/https?:\/\//, '').split('/')[0]}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterSource(btn, src) {
+  _newsSrc = src;
+  document.querySelectorAll('.src-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  _applyNewsFilters();
+}
+
+function filterTopic(btn, topic) {
+  _newsTopic = topic;
+  document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  _applyNewsFilters();
+}
+
+function sortNews() {
+  const sel = document.getElementById('news-sort');
+  if (sel) _newsSort = sel.value;
+  _applyNewsFilters();
+}
+
+function loadMoreNews() {
+  _newsPage++;
+  _renderNewsGrid();
+}
+
+// ================================================================
+// BUY PUSH PLAN
+// ================================================================
+function buyPush(planId) {
+  const PUSH_PLANS = {
+    'hot3': { name: 'G\u00f3i HOT 3 ng\u00e0y', price: 99000, days: 3 },
+    'pro7': { name: 'G\u00f3i PRO 7 ng\u00e0y', price: 199000, days: 7 },
+    'vip30': { name: 'G\u00f3i VIP 30 ng\u00e0y', price: 349000, days: 30 }
+  };
+  const plan = PUSH_PLANS[planId];
+  if (!plan) return;
+  if (!currentUser) { toast('\uD83D\uDD12 Vui l\u00f2ng \u0111\u0103ng nh\u1eadp \u0111\u1ec3 mua g\u00f3i \u0111\u1ea9y tin'); openAuth('login'); return; }
+  const fmt = (n) => n.toLocaleString('vi-VN') + '\u0111';
+  toast('\uD83D\uDE80 G\u00f3i ' + plan.name + ' - ' + fmt(plan.price) + '. Vui l\u00f2ng chuy\u1ec3n kho\u1ea3n v\u00e0 g\u1eedi x\u00e1c nh\u1eadn qua Zalo 0987.645.314');
+  setTimeout(() => {
+    switchPricingTab('topup');
+  }, 1500);
+}
 </script>
 
 <!-- FLOATING CHAT BUTTONS -->
