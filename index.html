@@ -489,8 +489,6 @@ a{text-decoration:none;color:inherit}
           <div style="padding:12px">
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
               <div class="pm on" id="tpm-bank" onclick="selTPM('bank')"><div style="font-size:20px;margin-bottom:3px">🏦</div><div style="font-size:11px;font-weight:600">Ngân hàng</div></div>
-              <div class="pm" id="tpm-momo" onclick="selTPM('momo')"><div style="font-size:20px;margin-bottom:3px">💜</div><div style="font-size:11px;font-weight:600">MoMo</div></div>
-              <div class="pm" id="tpm-zalo" onclick="selTPM('zalo')"><div style="font-size:20px;margin-bottom:3px">💙</div><div style="font-size:11px;font-weight:600">ZaloPay</div></div>
               <div class="pm" id="tpm-qr" onclick="selTPM('qr')"><div style="font-size:20px;margin-bottom:3px">📱</div><div style="font-size:11px;font-weight:600">QR Code</div></div>
             </div>
             <!-- Bank -->
@@ -522,39 +520,12 @@ a{text-decoration:none;color:inherit}
                 <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Nội dung CK</span><strong style="color:var(--gold);cursor:pointer" onclick="cpTxt('NHPHCM NAP [SĐT]',this)">NHPHCM NAP [SĐT] 📋</strong></div>
               </div></div>
             </div>
-            <div id="top-momo" style="display:none;background:#fff0f9;border:1.5px solid #f9a8d4;border-radius:8px;padding:14px">
-              <div style="font-size:13px;font-weight:700;color:#be185d;margin-bottom:8px">💜 Chuyển MoMo</div>
-              <div style="display:flex;flex-direction:column;gap:7px;font-size:13px;margin-bottom:10px">
-                <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Số MoMo</span><strong style="color:#be185d;cursor:pointer" onclick="cpTxt('0987645314',this)">0987.645.314 📋</strong></div>
-                <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Tên</span><strong>DAO DUY KHUYEN</strong></div>
-                <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Nội dung</span><strong style="color:#be185d;cursor:pointer" onclick="cpTxt('NHPHCM NAP [SĐT]',this)">NHPHCM NAP [SĐT] 📋</strong></div>
-              </div>
-              <button onclick="window.open('https://nhantien.momo.vn/0987645314','_blank')" style="width:100%;background:#ae2070;color:#fff;font-weight:700;font-size:13px;padding:10px;border-radius:7px;border:none;cursor:pointer">Mở MoMo →</button>
-            </div>
-            <div id="top-zalo" style="display:none;background:#e7f3ff;border:1.5px solid #93c5fd;border-radius:8px;padding:14px">
-              <div style="font-size:13px;font-weight:700;color:#1d4ed8;margin-bottom:8px">💙 Chuyển ZaloPay</div>
-              <div style="display:flex;flex-direction:column;gap:7px;font-size:13px;margin-bottom:10px">
-                <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Số ZaloPay</span><strong style="color:#1d4ed8;cursor:pointer" onclick="cpTxt('0987645314',this)">0987.645.314 📋</strong></div>
-                <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Tên</span><strong>DAO DUY KHUYEN</strong></div>
-                <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Nội dung</span><strong style="color:#1d4ed8;cursor:pointer" onclick="cpTxt('NHPHCM NAP [SĐT]',this)">NHPHCM NAP [SĐT] 📋</strong></div>
-              </div>
-              <button onclick="window.open('https://zalo.me/0987645314','_blank')" style="width:100%;background:#0068FF;color:#fff;font-weight:700;font-size:13px;padding:10px;border-radius:7px;border:none;cursor:pointer">Mở ZaloPay →</button>
-            </div>
             <div id="top-qr" style="display:none;text-align:center;padding:10px 0">
               <img src="data:image/png;base64,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" style="width:180px;height:180px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb" alt="QR">
               <div style="font-size:11px;color:#6b7280;margin-top:6px">Quét bằng app ngân hàng bất kỳ</div>
             </div>
           </div>
         </div>
-        <div style="background:#f0fdf4;border:1.5px solid #6ee7b7;border-radius:10px;padding:12px 14px;font-size:12px;color:#065f46;line-height:1.8;margin-bottom:14px">
-          ✅ Sau khi nạp: Gửi bill qua Zalo <strong>0987.645.314</strong> — cộng số dư trong <strong>30 phút</strong><br>
-          🎁 Nạp từ 500k tặng 5% · Nạp từ 1 triệu tặng 10% · Số dư <strong>không hết hạn</strong>
-        </div>
-        <button onclick="cfTop()" style="width:100%;background:var(--gold);color:var(--dark);font-weight:700;font-size:15px;padding:14px;border-radius:9px;border:none;cursor:pointer">✅ Tôi đã nạp tiền — Báo Mr. Duy xác nhận</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- POST -->
 <div class="page" id="page-post">
@@ -1096,7 +1067,7 @@ function buyP(n,p,d){const ph=cUser?cUser.phone:'[SĐT]';const m=`🚀 MUA GÓI 
 
 // TOPUP
 function selTop(a,el){curTop=a;document.querySelectorAll('.tub').forEach(b=>b.classList.remove('sel'));if(el)el.classList.add('sel');const d=document.getElementById('top-amt');if(d)d.textContent=vnd(a)+'đ';document.getElementById('top-custom').value='';}
-function selTPM(m){['bank','momo','zalo','qr'].forEach(k=>{const e=document.getElementById('top-'+k);if(e)e.style.display=k===m?'block':'none';const pm=document.getElementById('tpm-'+k);if(pm)pm.classList.toggle('on',k===m);const bk=document.getElementById('top-bank');if(bk)bk.style.display=m==='bank'?'block':'none';});}
+function selTPM(m){['bank','qr'].forEach(k=>{const e=document.getElementById('top-'+k);if(e)e.style.display=k===m?'block':'none';const pm=document.getElementById('tpm-'+k);if(pm)pm.classList.toggle('on',k===m);const bk=document.getElementById('top-bank');if(bk)bk.style.display=m==='bank'?'block':'none';});}
 function selTBank(b){/* Chỉ Techcombank */}
 function cfTop(){const ph=cUser?cUser.phone:'[SĐT]';const m=`💳 NẠP TIỀN TÀI KHOẢN - NHPHCM%0A%0ASố tiền: ${vnd(curTop)}đ%0ASĐT: ${ph}%0ANội dung CK: NHPHCM NAP ${ph}%0A%0AĐã chuyển khoản xong, nhờ Mr. Duy xác nhận số dư ạ!`;window.open('https://zalo.me/0987645314?text='+m,'_blank');toast('✅ Gửi xong! Số dư được cộng trong 30 phút.');}
 
