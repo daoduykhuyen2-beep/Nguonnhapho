@@ -1074,7 +1074,7 @@ function gp(p){
   if(p==='admin'){if(!isAdmin()){toast('❌ Bạn không có quyền quản trị');return;}adminLoadPosts();}
   if(p==='pricing')setTimeout(()=>{rPlans();rPush();rFaq();rComp();},50);
   if(p==='news')setTimeout(()=>loadNews(false),50);
-  if(p==='notif')renderNPage();
+  if(p==='notif')renderNPage();renderUPosts();
   if(p==='fav')renderFavPage();
   if(p==='cart')renderCartPage();
 }
@@ -1914,6 +1914,7 @@ function init(){
   allNews=[...SNEWS];
   updNBadge();renderNPreview();updFavBadge();updCartBadge();renderNewSec();
   renderUPosts();
+  updAdminNav();
   // Welcome notification
   if(!localStorage.getItem('nhphcm_v5')){
     const nc=DATA.filter(r=>r.is_new).length;
@@ -2010,6 +2011,7 @@ function adminClearAllPosts(){
 }
 
 init();
+</script>
 
 
 
@@ -2070,6 +2072,5 @@ init();
     </div>
   </div>
 </div>
-</script>
 </body>
 </html>
