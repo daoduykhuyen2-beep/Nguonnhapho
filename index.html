@@ -651,7 +651,7 @@ a{text-decoration:none;color:inherit}
             <div style="background:#f9fafb;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;font-size:13px;margin-bottom:11px">
               <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Số tài khoản</span><strong style="color:var(--gold);font-size:15px;cursor:pointer" onclick="cpTxt('6666 6666 6736',this)">6666 6666 6736 📋</strong></div>
               <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Chủ tài khoản</span><strong>DAO DUY KHUYEN</strong></div>
-              <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Số tiền nạp</span><strong id="top-amt" style="color:var(--gold)">200,000đ</strong></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Số tiền nạp</span><strong id="top-amt" style="color:var(--gold)">199,000đ</strong></div>
               <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Nội dung CK</span><strong style="color:var(--gold);cursor:pointer" onclick="cpTxt('NHPHCM NAP [SĐT]',this)">NHPHCM NAP [SĐT] 📋</strong></div>
             </div>
             <div style="text-align:center">
@@ -679,7 +679,7 @@ a{text-decoration:none;color:inherit}
       <div class="fg2" style="margin-bottom:8px">
         <div class="ff"><label>Họ và tên *</label><input id="fn" placeholder="Nguyễn Văn A"></div>
         <div class="ff"><label>Số điện thoại *</label><input id="fph" placeholder="09xx.xxx.xxx" type="tel"></div>
-        <div class="ff"><label>Email</label><input id="fe" placeholder="email@gmail.com" type="email"></div>
+        <div class="ff"><label>Ảnh & Video</label><input id="fe" type="file" accept="image/*,video/*" multiple></div> placeholder="email@gmail.com" type="email"></div>
         <div class="ff"><label>Vai trò</label><select id="fr"><option>Chủ nhà</option><option>Môi giới</option><option>Nhà đầu tư</option></select></div>
       </div>
       <div style="font-size:12px;font-weight:700;color:var(--dark);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #f1f5f9">🏠 Thông tin bất động sản</div>
@@ -1524,7 +1524,7 @@ function rPlans(){
 }
 function rComp(){
   const el=document.getElementById('compT');if(!el)return;
-  const rows=[['','🆓 Free','✅ Xác Minh','🏅 Uy Tín','🤝 Đối Tác'],['Số tin/tháng','3','15','30','50'],['Tin tự xóa sau','2 tháng','2 tháng','2 tháng','2 tháng'],['Lịch sử tổng tin','✓','✓','✓','✓'],['Huy hiệu','—','✅ XÁC MINH','🏅 UY TÍN','🤝 ĐỐI TÁC'],['Ưu tiên hiển thị','—','—','✓ Đầu DS','📌 Ghim cố định'],['Duyệt tin','48 giờ','24 giờ','4 giờ','Ngay lập tức'],['Tặng đẩy tin','—','—','1 lần/tháng','3 lần/tháng'],['Hỗ trợ','Cộng đồng','Ưu tiên','1-1 Zalo','24/7'],['Giá/tháng','Miễn phí','100,000đ','200,000đ','399,000đ']];
+  const rows=[['','🆓 Free','✅ Xác Minh','🏅 Uy Tín','🤝 Đối Tác'],['Số tin/tháng','3','15','30','50'],['Tin tự xóa sau','2 tháng','2 tháng','2 tháng','2 tháng'],['Lịch sử tổng tin','✓','✓','✓','✓'],['Huy hiệu','—','✅ XÁC MINH','🏅 UY TÍN','🤝 ĐỐI TÁC'],['Ưu tiên hiển thị','—','—','✓ Đầu DS','📌 Ghim cố định'],['Duyệt tin','48 giờ','24 giờ','4 giờ','Ngay lập tức'],['Tặng đẩy tin','—','—','1 lần/tháng','3 lần/tháng'],['Hỗ trợ','Cộng đồng','Ưu tiên','1-1 Zalo','24/7'],['Giá/tháng','Miễn phí','99,000đ','199,000đ','399,000đ']];
   const cols=['#6b7280','#2563eb','#7c3aed','#c9922a'];
   el.innerHTML='<thead><tr style="background:#f9fafb">'+rows[0].map((h,i)=>`<th style="padding:9px 12px;text-align:${i?'center':'left'};color:${i?cols[i-1]:'#6b7280'};font-weight:700;font-size:${i?13:11}px;border-bottom:1px solid #e5e7eb">${h}</th>`).join('')+'</tr></thead><tbody>'+rows.slice(1).map(r=>'<tr style="border-bottom:1px solid #f1f5f9"><td style="padding:8px 12px;font-size:12px;color:#374151;font-weight:500">'+r[0]+'</td>'+r.slice(1).map((v,i)=>`<td style="padding:8px 12px;text-align:center;font-size:12px;color:${v==='—'?'#d1d5db':v.startsWith('✓')||/^[✅🏅🤝📌]/.test(v)?'#16a34a':cols[i]};font-weight:${v!=='—'?600:400}">${v}</td>`).join('')+'</tr>').join('')+'</tbody>';
 }
