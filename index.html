@@ -239,7 +239,7 @@ a{text-decoration:none;color:inherit}
 .ncard:hover{border-color:var(--gold);transform:translateY(-2px)}
 
 /* NOTIFICATION PAGE */
-.nptag{display:flex;align-items:flex-start;gap:12px;padding:13px;border-radius:9px;border:1px solid #e5e7eb;margin-bottom:8px;background:#fff}
+.nptag{display:block;padding:13px;border-radius:9px;border:1px solid #e5e7eb;margin-bottom:8px;background:#fff;transition:box-shadow .2s}.nptag:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .nptag.new_house{border-left:4px solid #16a34a}
 .nptag.user_post{border-left:4px solid #2563eb}
 .nptag.update{border-left:4px solid var(--gold)}
@@ -322,7 +322,7 @@ a{text-decoration:none;color:inherit}
     <a onclick="gp('news')" id="nl-news">Tin tức</a>
     <a onclick="gp('pricing')" id="nl-pricing">Gói dịch vụ</a>
     <a onclick="gp('post')" id="nl-post">Đăng tin</a>
-    <a onclick="gp('notif')" id="nl-notif">🔔 Thông báo</a>
+    <a onclick="gp('notif')" id="nl-notif">📋 Tin Đăng</a>
     <a onclick="gp('fav')" id="nl-fav">❤️ Yêu thích</a>
     <a onclick="gp('cart')" id="nl-cart">🛒 Giỏ hàng</a>
   </div>
@@ -714,28 +714,42 @@ a{text-decoration:none;color:inherit}
         <div class="ff"><label>Pháp lý</label><select id="fle"><option>Sổ hồng</option><option>Sổ đỏ</option><option>Hợp đồng</option><option>Khác</option></select></div>
       </div>
       <div class="ff"><label>Mô tả thêm</label><textarea id="fde" rows="3" style="resize:none" placeholder="Đặc điểm nổi bật, tiện ích, pháp lý..."></textarea></div>
-      <button onclick="subPost()" style="width:100%;background:var(--gold);color:var(--dark);font-weight:700;font-size:14px;padding:12px;border-radius:7px;border:none;cursor:pointer">Gửi thông tin qua Zalo →</button>
+      <div class="ff" style="margin-bottom:8px">
+        <label style="font-weight:600;color:#374151">📸 Hình ảnh & Video</label>
+        <label for="fimg" style="display:flex;align-items:center;gap:8px;margin-top:6px;padding:10px 14px;border:2px dashed #d1d5db;border-radius:8px;cursor:pointer;background:#f9fafb;transition:border-color .2s" onmouseover="this.style.borderColor='#c9922a'" onmouseout="this.style.borderColor='#d1d5db'">
+          <span style="font-size:22px">📷</span>
+          <span style="font-size:13px;color:#6b7280" id="fimg-lbl">Nhấn để chọn ảnh / video (tối đa 5 tệp)</span>
+        </label>
+        <input type="file" id="fimg" accept="image/*,video/*" multiple style="display:none" onchange="let n=this.files.length;document.getElementById('fimg-lbl').textContent=n>0?n+' tệp đã chọn':'Nhấn để chọn ảnh / video (tối đa 5 tệp)';prevImgs(this)">
+        <div id="fimg-preview" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
+      </div>
+      <button id="post-btn" onclick="subPost()" style="width:100%;background:var(--gold);color:var(--dark);font-weight:700;font-size:15px;padding:13px;border-radius:8px;border:none;cursor:pointer;margin-top:4px">📤 Tải lên</button>
     </div>
   </div>
 </div>
 
-<!-- ══ NOTIFICATION ══ -->
+<!-- ══ TIN ĐĂNG ══ -->
 <div class="page" id="page-notif">
-  <div class="hero" style="padding:17px 20px 13px"><h1>🔔 Thông báo <em>& Tin mới</em></h1><p style="margin-top:3px">Nhà mới cập nhật · Người dùng đăng tin · Cập nhật hệ thống</p></div>
-  <div style="max-width:700px;margin:0 auto;padding:16px 14px">
-    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
-      <button class="fpill on" onclick="fNotif(this,'all')">Tất cả</button>
-      <button class="fpill" onclick="fNotif(this,'new_house')" style="border-color:#16a34a;color:#16a34a">🏠 Nhà mới</button>
-      <button class="fpill" onclick="fNotif(this,'user_post')" style="border-color:#2563eb;color:#2563eb">👤 Người đăng tin</button>
-      <button class="fpill" onclick="fNotif(this,'update')" style="border-color:var(--gold);color:#92650a">🔄 Cập nhật</button>
+  <div class="hero" style="padding:17px 20px 13px">
+    <h1>Tin đăng <em>nhà phố</em></h1>
+    <p style="margin-top:3px">Tin từ chủ nhà · môi giới · thông báo quan trọng</p>
+  </div>
+  <div style="padding:0 12px 8px;max-width:700px;margin:0 auto">
+    <div id="upost-tabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="fpill on" onclick="fUPost(this,'all')">Tất cả</button>
+      <button class="fpill" onclick="fUPost(this,'owner')">🏠 Chủ nhà</button>
+      <button class="fpill" onclick="fUPost(this,'broker')">🏢 Môi giới</button>
+      <button class="fpill" onclick="fUPost(this,'admin')" style="border-color:#dc2626;color:#dc2626">📢 Thông báo</button>
     </div>
-    <div id="npage-list"></div>
-    <div id="npage-empty" style="display:none;text-align:center;padding:40px;color:#9ca3af">
-      <div style="font-size:48px;margin-bottom:10px">🔔</div><p>Chưa có thông báo nào</p>
+    <div id="upost-list"></div>
+  </div>
+  <div style="padding:0 12px 12px;max-width:700px;margin:0 auto">
+    <div style="border-top:1px solid #e5e7eb;padding-top:12px;margin-top:4px">
+      <div style="font-size:12px;font-weight:600;color:#9ca3af;letter-spacing:.5px;margin-bottom:8px">HOẠT ĐỘNG HỆ THỐNG</div>
+      <div id="npage-list"></div>
     </div>
   </div>
 </div>
-
 <!-- ══ YÊU THÍCH ══ -->
 <div class="page" id="page-fav">
   <div class="hero" style="padding:17px 20px 13px">
@@ -1053,6 +1067,21 @@ function gp(p){
   if(p==='notif')renderNPage();
   if(p==='fav')renderFavPage();
   if(p==='cart')renderCartPage();
+}
+
+// ════════════════════════════════════════════════════
+// ADMIN POST (Mr. Duy đăng thông báo quan trọng)
+// ════════════════════════════════════════════════════
+function addAdminPost(title, desc, imgs){
+  const posts=getUPosts();
+  posts.unshift({
+    id:'admin_'+Date.now(),ts:Date.now(),boosted:Date.now(),
+    type:'admin',name:title,desc:desc||'',imgs:imgs||[],phone:'',email:'',role:'Admin'
+  });
+  saveUPosts(posts);
+  addNotif('new_house','📢 Thông báo mới từ Mr. Duy',title);
+  renderUPosts();
+  toast('✅ Đã đăng thông báo!');
 }
 
 // ════════════════════════════════════════════════════
@@ -1546,6 +1575,19 @@ function buyP(n,p,d){const ph=cUser?cUser.phone:'[SĐT]';const m='🚀 MUA GÓI 
 function selTop(a,el){curTop=a;document.querySelectorAll('.tub').forEach(b=>b.classList.remove('sel'));if(el)el.classList.add('sel');const d=document.getElementById('top-amt');if(d)d.textContent=vnd(a)+'đ';const cu=document.getElementById('top-cu');if(cu)cu.value='';}
 function cfTop(){const ph=cUser?cUser.phone:'[SĐT]';const m='💳 NẠP TIỀN - NHPHCM%0A%0ASố tiền: '+vnd(curTop)+'đ%0ASĐT: '+ph+'%0ANội dung CK: NHPHCM NAP '+ph+'%0A%0AĐã CK xong, nhờ Mr. Duy xác nhận!';window.open('https://zalo.me/0987645314?text='+m,'_blank');toast('✅ Số dư được cộng trong 30 phút!');}
 
+// Boost latest user post when user buys push package
+function boostLatestPost(){
+  const posts=getUPosts();
+  const myPosts=posts.filter(p=>p.type!=='admin');
+  if(myPosts.length>0){
+    boostUserPost(myPosts[0].id);
+    toast('⚡ Tin của bạn đã được đẩy lên TOP!');
+    gp('notif');
+  } else {
+    toast('⚠️ Bạn chưa có tin đăng nào. Hãy đăng tin trước!');
+  }
+}
+
 // ════════════════════════════════════════════════════
 // AUTH
 // ════════════════════════════════════════════════════
@@ -1619,23 +1661,136 @@ function updDash(){
 // ════════════════════════════════════════════════════
 // POST
 // ════════════════════════════════════════════════════
-function subPost(){
-  const n=(document.getElementById('fn')||{}).value?.trim();
-  const ph=(document.getElementById('fph')||{}).value?.trim();
-  const st=(document.getElementById('fst')||{}).value?.trim();
-  const pr=(document.getElementById('fpr')||{}).value?.trim();
+async function subPost(){
+  const n=document.getElementById('fn')?.value.trim()||'';
+  const ph=document.getElementById('fph')?.value.trim()||'';
+  const em=document.getElementById('fe')?.value.trim()||'';
+  const ro=document.getElementById('fr')?.value||'Chủ nhà';
+  const ty=document.getElementById('fty')?.value||'';
+  const di=document.getElementById('fdi')?.value||'';
+  const st=document.getElementById('fst')?.value.trim()||'';
+  const pr=document.getElementById('fpr')?.value.trim()||'';
+  const ar=document.getElementById('far')?.value.trim()||'';
+  const fl=document.getElementById('ffl')?.value.trim()||'';
+  const fm=document.getElementById('fmt')?.value.trim()||'';
+  const le=document.getElementById('fle')?.value||'';
+  const de=document.getElementById('fde')?.value.trim()||'';
   if(!n||!ph||!st||!pr){toast('⚠️ Vui lòng điền đầy đủ thông tin (*)');return;}
-  const ty=(document.getElementById('fty')||{}).value||'Nhà phố';
-  const di=(document.getElementById('fdi')||{}).value||'Quận 1';
-  const ar=(document.getElementById('far')||{}).value||'';
-  const fl=(document.getElementById('ffl')||{}).value||'';
-  const de=(document.getElementById('fde')||{}).value?.trim()||'';
-  const m='🏠 ĐĂNG TIN BĐS - NHPHCM%0A%0A👤 Họ tên: '+n+'%0A📞 SĐT: '+ph+'%0A%0A📋 Loại: '+ty+'%0A📍 Quận: '+di+'%0A🛣️ Đường: '+st+'%0A💰 Giá: '+pr+'%0A'+(ar?'📐 DT: '+ar+'m²%0A':'')+(fl?'🏢 Tầng: '+fl+'%0A':'')+'%0A📝 Mô tả: '+(de||'Không có')+'%0A%0A_Gửi từ nguonnhaphohcm.vn_';
-  window.open('https://zalo.me/0987645314?text='+m,'_blank');
+  const btn=document.getElementById('post-btn');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Đang tải lên...';}
+  // Upload images if any
+  let imgUrls=[];
+  const fileInput=document.getElementById('fimg');
+  if(fileInput&&fileInput.files.length>0){
+    toast('📤 Đang upload ảnh...');
+    imgUrls=await uploadImages(Array.from(fileInput.files));
+  }
+  // Save as user post
+  addUserPost({name:n,phone:ph,email:em,role:ro,pty:ty,district:di,street:st,price:pr,area:ar,floors:fl,front:fm,legal:le,desc:de,imgs:imgUrls});
+  // Notify
   addNotif('user_post','📋 Có người vừa đăng tin mới!',n+' · '+ty+' · '+di+' · '+st+' · '+pr);
-  sendMail('Đăng tin mới từ '+n,'Tên: '+n+' | SĐT: '+ph+' | Loại: '+ty+' | Quận: '+di+' | Đường: '+st+' | Giá: '+pr+' | Mô tả: '+de);
-  toast('✅ Đang mở Zalo — gửi tin nhắn để hoàn tất!');
-  if(cUser){cUser.totalPosts=(cUser.totalPosts||0)+1;localStorage.setItem('nhphcm_user',JSON.stringify(cUser));}
+  sendMail('Đăng tin mới từ '+n,'Tên: '+n+' | SĐT: '+ph+' | Email: '+em+' | Loại: '+ty+' | Quận: '+di+' | Đường: '+st+' | Giá: '+pr+' | Mô tả: '+de);
+  const m='🏠 ĐĂNG TIN BĐS - NHPHCM%0A%0A👤 Họ tên: '+n+'%0A📞 SĐT: '+ph+'%0A%0A📋 Loại: '+ty+'%0A📍 Quận: '+di+'%0A🛣️ Đường: '+st+'%0A💰 Giá: '+pr+'%0A'+(ar?'📐 DT: '+ar+'m²%0A':'')+(fl?'🏢 Tầng: '+fl+'%0A':'')+(de?'📝 '+de+'%0A':'')+(imgUrls.length?'🖼️ Ảnh: '+imgUrls.join(' | '):'');
+  toast('✅ Tin đã đăng! Chuyển Zalo để xác nhận...');
+  if(btn){btn.disabled=false;btn.textContent='📤 Tải lên';}
+  setTimeout(()=>window.open('https://zalo.me/0987645314?text='+m,'_blank'),800);
+}
+
+// ════════════════════════════════════════════════════
+// USER POSTS (Tin đăng từ khách & môi giới)
+// ════════════════════════════════════════════════════
+const UPOSTS_KEY='nhphcm_uposts';
+function getUPosts(){try{return JSON.parse(localStorage.getItem(UPOSTS_KEY)||'[]');}catch{return[];}}
+function saveUPosts(arr){localStorage.setItem(UPOSTS_KEY,JSON.stringify(arr));}
+
+function addUserPost(data){
+  const posts=getUPosts();
+  const post={
+    id:'up_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    ts:Date.now(),
+    boosted:0,
+    type:data.role==='Môi giới'?'broker':'owner',
+    name:data.name,phone:data.phone,email:data.email||'',
+    role:data.role||'Chủ nhà',
+    pty:data.pty,district:data.district,street:data.street,
+    price:data.price,area:data.area||'',floors:data.floors||'',
+    front:data.front||'',legal:data.legal||'',
+    desc:data.desc||'',
+    imgs:data.imgs||[]
+  };
+  posts.unshift(post);
+  saveUPosts(posts);
+  renderUPosts();
+  return post;
+}
+
+function boostUserPost(id){
+  const posts=getUPosts();
+  const p=posts.find(x=>x.id===id);
+  if(p){p.boosted=Date.now();posts.sort((a,b)=>(b.boosted||0)-(a.boosted||0)||(b.ts-a.ts));}
+  saveUPosts(posts);renderUPosts();
+}
+
+function renderUPosts(filter='all'){
+  const el=document.getElementById('upost-list');
+  if(!el)return;
+  let posts=getUPosts();
+  if(filter==='owner')posts=posts.filter(p=>p.type==='owner');
+  else if(filter==='broker')posts=posts.filter(p=>p.type==='broker');
+  else if(filter==='admin')posts=posts.filter(p=>p.type==='admin');
+  posts.sort((a,b)=>(b.boosted||0)-(a.boosted||0)||(b.ts-a.ts));
+  if(!posts.length){
+    el.innerHTML='<div class="pg-empty"><div class="pg-ei">📋</div><p>Chưa có tin đăng nào</p></div>';
+    return;
+  }
+  el.innerHTML=posts.map(p=>{
+    const ago=timeAgo(p.ts);
+    const badge=p.type==='admin'?'<span style="background:#dc2626;color:#fff;font-size:10px;padding:2px 6px;border-radius:10px;font-weight:700">📢 THÔNG BÁO</span>':
+               p.type==='broker'?'<span style="background:#7c3aed;color:#fff;font-size:10px;padding:2px 6px;border-radius:10px;font-weight:700">🏢 Môi giới</span>':
+               '<span style="background:#059669;color:#fff;font-size:10px;padding:2px 6px;border-radius:10px;font-weight:700">🏠 Chủ nhà</span>';
+    const boostedBadge=p.boosted>0?'<span style="background:#f59e0b;color:#fff;font-size:10px;padding:2px 6px;border-radius:10px;font-weight:700;margin-left:4px">⚡ Đẩy tin</span>':'';
+    const imgs=p.imgs&&p.imgs.length?'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">'+p.imgs.slice(0,3).map(u=>'<img src="'+u+'" style="width:72px;height:54px;object-fit:cover;border-radius:5px;border:1px solid #e5e7eb">').join('')+(p.imgs.length>3?'<span style="font-size:11px;color:#6b7280;align-self:center">+'+((p.imgs.length-3))+' ảnh</span>':'')+'</div>':'';
+    if(p.type==='admin')return`<div class="nptag" style="border-left:4px solid #dc2626;background:#fff8f8">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${badge}${boostedBadge}<span style="font-size:11px;color:#9ca3af;margin-left:auto">${ago}</span></div>
+      <div style="font-weight:700;font-size:14px;margin-top:4px">${p.name}</div>
+      <div style="font-size:13px;color:#374151;margin-top:3px">${p.desc}</div>
+      ${imgs}
+    </div>`;
+    return`<div class="nptag" style="border-left:4px solid ${p.type==='broker'?'#7c3aed':'#059669'}">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${badge}${boostedBadge}<span style="font-size:11px;color:#9ca3af;margin-left:auto">${ago}</span></div>
+      <div style="font-weight:700;font-size:14px;margin-top:4px">${p.pty||''} — ${p.district||''} · ${p.street||''}</div>
+      <div style="font-size:13px;color:#059669;font-weight:600">${p.price||''}${p.area?' · '+p.area+'m²':''}</div>
+      ${p.desc?'<div style="font-size:12px;color:#6b7280;margin-top:2px">'+p.desc+'</div>':''}
+      ${imgs}
+      <div style="font-size:11px;color:#9ca3af;margin-top:4px">${p.name} · ${p.role}</div>
+    </div>`;
+  }).join('');
+}
+
+function fUPost(btn,f){
+  document.querySelectorAll('#upost-tabs .fpill').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');renderUPosts(f);
+}
+
+function timeAgo(ts){
+  const s=Math.floor((Date.now()-ts)/1000);
+  if(s<60)return'vừa xong';if(s<3600)return Math.floor(s/60)+' phút trước';
+  if(s<86400)return Math.floor(s/3600)+' giờ trước';return Math.floor(s/86400)+' ngày trước';
+}
+
+// Upload ảnh lên ImgBB (free API)
+const IMGBB_KEY='2e9ef4b985d6d79d8b2cd99c72da1df7';
+async function uploadImages(files){
+  const urls=[];
+  for(const f of files){
+    try{
+      const fd=new FormData();fd.append('image',f);fd.append('key',IMGBB_KEY);
+      const r=await fetch('https://api.imgbb.com/1/upload',{method:'POST',body:fd});
+      const j=await r.json();
+      if(j.success)urls.push(j.data.url);
+    }catch(e){console.warn('Upload fail',e);}
+  }
+  return urls;
 }
 
 // ════════════════════════════════════════════════════
@@ -1712,12 +1867,27 @@ document.addEventListener('click',e=>{
 // ════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════
+// Image preview for upload
+function prevImgs(input){
+  const prev=document.getElementById('fimg-preview');
+  if(!prev)return;
+  const files=Array.from(input.files).slice(0,5);
+  prev.innerHTML=files.map(f=>{
+    const url=URL.createObjectURL(f);
+    const isVid=f.type.startsWith('video');
+    return isVid?
+      '<video src="'+url+'" style="width:80px;height:60px;object-fit:cover;border-radius:5px;border:1px solid #e5e7eb" muted></video>':
+      '<img src="'+url+'" style="width:80px;height:60px;object-fit:cover;border-radius:5px;border:1px solid #e5e7eb">';
+  }).join('');
+}
+
 function init(){
   initTabs();initTicker();runF();updNav();updStats();
   document.getElementById('tab-push').style.display='none';
   document.getElementById('tab-topup').style.display='none';
   allNews=[...SNEWS];
   updNBadge();renderNPreview();updFavBadge();updCartBadge();renderNewSec();
+  renderUPosts();
   // Welcome notification
   if(!localStorage.getItem('nhphcm_v5')){
     const nc=DATA.filter(r=>r.is_new).length;
