@@ -709,19 +709,164 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <!-- ===== PRICING PAGE ===== -->
 <div class="page" id="page-pricing">
-  <div class="hero" style="padding:28px 20px 24px;text-align:center">
-    <h1 style="font-size:24px">Chọn gói <em>đăng tin</em> phù hợp</h1>
+  <div class="hero" style="padding:28px 20px 16px;text-align:center">
+    <h1 style="font-size:24px">Gói đăng tin <em>& Nạp tiền</em></h1>
     <p style="margin-top:6px">Tiếp cận hàng ngàn khách hàng — đăng tin nhanh, duyệt ưu tiên, hiển thị nổi bật</p>
   <!-- SETUP NOTE: Sau khi deploy Apps Script, cập nhật GSHEET_API trong JS -->
-    <div style="display:inline-flex;background:rgba(255,255,255,.1);border-radius:8px;padding:4px;margin-top:16px;gap:2px">
-      <button id="billing-month" onclick="setBilling('month')" style="padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:var(--gold);color:var(--dark)">Theo tháng</button>
-      <button id="billing-year" onclick="setBilling('year')" style="padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:transparent;color:#94a3b8">Theo năm <span style="background:#16a34a;color:#fff;font-size:10px;padding:1px 5px;border-radius:4px;margin-left:3px">-20%</span></button>
+    <!-- Tab chính -->
+    <div style="display:inline-flex;background:rgba(255,255,255,.1);border-radius:8px;padding:4px;margin-top:16px;gap:2px" id="pricingMainTabs">
+      <button onclick="switchPricingTab('plans')" id="ptab-plans" style="padding:7px 18px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:var(--gold);color:var(--dark)">📋 Gói đăng tin</button>
+      <button onclick="switchPricingTab('push')" id="ptab-push" style="padding:7px 18px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:transparent;color:#94a3b8">🚀 Đẩy tin</button>
+      <button onclick="switchPricingTab('topup')" id="ptab-topup" style="padding:7px 18px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:transparent;color:#94a3b8">💳 Nạp tiền</button>
+    </div>
+    <!-- Sub tab tháng/năm — chỉ hiện khi ở tab Gói -->
+    <div id="billingToggle" style="display:flex;justify-content:center;margin-top:10px">
+      <div style="display:inline-flex;background:rgba(255,255,255,.08);border-radius:7px;padding:3px;gap:2px">
+        <button id="billing-month" onclick="setBilling('month')" style="padding:5px 16px;border-radius:5px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:rgba(255,255,255,.9);color:var(--dark)">Theo tháng</button>
+        <button id="billing-year" onclick="setBilling('year')" style="padding:5px 16px;border-radius:5px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:transparent;color:#94a3b8">Theo năm <span style="background:#16a34a;color:#fff;font-size:10px;padding:1px 5px;border-radius:4px;margin-left:2px">-20%</span></button>
+      </div>
     </div>
   </div>
 
   <div style="max-width:1100px;margin:0 auto;padding:24px 14px">
-    <!-- PRICING CARDS -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px" id="pricingCards">
+    <!-- TAB CONTENT -->
+    <!-- Tab: Gói đăng tin -->
+    <div id="tab-plans">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px" id="pricingCards"></div>
+    </div>
+
+    <!-- Tab: Đẩy tin -->
+    <div id="tab-push" style="display:none">
+      <div style="background:#fef3dc;border:1px solid #fcd34d;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#92650a">
+        💡 <strong>Đẩy tin là gì?</strong> Tính năng đẩy tin lên TOP danh sách tìm kiếm ngay lập tức — giúp tăng lượt xem 3-20 lần. Khác với gói đăng tin hàng tháng, mỗi lần đẩy chỉ áp dụng cho 1 tin cụ thể theo số lần/ngày bạn chọn.
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px" id="pushCards-main"></div>
+      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;font-size:12px;color:#6b7280">
+        📌 <strong>Lưu ý:</strong> Sau khi mua gói đẩy tin, gửi xác nhận qua Zalo <strong style="color:var(--dark)">0987.645.314</strong> — kích hoạt trong 30 phút. Tin sau khi đẩy sẽ xuất hiện đầu danh sách và đầu trang Tin tức.
+      </div>
+    </div>
+
+    <!-- Tab: Nạp tiền -->
+    <div id="tab-topup" style="display:none">
+      <div style="max-width:680px;margin:0 auto">
+        <div style="text-align:center;margin-bottom:20px">
+          <div style="font-size:15px;font-weight:700;color:var(--dark);margin-bottom:4px">Nạp tiền vào tài khoản</div>
+          <div style="font-size:12px;color:#6b7280">Nạp một lần — dùng mua gói đăng tin, đẩy tin bất cứ lúc nào · Số dư không hết hạn</div>
+        </div>
+
+        <!-- Gói nạp nhanh -->
+        <div style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:14px">
+          <div style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-size:13px;font-weight:700;color:var(--dark);background:#f9fafb">⚡ Gói nạp nhanh</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:0">
+            ${[100000,200000,500000,1000000].map((amt,i)=>`
+              <div onclick="selectTopup(${amt})" id="topup-${amt}" style="padding:14px 8px;text-align:center;cursor:pointer;border-right:${i<3?'1px solid #f1f5f9':'none'};border-bottom:0;transition:background .15s" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='#fff'">
+                <div style="font-size:16px;font-weight:700;color:var(--dark)">${new Intl.NumberFormat('vi-VN').format(amt)}đ</div>
+                ${amt===200000?'<div style="font-size:10px;background:#fef3dc;color:#92650a;padding:1px 6px;border-radius:8px;margin-top:4px;font-weight:600">Phổ biến</div>':''}
+                ${amt===500000?'<div style="font-size:10px;background:#d1fae5;color:#065f46;padding:1px 6px;border-radius:8px;margin-top:4px;font-weight:600">Tặng thêm 5%</div>':''}
+                ${amt===1000000?'<div style="font-size:10px;background:#ede9fe;color:#7c3aed;padding:1px 6px;border-radius:8px;margin-top:4px;font-weight:600">Tặng thêm 10%</div>':''}
+              </div>`).join('')}
+          </div>
+          <div style="padding:10px 16px;border-top:1px solid #f1f5f9;display:flex;align-items:center;gap:8px">
+            <span style="font-size:12px;color:#6b7280;flex-shrink:0">Hoặc nhập số tiền:</span>
+            <input id="topup-custom" type="number" placeholder="VD: 300000" min="50000" step="50000"
+              style="flex:1;border:1.5px solid #e5e7eb;border-radius:6px;padding:7px 10px;font-size:13px;outline:none;font-family:inherit"
+              oninput="updateTopupAmount(this.value)" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='#e5e7eb'">
+            <span style="font-size:12px;color:#6b7280">tối thiểu 50,000đ</span>
+          </div>
+        </div>
+
+        <!-- Chọn PT nạp -->
+        <div style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:14px">
+          <div style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-size:13px;font-weight:700;color:var(--dark);background:#f9fafb">💳 Phương thức nạp tiền</div>
+          <div style="padding:12px 16px">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+              <div class="pay-method on" id="pm-bank" onclick="selectPayMethod('bank')" style="text-align:center">
+                <div style="font-size:20px;margin-bottom:3px">🏦</div>
+                <div style="font-size:11px;font-weight:600">Ngân hàng</div>
+              </div>
+              <div class="pay-method" id="pm-momo" onclick="selectPayMethod('momo')" style="text-align:center">
+                <div style="font-size:20px;margin-bottom:3px">💜</div>
+                <div style="font-size:11px;font-weight:600">MoMo</div>
+              </div>
+              <div class="pay-method" id="pm-zalo" onclick="selectPayMethod('zalo')" style="text-align:center">
+                <div style="font-size:20px;margin-bottom:3px">💙</div>
+                <div style="font-size:11px;font-weight:600">ZaloPay</div>
+              </div>
+              <div class="pay-method" id="pm-qr" onclick="selectPayMethod('qr')" style="text-align:center">
+                <div style="font-size:20px;margin-bottom:3px">📱</div>
+                <div style="font-size:11px;font-weight:600">QR Code</div>
+              </div>
+            </div>
+            <!-- Bank content (reuse từ pay-bank section) -->
+            <div id="topup-bank-info">
+              <div style="display:flex;gap:6px;margin-bottom:10px">
+                <button onclick="selectTopupBank('tcb')" id="tbtab-tcb" style="flex:1;padding:6px 4px;border-radius:6px;border:2px solid var(--gold);background:var(--gold-light);font-size:11px;font-weight:700;cursor:pointer;color:#92650a">TECHCOMBANK</button>
+                <button onclick="selectTopupBank('vcb')" id="tbtab-vcb" style="flex:1;padding:6px 4px;border-radius:6px;border:1.5px solid #e5e7eb;background:#fff;font-size:11px;font-weight:700;cursor:pointer;color:#007b40">VIETCOMBANK</button>
+                <button onclick="selectTopupBank('mb')" id="tbtab-mb" style="flex:1;padding:6px 4px;border-radius:6px;border:1.5px solid #e5e7eb;background:#fff;font-size:11px;font-weight:700;cursor:pointer;color:#1a3a8f">MB BANK</button>
+              </div>
+              <div id="topup-tcb" style="display:block">
+                <div style="display:flex;flex-direction:column;gap:7px;background:#f9fafb;border-radius:8px;padding:12px;margin-bottom:8px">
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#6b7280">Ngân hàng</span><strong style="color:#e31b23">Techcombank</strong></div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#6b7280">Số TK</span><strong style="color:var(--gold);cursor:pointer" onclick="copyText('6666 6666 6736',this)">6666 6666 6736 📋</strong></div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#6b7280">Chủ TK</span><strong>DAO DUY KHUYEN</strong></div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#6b7280">Số tiền</span><strong id="topup-amount-display" style="color:var(--gold)">200,000đ</strong></div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#6b7280">Nội dung CK</span><strong id="topup-ck-content" style="color:var(--gold);cursor:pointer" onclick="copyText(document.getElementById('topup-ck-content').textContent,this)">NHPHCM NAP [SĐT] 📋</strong></div>
+                </div>
+              </div>
+              <div id="topup-vcb" style="display:none">
+                <div style="display:flex;flex-direction:column;gap:7px;background:#f9fafb;border-radius:8px;padding:12px">
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#6b7280">Ngân hàng</span><strong style="color:#007b40">Vietcombank</strong></div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#6b7280">Số TK</span><strong style="color:var(--gold);cursor:pointer" onclick="copyText('0591000348307',this)">0591000348307 📋</strong></div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#6b7280">Chủ TK</span><strong>DAO DUY KHUYEN</strong></div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#6b7280">Nội dung CK</span><strong style="color:var(--gold);cursor:pointer" onclick="copyText('NHPHCM NAP [SĐT]',this)">NHPHCM NAP [SĐT] 📋</strong></div>
+                </div>
+              </div>
+              <div id="topup-mb" style="display:none">
+                <div style="display:flex;flex-direction:column;gap:7px;background:#f9fafb;border-radius:8px;padding:12px">
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#6b7280">Ngân hàng</span><strong style="color:#1a3a8f">MBBank</strong></div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#6b7280">Số TK / SĐT</span><strong style="color:var(--gold);cursor:pointer" onclick="copyText('0987645314',this)">0987.645.314 📋</strong></div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#6b7280">Chủ TK</span><strong>DAO DUY KHUYEN</strong></div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#6b7280">Nội dung CK</span><strong style="color:var(--gold);cursor:pointer" onclick="copyText('NHPHCM NAP [SĐT]',this)">NHPHCM NAP [SĐT] 📋</strong></div>
+                </div>
+              </div>
+            </div>
+            <div id="topup-momo-info" style="display:none;background:#fff0f9;border:1.5px solid #f9a8d4;border-radius:8px;padding:14px">
+              <div style="font-size:13px;font-weight:700;color:#be185d;margin-bottom:8px">💜 Chuyển MoMo</div>
+              <div style="display:flex;flex-direction:column;gap:7px;font-size:13px">
+                <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Số MoMo</span><strong style="color:#be185d;cursor:pointer" onclick="copyText('0987645314',this)">0987.645.314 📋</strong></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Tên</span><strong>DAO DUY KHUYEN</strong></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Nội dung</span><strong style="color:#be185d;cursor:pointer" onclick="copyText('NHPHCM NAP [SĐT]',this)">NHPHCM NAP [SĐT] 📋</strong></div>
+              </div>
+              <button onclick="window.open('https://nhantien.momo.vn/0987645314','_blank')" style="width:100%;margin-top:10px;background:#ae2070;color:#fff;font-weight:700;font-size:13px;padding:10px;border-radius:7px;border:none;cursor:pointer">Mở MoMo →</button>
+            </div>
+            <div id="topup-zalo-info" style="display:none;background:#e7f3ff;border:1.5px solid #93c5fd;border-radius:8px;padding:14px">
+              <div style="font-size:13px;font-weight:700;color:#1d4ed8;margin-bottom:8px">💙 Chuyển ZaloPay</div>
+              <div style="display:flex;flex-direction:column;gap:7px;font-size:13px">
+                <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Số ZaloPay</span><strong style="color:#1d4ed8;cursor:pointer" onclick="copyText('0987645314',this)">0987.645.314 📋</strong></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Tên</span><strong>DAO DUY KHUYEN</strong></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Nội dung</span><strong style="color:#1d4ed8;cursor:pointer" onclick="copyText('NHPHCM NAP [SĐT]',this)">NHPHCM NAP [SĐT] 📋</strong></div>
+              </div>
+              <button onclick="window.open('https://zalo.me/0987645314','_blank')" style="width:100%;margin-top:10px;background:#0068FF;color:#fff;font-weight:700;font-size:13px;padding:10px;border-radius:7px;border:none;cursor:pointer">Mở ZaloPay →</button>
+            </div>
+            <div id="topup-qr-info" style="display:none;text-align:center;padding:10px 0">
+              <div style="font-size:11px;color:#6b7280;margin-bottom:8px">Quét QR bằng app ngân hàng bất kỳ</div>
+              <img src="${html[html.find('data:image/jpeg;base64,'):html.find('data:image/jpeg;base64,')+50]}..." alt="QR" style="width:160px;height:160px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb">
+            </div>
+          </div>
+        </div>
+
+        <div style="background:#f0fdf4;border:1.5px solid #6ee7b7;border-radius:10px;padding:12px 14px;font-size:12px;color:#065f46;line-height:1.8">
+          ✅ <strong>Sau khi nạp tiền:</strong><br>
+          • Gửi ảnh bill chuyển khoản cho Mr. Duy qua Zalo <strong>0987.645.314</strong><br>
+          • Số dư sẽ được cộng vào tài khoản trong <strong>30 phút</strong><br>
+          • Nạp từ 500k được tặng thêm 5% · Nạp từ 1tr được tặng thêm 10%<br>
+          • Số dư <strong>không hết hạn</strong> — dùng mua gói hoặc đẩy tin bất kỳ lúc nào
+        </div>
+
+        <button onclick="confirmTopup()" style="width:100%;margin-top:14px;background:var(--gold);color:var(--dark);font-weight:700;font-size:15px;padding:14px;border-radius:9px;border:none;cursor:pointer">
+          ✅ Tôi đã nạp tiền — Báo Mr. Duy xác nhận
+        </button>
+      </div>
     </div>
 
     <!-- PAYMENT SECTION (hidden until plan selected) -->
@@ -1350,6 +1495,547 @@ function init(){
   applyFilters();
 }
 init();
+
+// ================================================================
+// PLANS & PRICING
+// ================================================================
+// ================================================================
+// NGUỒN NHÀ PHỐ HCM — Bảng giá dịch vụ
+// 4 loại tài khoản + 3 gói đẩy tin
+// Tin đăng tự xóa sau 2 tháng nhưng lịch sử tổng bài vẫn giữ
+// ================================================================
+const PLANS = [
+  {id:'free',name:'Tài Khoản Free',icon:'🆓',color:'#6b7280',price:0,yearPrice:0,posts:3,badge:'',highlight:false,tag:'',
+   features:[
+    {icon:'📋',text:'3 tin đăng / tháng'},
+    {icon:'🕐',text:'Tin tự xóa sau 2 tháng'},
+    {icon:'📊',text:'Lịch sử tổng số tin đã đăng'},
+    {icon:'📞',text:'Nút liên hệ Zalo / Gọi điện'},
+    {icon:'⏱',text:'Duyệt tin trong 48 giờ'},
+    {icon:'❌',text:'Không có huy hiệu xác minh'},
+  ]},
+  {id:'verified',name:'Đã Xác Minh',icon:'✅',color:'#2563eb',price:100000,yearPrice:80000,posts:15,badge:'XÁC MINH',highlight:false,tag:'',
+   features:[
+    {icon:'📋',text:'15 tin đăng / tháng'},
+    {icon:'🕐',text:'Tin tự xóa sau 2 tháng'},
+    {icon:'📊',text:'Lịch sử tổng số tin đã đăng'},
+    {icon:'✅',text:'Huy hiệu ĐÃ XÁC MINH trên tin'},
+    {icon:'⚡',text:'Duyệt tin trong 24 giờ'},
+    {icon:'🔔',text:'Thông báo khi có khách quan tâm'},
+  ]},
+  {id:'trusted',name:'Uy Tín',icon:'🏅',color:'#7c3aed',price:200000,yearPrice:160000,posts:30,badge:'UY TÍN',highlight:true,tag:'PHỔ BIẾN',
+   features:[
+    {icon:'📋',text:'30 tin đăng / tháng'},
+    {icon:'🕐',text:'Tin tự xóa sau 2 tháng'},
+    {icon:'📊',text:'Lịch sử tổng số tin đã đăng'},
+    {icon:'🏅',text:'Huy hiệu UY TÍN — tăng độ tin cậy'},
+    {icon:'🔝',text:'Tin ưu tiên hiển thị đầu danh sách'},
+    {icon:'⚡',text:'Duyệt tin trong 4 giờ'},
+    {icon:'🎁',text:'Tặng 1 lần đẩy tin miễn phí/tháng'},
+    {icon:'💬',text:'Hỗ trợ 1-1 Zalo cùng Mr. Duy'},
+  ]},
+  {id:'partner',name:'Đối Tác NHPHCM',icon:'🤝',color:'#c9922a',price:399000,yearPrice:319000,posts:50,badge:'ĐỐI TÁC',highlight:false,tag:'CAO CẤP',
+   features:[
+    {icon:'📋',text:'50 tin đăng / tháng'},
+    {icon:'🕐',text:'Tin tự xóa sau 2 tháng'},
+    {icon:'📊',text:'Lịch sử tổng số tin đã đăng'},
+    {icon:'🤝',text:'Huy hiệu ĐỐI TÁC Nguồn Nhà Phố HCM'},
+    {icon:'📌',text:'Ghim tin CỐ ĐỊNH đầu trang'},
+    {icon:'⚡',text:'Duyệt tin NGAY LẬP TỨC'},
+    {icon:'🎁',text:'Tặng 3 lần đẩy tin miễn phí/tháng'},
+    {icon:'🏠',text:'Banner nổi bật trang chủ'},
+    {icon:'🤝',text:'Hỗ trợ ưu tiên 24/7'},
+  ]},
+];
+
+// Gói đẩy tin — giá anh tự quyết định
+const PUSH_PACKS = [
+  {name:'Đẩy tin 7 ngày',icon:'🔥',price:79000,unit:'/ 7 ngày',perDay:'~11k/ngày',days:7,hot:false,badge:'',
+   highlight:['7 ngày hiển thị TOP đầu danh sách','Tự động đẩy mỗi ngày 1 lần','Huy hiệu 🔥 Nổi bật trên tin','Phù hợp nhà phố 5-15 tỷ']},
+  {name:'Đẩy tin 15 ngày',icon:'⚡',price:149000,unit:'/ 15 ngày',perDay:'~10k/ngày',days:15,hot:true,badge:'PHỔ BIẾN',
+   highlight:['15 ngày TOP đầu danh sách','Đẩy 2 lần/ngày: 8h sáng & 20h tối','Huy hiệu ⚡ Nổi bật trên tin','Tiết kiệm hơn gói 7 ngày','Phù hợp BĐS 10-25 tỷ']},
+  {name:'Đẩy tin 1 tháng',icon:'🚀',price:249000,unit:'/ 30 ngày',perDay:'~8k/ngày',days:30,hot:false,badge:'TIẾT KIỆM NHẤT',
+   highlight:['30 ngày đẩy tự động','Hẹn giờ 5 khung: 7h 9h 12h 17h 20h','Huy hiệu 🚀 VIP trên tin','Tiết kiệm nhất chỉ ~8k/ngày','Phù hợp môi giới chuyên nghiệp']},
+];
+
+
+const FAQ = [
+  {q:'Tài khoản Free có bị hết hạn không?',a:'Không — tài khoản Free hoạt động mãi mãi. Bạn chỉ bị giới hạn 3 tin đăng mỗi tháng.'},
+  {q:'Sau khi thanh toán bao lâu gói được kích hoạt?',a:'Thường 2–4 giờ sau khi chuyển khoản. Gửi ảnh xác nhận cho Mr. Duy qua Zalo 0987.645.314 để kích hoạt ngay trong 30 phút.'},
+  {q:'Tin đăng có được duyệt tự động không?',a:'Gói Đối Tác được duyệt ngay lập tức. Gói Uy Tín trong 4 giờ. Đã Xác Minh trong 24 giờ. Free trong 48 giờ.'},
+  {q:'Có thể hủy gói giữa chừng không?',a:'Gói theo tháng không hoàn tiền khi hủy giữa chừng nhưng vẫn được dùng đến hết chu kỳ. Gói theo năm được hỗ trợ hoàn tiền trong 7 ngày đầu.'},
+  {q:'Gói đẩy tin khác gói đăng tin thế nào?',a:'Gói đăng tin hàng tháng cho phép đăng số lượng tin nhất định. Gói đẩy tin giúp đẩy 1 tin đã đăng lên TOP — mua thêm bất cứ lúc nào, không phụ thuộc gói tháng.'},
+  {q:'Tin đăng tự xóa sau 2 tháng — lịch sử có mất không?',a:'Tin đăng sẽ tự ẩn sau 2 tháng để giữ danh sách luôn cập nhật. Tuy nhiên TỔNG SỐ BÀI ĐĂNG trên hồ sơ của bạn VẪN ĐƯỢC LƯU LẠI — ví dụ tháng này đăng 30 bài, sau 2 tháng xóa 15 bài thì hồ sơ vẫn hiển thị "Đã đăng 30 bài". Đây là chỉ số uy tín giúp khách hàng tin tưởng bạn hơn.'},
+  {q:'Làm thế nào để nâng cấp lên Uy Tín hoặc Đối Tác?',a:'Sau khi thanh toán, gửi ảnh bill cho Mr. Duy qua Zalo 0987.645.314. Tài khoản sẽ được nâng cấp trong 30 phút và huy hiệu xuất hiện ngay trên tất cả tin đăng của bạn.'},
+];
+
+const GSHEET_API = 'YOUR_APPS_SCRIPT_WEB_APP_URL';
+const API_TOKEN  = 'NHPHCM2026SECRET';
+
+let billingCycle='month', selectedPlan=null, selectedPayMethod='bank';
+let currentUser=JSON.parse(localStorage.getItem('nhphcm_user')||'null');
+
+function fmt(p){return p===0?'Miễn phí':(p/1000).toLocaleString()+'k';}
+function fmtFull(p,cycle){
+  if(p===0)return'Miễn phí';
+  const v=cycle==='year'?p*12*0.8:p;
+  return new Intl.NumberFormat('vi-VN').format(v)+'đ';
+}
+
+function setBilling(cycle){
+  billingCycle=cycle;
+  ['month','year'].forEach(c=>{
+    const btn=document.getElementById('billing-'+c);
+    if(!btn)return;
+    btn.style.background=c===cycle?'var(--gold)':'transparent';
+    btn.style.color=c===cycle?'var(--dark)':'#94a3b8';
+  });
+  renderPricingCards();
+}
+
+function renderPricingCards(){
+  const c=document.getElementById('pricingCards');
+  if(!c)return;
+  c.innerHTML=PLANS.map(p=>{
+    const price=billingCycle==='year'?p.yearPrice:p.price;
+    const yearSave=p.price>0?Math.round((1-p.yearPrice/p.price)*100):0;
+    const isFree=p.price===0;
+    const borderColor=p.highlight?'#7c3aed':p.id==='partner'?'var(--gold)':'#e5e7eb';
+    const btnBg=isFree?'#f1f5f9':p.highlight?'#7c3aed':p.id==='partner'?'var(--gold)':p.color;
+    const btnColor=isFree?'#6b7280':p.id==='partner'?'var(--dark)':'#fff';
+    return '<div style="background:#fff;border-radius:14px;border:2px solid '+borderColor+';position:relative;overflow:hidden;display:flex;flex-direction:column;'+(p.highlight?'box-shadow:0 8px 28px rgba(124,58,237,.15)':'')+'">'
+      +(p.tag?'<div style="background:'+(p.highlight?'#7c3aed':p.id==='partner'?'var(--gold)':'#16a34a')+';color:'+(p.id==='partner'?'var(--dark)':'#fff')+';font-size:10px;font-weight:700;padding:5px;text-align:center;letter-spacing:.06em">'+p.tag+'</div>':'')
+      +'<div style="padding:'+(p.tag?'16px':'20px')+' 18px 14px;text-align:center;border-bottom:1px solid #f1f5f9">'
+        +'<div style="font-size:36px;margin-bottom:6px">'+p.icon+'</div>'
+        +'<div style="font-size:15px;font-weight:700;color:'+p.color+';margin-bottom:10px">'+p.name+'</div>'
+        +'<div style="font-size:30px;font-weight:700;color:var(--dark);line-height:1">'+(isFree?'0đ':new Intl.NumberFormat('vi-VN').format(price)+'đ')+'</div>'
+        +'<div style="font-size:11px;color:#9ca3af;margin-top:4px">'+(isFree?'Miễn phí mãi mãi':billingCycle==='month'?'/tháng':'/tháng · '+new Intl.NumberFormat('vi-VN').format(price*12)+'đ/năm')+'</div>'
+        +(billingCycle==='year'&&yearSave>0?'<div style="background:#d1fae5;color:#065f46;font-size:10px;font-weight:700;padding:2px 10px;border-radius:10px;display:inline-block;margin-top:6px">Tiết kiệm '+yearSave+'%</div>':'')
+      +'</div>'
+      +'<div style="padding:6px 16px 8px;background:'+(p.highlight?'#f5f3ff':p.id==='partner'?'var(--gold-light)':p.id==='verified'?'#eff6ff':'#f9fafb')+';border-bottom:1px solid #f1f5f9;text-align:center">'
+        +'<span style="font-size:13px;font-weight:700;color:'+p.color+'">'+p.posts+' tin đăng / tháng</span>'
+      +'</div>'
+      +'<div style="padding:14px 16px 0;flex:1;display:flex;flex-direction:column;gap:7px">'
+        +p.features.map(f=>'<div style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:#374151"><span style="flex-shrink:0;font-size:14px;line-height:1.3">'+f.icon+'</span><span>'+f.text+'</span></div>').join('')
+      +'</div>'
+      +'<div style="padding:14px 16px 18px">'
+        +(p.badge?'<div style="background:'+(p.id==='verified'?'#dbeafe':p.id==='trusted'?'#ede9fe':'var(--gold-light)')+';color:'+(p.id==='verified'?'#2563eb':p.id==='trusted'?'#7c3aed':'#92650a')+';font-size:10px;font-weight:700;padding:3px 12px;border-radius:20px;display:inline-block;margin-bottom:10px">'+(p.id==='verified'?'✅':p.id==='trusted'?'🏅':'🤝')+' Huy hiệu '+p.badge+'</div>':'')
+        +'<button onclick="selectPlan(''+p.id+'')" style="width:100%;background:'+btnBg+';color:'+btnColor+';font-weight:700;font-size:13px;padding:12px;border-radius:8px;border:none;cursor:pointer">'
+          +(isFree?'Bắt đầu miễn phí →':'Đăng ký '+p.name+' →')
+        +'</button>'
+        +(isFree?'<div style="font-size:10px;color:#9ca3af;text-align:center;margin-top:5px">Không cần thẻ tín dụng</div>':'')
+      +'</div>'
+    +'</div>';
+  }).join('');
+  renderCompareTable();
+  renderPushCards();
+  renderFaq();
+}
+
+function renderCompareTable(){
+  const el=document.getElementById('compareTable');
+  if(!el)return;
+  const rows=[
+    ['Số tin đăng/tháng','3 tin','15 tin','30 tin','50 tin'],
+    ['Tin tự xóa sau','2 tháng','2 tháng','2 tháng','2 tháng'],
+    ['Lịch sử tổng tin đã đăng','✓','✓','✓','✓'],
+    ['Huy hiệu tài khoản','—','✅ Xác Minh','🏅 Uy Tín','🤝 Đối Tác'],
+    ['Ưu tiên hiển thị','—','—','✓ Đầu DS','✓ Ghim cố định'],
+    ['Thời gian duyệt tin','48 giờ','24 giờ','4 giờ','Ngay lập tức'],
+    ['Tặng đẩy tin/tháng','—','—','1 lần','3 lần'],
+    ['Hỗ trợ','Cộng đồng','Ưu tiên','1-1 Zalo','24/7'],
+    ['Giá/tháng','Miễn phí','100,000đ','200,000đ','399,000đ'],
+  ];
+  const colors=['#6b7280','#2563eb','#7c3aed','#c9922a'];
+  el.innerHTML=rows.map(r=>'<tr style="border-bottom:1px solid #f1f5f9"><td style="padding:9px 16px;font-size:12px;color:#374151;font-weight:500">'+r[0]+'</td>'
+    +r.slice(1).map((v,i)=>'<td style="padding:9px 16px;text-align:center;font-size:12px;color:'+(v==='—'?'#d1d5db':v.startsWith('✓')||v.startsWith('✅')||v.startsWith('🏅')||v.startsWith('🤝')?'#16a34a':colors[i])+';font-weight:'+(v!=='—'&&v!=='2 tháng'?600:400)+'">'+v+'</td>').join('')
+  +'</tr>').join('');
+}
+function renderPushCards(){
+  const grids=['pushCards','pushCards-main'].map(id=>document.getElementById(id)).filter(Boolean);
+  const inner=PUSH_PACKS.map(p=>
+    '<div style="border:2px solid '+(p.hot?'var(--gold)':'#e5e7eb')+';border-radius:14px;position:relative;background:'+(p.hot?'var(--gold-light)':'#fff')+';display:flex;flex-direction:column;overflow:hidden">'
+      +(p.badge?'<div style="background:'+(p.hot?'var(--gold)':p.badge==='TIẾT KIỆM NHẤT'?'#16a34a':'var(--dark)')+';color:'+(p.hot?'var(--dark)':'#fff')+';font-size:10px;font-weight:700;padding:5px;text-align:center">'+p.badge+'</div>':'')
+      +'<div style="padding:16px 14px 12px;text-align:center;border-bottom:1px solid #f1f5f9">'
+        +'<div style="font-size:32px;margin-bottom:6px">'+p.icon+'</div>'
+        +'<div style="font-size:14px;font-weight:700;color:var(--dark);margin-bottom:8px">'+p.name+'</div>'
+        +'<div style="font-size:28px;font-weight:700;color:var(--gold);line-height:1">'+new Intl.NumberFormat('vi-VN').format(p.price)+'đ</div>'
+        +'<div style="font-size:11px;color:#9ca3af;margin-top:3px">'+p.unit+'</div>'
+        +'<div style="background:#fef3dc;color:#92650a;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:5px">'+p.perDay+'</div>'
+      +'</div>'
+      +'<div style="padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:6px">'
+        +p.highlight.map(h=>'<div style="display:flex;align-items:flex-start;gap:6px;font-size:11px;color:#374151"><span style="color:#16a34a;font-weight:700;flex-shrink:0">✓</span>'+h+'</div>').join('')
+      +'</div>'
+      +'<div style="padding:10px 14px 14px">'
+        +'<button onclick="buyPush(''+p.name+'','+p.price+','+p.days+')" style="width:100%;background:'+(p.hot?'var(--gold)':'var(--dark)')+';color:'+(p.hot?'var(--dark)':'#fff')+';font-size:12px;font-weight:700;padding:10px;border-radius:8px;border:none;cursor:pointer">Mua ngay →</button>'
+      +'</div>'
+    +'</div>'
+  ).join('');
+  grids.forEach(g=>{g.style.gridTemplateColumns='repeat(3,1fr)';g.innerHTML=inner;});
+}
+function renderFaq(){
+  const el=document.getElementById('faqList');
+  if(!el)return;
+  el.innerHTML=FAQ.map((f,i)=>`
+    <div style="border-bottom:1px solid #f1f5f9;padding:12px 0">
+      <div onclick="toggleFaq(${i})" style="display:flex;justify-content:space-between;cursor:pointer;font-size:13px;font-weight:600;color:var(--dark)">
+        <span>${f.q}</span><span id="faq-icon-${i}" style="color:var(--gold);flex-shrink:0;margin-left:8px">+</span>
+      </div>
+      <div id="faq-ans-${i}" style="display:none;font-size:12px;color:#6b7280;margin-top:8px;line-height:1.7">${f.a}</div>
+    </div>`).join('');
+}
+
+function toggleFaq(i){
+  const el=document.getElementById('faq-ans-'+i);
+  const ic=document.getElementById('faq-icon-'+i);
+  if(!el||!ic)return;
+  const open=el.style.display==='block';
+  el.style.display=open?'none':'block';
+  ic.textContent=open?'+':'−';
+}
+
+function selectPlan(id){
+  if(id==='free'){toast('✅ Gói Free đã được kích hoạt — bắt đầu đăng tin ngay!');return;}
+  const plan=PLANS.find(p=>p.id===id);
+  if(!plan)return;
+  selectedPlan=plan;
+  document.getElementById('pay-plan-name').textContent=plan.name+' — '+plan.posts+(plan.posts===9999?'':' tin')+'/tháng';
+  document.getElementById('pay-plan-price').textContent=fmtFull(plan.price,billingCycle);
+  document.getElementById('pay-plan-period').textContent=billingCycle==='year'?'/tháng (x12 = '+fmtFull(plan.yearPrice*12,'month')+')':'/tháng';
+  const ckEl=document.getElementById('ck-content');
+  if(ckEl)ckEl.textContent='NHPHCM '+plan.name.toUpperCase()+' + SĐT 📋';
+  const fmtEl=document.getElementById('ck-format-display');
+  if(fmtEl)fmtEl.textContent='NHPHCM '+plan.name.toUpperCase()+' [SĐT của bạn]';
+  document.getElementById('paySection').style.display='block';
+  document.getElementById('paySection').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function selectPayMethod(m){
+  selectedPayMethod=m;
+  document.querySelectorAll('.pay-method').forEach(el=>el.classList.remove('on'));
+  const pmEl=document.getElementById('pm-'+m);
+  if(pmEl)pmEl.classList.add('on');
+  ['bank','qr','momo','zalo'].forEach(k=>{
+    const el=document.getElementById('pay-'+k);
+    if(el)el.style.display='none';
+  });
+  const show=m==='zalo'?document.getElementById('pay-zalo-pay'):document.getElementById('pay-'+m);
+  if(show)show.style.display='block';
+}
+
+function selectBank(b){
+  ['tcb','vcb','mb'].forEach(x=>{
+    const info=document.getElementById('binfo-'+x);
+    const btn=document.getElementById('btab-'+x);
+    if(info)info.style.display=x===b?'block':'none';
+    if(btn){
+      btn.style.border=x===b?'2px solid var(--gold)':'1.5px solid #e5e7eb';
+      btn.style.background=x===b?'var(--gold-light)':'#fff';
+    }
+  });
+}
+
+function confirmPayment(){
+  if(!selectedPlan)return;
+  const phone=currentUser?currentUser.phone:'';
+  const msg=`✅ XÁC NHẬN THANH TOÁN - Nguồn Nhà Phố HCM%0A%0AGói: ${selectedPlan.name}%0APT: ${selectedPayMethod}%0AChu kỳ: ${billingCycle==='month'?'Tháng':'Năm'}%0ASĐT: ${phone}%0A%0ANội dung CK: NHPHCM ${selectedPlan.name.toUpperCase()} ${phone}%0A%0AĐã chuyển khoản xong, nhờ Mr. Duy kích hoạt gói ạ!`;
+  window.open('https://zalo.me/0987645314?text='+msg,'_blank');
+  toast('✅ Cảm ơn! Gói sẽ được kích hoạt sau khi xác nhận thanh toán.');
+}
+
+function copyText(txt,el){
+  const clean=txt.replace(' 📋','');
+  navigator.clipboard.writeText(clean).then(()=>{
+    const orig=el.textContent;
+    el.textContent='✅ Đã copy!';
+    setTimeout(()=>el.textContent=orig,2000);
+  }).catch(()=>toast('📋 Hãy copy thủ công: '+clean));
+}
+
+// ================================================================
+// AUTH — ĐĂNG NHẬP / ĐĂNG KÝ
+// ================================================================
+function openAuth(tab){
+  switchAuth(tab||'login');
+  document.getElementById('authOverlay').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+
+function closeAuth(e){
+  if(!e||e.target===document.getElementById('authOverlay')){
+    document.getElementById('authOverlay').classList.remove('show');
+    document.body.style.overflow='';
+  }
+}
+
+function switchAuth(tab){
+  const loginForm=document.getElementById('formLogin');
+  const regForm=document.getElementById('formReg');
+  const title=document.getElementById('authTitle');
+  if(loginForm)loginForm.style.display=tab==='login'?'block':'none';
+  if(regForm)regForm.style.display=tab==='register'?'block':'none';
+  if(title)title.textContent=tab==='login'?'Đăng nhập':'Tạo tài khoản';
+  ['login','register'].forEach(t=>{
+    const btn=document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(!btn)return;
+    btn.style.color=t===tab?'var(--gold)':'#64748b';
+    btn.style.borderBottomColor=t===tab?'var(--gold)':'transparent';
+    btn.style.fontWeight=t===tab?700:500;
+  });
+}
+
+function doLogin(){
+  const u=(document.getElementById('li_user')||{}).value?.trim();
+  const p=(document.getElementById('li_pass')||{}).value;
+  if(!u||!p){toast('⚠️ Vui lòng điền đầy đủ thông tin');return;}
+  const stored=JSON.parse(localStorage.getItem('nhphcm_users')||'[]');
+  const user=stored.find(x=>x.phone===u||x.email===u);
+  if(!user){toast('❌ Tài khoản không tồn tại — hãy đăng ký!');return;}
+  if(user.pass!==btoa(p)){toast('❌ Sai mật khẩu');return;}
+  currentUser=user;
+  localStorage.setItem('nhphcm_user',JSON.stringify(user));
+  closeAuth();
+  updateNavAuth();
+  toast('👋 Chào mừng '+user.name+'!');
+  syncAfterLogin(user);
+  showPage('dashboard');
+}
+
+function doRegister(){
+  const name=(document.getElementById('rg_name')||{}).value?.trim();
+  const phone=(document.getElementById('rg_phone')||{}).value?.trim();
+  const email=(document.getElementById('rg_email')||{}).value?.trim();
+  const pass=(document.getElementById('rg_pass')||{}).value;
+  const agree=(document.getElementById('rg_agree')||{}).checked;
+  if(!name||!phone||!email||!pass){toast('⚠️ Vui lòng điền đầy đủ thông tin bắt buộc');return;}
+  if(pass.length<8){toast('⚠️ Mật khẩu tối thiểu 8 ký tự');return;}
+  if(!agree){toast('⚠️ Vui lòng đồng ý điều khoản sử dụng');return;}
+  const stored=JSON.parse(localStorage.getItem('nhphcm_users')||'[]');
+  if(stored.find(x=>x.phone===phone||x.email===email)){toast('❌ SĐT hoặc email đã được đăng ký');return;}
+  const user={name,phone,email,pass:btoa(pass),plan:'free',
+    role:(document.getElementById('rg_role')||{}).value||'Chủ nhà',
+    joinDate:new Date().toLocaleDateString('vi-VN')};
+  stored.push(user);
+  localStorage.setItem('nhphcm_users',JSON.stringify(stored));
+  currentUser=user;
+  localStorage.setItem('nhphcm_user',JSON.stringify(user));
+  closeAuth();
+  updateNavAuth();
+  toast('🎉 Tạo tài khoản thành công! Chào mừng '+name);
+  showPage('dashboard');
+}
+
+function socialLogin(platform){
+  toast('⚠️ Đăng nhập '+platform+' cần tích hợp API — vui lòng dùng SĐT/Email.');
+}
+
+function doLogout(){
+  currentUser=null;
+  localStorage.removeItem('nhphcm_user');
+  updateNavAuth();
+  showPage('home');
+  toast('Đã đăng xuất thành công');
+}
+
+function updateNavAuth(){
+  const el=document.getElementById('navAuthBtn');
+  if(!el)return;
+  if(currentUser){
+    const initials=currentUser.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    el.innerHTML=`<button onclick="showPage('dashboard')" style="background:var(--gold);color:var(--dark);font-size:12px;font-weight:700;padding:6px 12px;border-radius:6px;border:none;cursor:pointer;display:flex;align-items:center;gap:6px">
+      <span style="width:22px;height:22px;border-radius:50%;background:var(--dark);color:var(--gold);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">${initials}</span>
+      ${currentUser.name.split(' ').pop()}
+    </button>`;
+    updateDashboard();
+  } else {
+    el.innerHTML=`<button onclick="openAuth('login')" style="background:rgba(255,255,255,.1);color:#fff;font-size:12px;font-weight:500;padding:7px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.2);cursor:pointer">Đăng nhập</button>`;
+  }
+}
+
+function updateDashboard(){
+  if(!currentUser)return;
+  const planMap={
+    free:{icon:'🆓',name:'Tài Khoản Free',desc:'3 tin đăng/tháng',posts:3},
+    verified:{icon:'✅',name:'Đã Xác Minh',desc:'15 tin đăng/tháng',posts:15},
+    trusted:{icon:'🏅',name:'Uy Tín',desc:'30 tin đăng/tháng',posts:30},
+    partner:{icon:'👑',name:'Đối Tác NHPHCM',desc:'50 tin đăng/tháng',posts:50},
+    // Legacy fallback
+    basic:{icon:'⭐',name:'Đã Xác Minh',desc:'15 tin đăng/tháng',posts:15},
+    pro:{icon:'🏅',name:'Uy Tín',desc:'30 tin đăng/tháng',posts:30},
+    vip:{icon:'👑',name:'Đối Tác NHPHCM',desc:'50 tin đăng/tháng',posts:50},
+  };
+  const plan=planMap[currentUser.plan||'free'];
+  const initials=currentUser.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const setEl=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  const setHTML=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+  document.getElementById('dash-avatar').textContent=initials;
+  setEl('dash-name',currentUser.name);
+  setEl('dash-phone',currentUser.phone+' · Thành viên từ '+(currentUser.joinDate||'2026'));
+  setEl('dash-plan-icon',plan.icon);
+  setEl('dash-plan-name','Gói '+plan.name);
+  setEl('dash-plan-desc',plan.desc);
+  setEl('dash-tin-con',plan.posts===9999?'∞':plan.posts);
+  setEl('dash-tin-dang','0');
+  setEl('dash-luot-xem','0');
+  setEl('dash-lien-he','0');
+  const badges={
+    free:'',
+    verified:'<span style="background:#dbeafe;color:#2563eb;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">✅ ĐÃ XÁC MINH</span>',
+    trusted:'<span style="background:#fef3c7;color:#d97706;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">🏅 UY TÍN</span>',
+    partner:'<span style="background:var(--gold-light);color:var(--gold);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">👑 ĐỐI TÁC NHPHCM</span>',
+    basic:'<span style="background:#dbeafe;color:#2563eb;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">✅ ĐÃ XÁC MINH</span>',
+    pro:'<span style="background:#fef3c7;color:#d97706;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">🏅 UY TÍN</span>',
+    vip:'<span style="background:var(--gold-light);color:var(--gold);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">👑 ĐỐI TÁC NHPHCM</span>',
+  };
+  setHTML('dash-badge',badges[currentUser.plan||'free']);
+}
+
+async function syncPlanFromSheet(phone){
+  if(!GSHEET_API||GSHEET_API==='YOUR_APPS_SCRIPT_WEB_APP_URL')return null;
+  try{
+    const res=await fetch(`${GSHEET_API}?action=checkPlan&phone=${phone}&token=${API_TOKEN}`);
+    const data=await res.json();
+    if(data.found&&currentUser){
+      currentUser.plan=(data.plan||'FREE').toLowerCase();
+      localStorage.setItem('nhphcm_user',JSON.stringify(currentUser));
+      updateNavAuth(); updateDashboard();
+      return data;
+    }
+  }catch(e){}
+  return null;
+}
+
+async function syncAfterLogin(user){
+  const result=await syncPlanFromSheet(user.phone);
+  if(result&&result.plan&&result.plan!=='FREE')
+    toast('✅ Gói '+result.plan+' — Hết hạn: '+result.expiry);
+}
+
+// Override showPage để check auth + load news + pricing
+const _origShowPage=showPage;
+function showPage(p){
+  if(p==='post'&&!currentUser){toast('👤 Vui lòng đăng nhập để đăng tin');openAuth('login');return;}
+  if(p==='dashboard'){if(!currentUser){openAuth('login');return;}updateDashboard();}
+  if(p==='pricing')setTimeout(renderPricingCards,50);
+  if(p==='news')setTimeout(()=>loadAllNews(false),50);
+  _origShowPage(p);
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+  const el=document.getElementById('nav-'+p);
+  if(el)el.classList.add('active');
+}
+
+// Floating buttons
+let floatOpen=false;
+function toggleFloat(){
+  floatOpen=!floatOpen;
+  const menu=document.getElementById('floatMenu');
+  const icon=document.getElementById('floatIcon');
+  if(menu)menu.style.display=floatOpen?'flex':'none';
+  if(icon)icon.textContent=floatOpen?'✕':'💬';
+}
+document.addEventListener('click',function(e){
+  const fb=document.getElementById('floatBtns');
+  if(fb&&!fb.contains(e.target)){
+    floatOpen=false;
+    const m=document.getElementById('floatMenu');
+    const i=document.getElementById('floatIcon');
+    if(m)m.style.display='none';
+    if(i)i.textContent='💬';
+  }
+});
+
+
+// ================================================================
+// PRICING TABS & NẠP TIỀN
+// ================================================================
+let currentTopupAmount = 200000;
+
+function switchPricingTab(tab) {
+  ['plans','push','topup'].forEach(t => {
+    const el = document.getElementById('tab-'+t);
+    const btn = document.getElementById('ptab-'+t);
+    if(el) el.style.display = t===tab ? 'block' : 'none';
+    if(btn) {
+      btn.style.background = t===tab ? 'var(--gold)' : 'transparent';
+      btn.style.color = t===tab ? 'var(--dark)' : '#94a3b8';
+    }
+  });
+  const billingToggle = document.getElementById('billingToggle');
+  if(billingToggle) billingToggle.style.display = tab==='plans' ? 'flex' : 'none';
+  if(tab==='push') {
+    // Render push vào tab riêng
+    const grid = document.getElementById('pushCards-main');
+    if(grid) {
+      grid.style.gridTemplateColumns='repeat(4,1fr)';
+      const pushGrid = document.getElementById('pushCards');
+      if(pushGrid) grid.innerHTML = pushGrid.innerHTML;
+    }
+  }
+}
+
+function selectTopup(amt) {
+  currentTopupAmount = amt;
+  document.getElementById('topup-custom').value = '';
+  updateTopupDisplay(amt);
+}
+
+function updateTopupAmount(val) {
+  const amt = parseInt(val) || 0;
+  if(amt >= 50000) { currentTopupAmount = amt; updateTopupDisplay(amt); }
+}
+
+function updateTopupDisplay(amt) {
+  const el = document.getElementById('topup-amount-display');
+  if(el) el.textContent = new Intl.NumberFormat('vi-VN').format(amt) + 'đ';
+}
+
+function selectTopupBank(b) {
+  ['tcb','vcb','mb'].forEach(x => {
+    const info = document.getElementById('topup-'+x);
+    const btn = document.getElementById('tbtab-'+x);
+    if(info) info.style.display = x===b ? 'block' : 'none';
+    if(btn) {
+      btn.style.border = x===b ? '2px solid var(--gold)' : '1.5px solid #e5e7eb';
+      btn.style.background = x===b ? 'var(--gold-light)' : '#fff';
+    }
+  });
+}
+
+// Override selectPayMethod cho topup tab
+const _origSelectPay = selectPayMethod;
+function selectPayMethod(m) {
+  _origSelectPay(m);
+  // Cũng update topup section
+  ['bank','momo','zalo','qr'].forEach(k => {
+    const el = document.getElementById('topup-'+k+'-info');
+    if(el) el.style.display = k===m ? 'block' : 'none';
+  });
+  const bankInfo = document.getElementById('topup-bank-info');
+  if(bankInfo) bankInfo.style.display = m==='bank' ? 'block' : 'none';
+}
+
+function confirmTopup() {
+  const phone = currentUser ? currentUser.phone : '[SĐT của bạn]';
+  const amt = new Intl.NumberFormat('vi-VN').format(currentTopupAmount);
+  const msg = `💳 NẠP TIỀN TÀI KHOẢN - NHPHCM%0A%0ASố tiền: ${amt}đ%0ASĐT: ${phone}%0ANội dung CK: NHPHCM NAP ${phone}%0A%0AĐã chuyển khoản xong, nhờ Mr. Duy xác nhận số dư ạ!`;
+  window.open('https://zalo.me/0987645314?text='+msg, '_blank');
+  toast('✅ Đã gửi thông báo! Số dư sẽ được cộng trong 30 phút.');
+}
+
+// Init pricing tab
+document.addEventListener('DOMContentLoaded', function() {
+  // Default tab = plans
+  const tabPlans = document.getElementById('tab-plans');
+  if(tabPlans) tabPlans.style.display = 'block';
+  const tabPush = document.getElementById('tab-push');
+  if(tabPush) tabPush.style.display = 'none';
+  const tabTopup = document.getElementById('tab-topup');
+  if(tabTopup) tabTopup.style.display = 'none';
+});
+
+// Init auth
+updateNavAuth();
+
 </script>
 
 <!-- FLOATING CHAT BUTTONS -->
