@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Nguồn Nhà Phố HCM — Mr. Duy Khuyến | 0987.645.314</title>
-<meta name="description" content="1,735+ tin nhà phố tại TP.HCM — 21 quận/huyện. Mr. Duy Khuyến: 0987.645.314">
+<meta name="description" content="Nguồn nhà phố thực tế tại TP.HCM — Cộng đồng BĐS Sài Gòn. Mr. Duy Khuyến: 0987.645.314">
 <meta property="og:title" content="Nguồn Nhà Phố HCM — Mr. Duy Khuyến">
 <meta property="og:url" content="htps://nguonnhaphohcm.vn">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
@@ -386,7 +386,7 @@ a{text-decoration:none;color:inherit}
 <div class="page active" id="page-home">
   <div class="hero">
     <h1>Nguồn nhà phố <em>thực tế</em><br>tại TP. Hồ Chí Minh</h1>
-    <p>1,735+ tin từ 21 quận/huyện · Cập nhật 30/06/2026</p>
+    <p id="hero-sub"><span id="hero-cnt">1,735</span>+ tin từ <span id="hero-dist">21</span> quận/huyện · Cập nhật <span id="hero-date">30/06/2026</span></p>
     <div class="sbox">
       <div class="sg"><label>Tìm kiếm</label><input id="q-h" placeholder="Tên đường, đặc điểm..." oninput="runF()"></div>
       <div class="sg"><label>Quận</label><select id="ds-h" onchange="runF()"><option value="">Tất cả quận</option></select></div>
@@ -396,7 +396,7 @@ a{text-decoration:none;color:inherit}
   </div>
   <div class="stats">
     <div class="stat"><div class="sn" id="s-tot">1,735</div><div class="sl">Tổng tin</div></div>
-    <div class="stat"><div class="sn">21</div><div class="sl">Quận / Huyện</div></div>
+    <div class="stat"><div class="sn" id="s-dist">21</div><div class="sl">Quận / Huyện</div></div>
     <div class="stat"><div class="sn" id="s-mt">—</div><div class="sl">Mặt tiền</div></div>
     <div class="stat"><div class="sn" id="s-avg">—</div><div class="sl">Giá trung bình</div></div>
   </div>
@@ -486,7 +486,7 @@ a{text-decoration:none;color:inherit}
 <div class="page" id="page-listings">
   <div class="hero" style="padding:17px 20px 13px">
     <h1 style="font-size:19px">Nhà phố đang bán tại <em>TP.HCM</em></h1>
-    <p style="margin-top:3px">1,735 tin · 21 quận/huyện · Mr. Duy Khuyến 0987.645.314</p>
+    <p style="margin-top:3px"><span id="footer-cnt">1,735</span> tin · <span id="footer-dist">21</span> quận/huyện · Mr. Duy Khuyến 0987.645.314</p>
   </div>
   <div class="dtw"><div class="dts" id="dTabs2"></div></div>
   <div class="mwrap">
@@ -973,7 +973,7 @@ a{text-decoration:none;color:inherit}
   <div class="fi">
     <div>
       <div class="fbrand">Nguồn Nhà Phố <em>HCM</em></div>
-      <p style="font-size:12px;line-height:1.7">Database nhà phố thực tế — cập nhật hàng ngày từ Mr. Duy Khuyến với 1,735 căn trên 21 quận/huyện TP.HCM.</p>
+      <p style="font-size:12px;line-height:1.7">Database nhà phố thực tế — cập nhật hàng ngày từ Mr. Duy Khuyến với <span id="desc-cnt">1,735</span> căn trên <span id="desc-dist">21</span> quận/huyện TP.HCM.</p>
       <div class="fph">0987.645.314</div>
       <div style="font-size:12px;color:#64748b">Mr. Duy Khuyến — Môi giới chuyên nghiệp</div>
       <div style="display:flex;gap:5px;margin-top:9px">
@@ -1029,7 +1029,7 @@ const DATA=[{"xh":1,"q":"Bình Tân","p":"Tân Kỳ Tân Quý","d":"72","t":"4",
 const ICONS={"Quận 1":"🏙️","Quận 2":"🌆","Quận 3":"🏛️","Quận 4":"⚓","Quận 5":"🏮","Quận 6":"🌉","Quận 7":"🏢","Quận 8":"🏭","Quận 10":"🏫","Quận 11":"🏪","Quận 12":"🏬","Bình Thạnh":"🌿","Tân Bình":"✈️","Gò Vấp":"🌳","Phú Nhuận":"💎","Bình Tân":"🛒","Tân Phú":"🏬","Thủ Đức":"🎓","Bình Chánh":"🌾","Nhà Bè":"⚓","Cần Giờ":"🌊","Hóc Môn":"🏗️"};
 const PHOTOS={"Quận 1":"https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&q=70","Quận 2":"https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=70","Quận 3":"https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?w=400&q=70","Quận 4":"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&q=70","Quận 5":"https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=400&q=70","Quận 6":"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=70","Quận 7":"https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400&q=70","Quận 8":"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=70","Quận 10":"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=70","Quận 11":"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=70","Quận 12":"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&q=70","Bình Thạnh":"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=70","Tân Bình":"https://images.unsplash.com/photo-1576941089067-2de3c901e126?w=400&q=70","Gò Vấp":"https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=400&q=70","Phú Nhuận":"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=70","Bình Tân":"https://images.unsplash.com/photo-1599427303058-f04cbcf4756f?w=400&q=70","Tân Phú":"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&q=70","Thủ Đức":"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=70","Bình Chánh":"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&q=70","Nhà Bè":"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=70","Cần Giờ":"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=70","Hóc Môn":"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=70"};
 const SNEWS=[{"title": "Nhà phố TP.HCM tăng giá 18% nửa đầu 2026", "src": "cafef", "url": "https://cafef.vn/bat-dong-san.chn", "img": "📈", "topic": "thi-truong", "sum": "Quận 1, 3, Bình Thạnh dẫn đầu đà tăng. Nhà phố mặt tiền khan hiếm, thanh khoản tốt.", "date": "2026-06-30T08:00:00"}, {"title": "Luật Đất đai 2025 có hiệu lực: Điểm mới quan trọng", "src": "vnexpress", "url": "https://vnexpress.net/bat-dong-san", "img": "⚖️", "topic": "phap-ly", "sum": "Nhiều thay đổi về cấp sổ đỏ, quyền sử dụng đất và bồi thường giải phóng mặt bằng.", "date": "2026-06-25T09:00:00"}, {"title": "Shophouse mặt tiền — HOT nhất phân khúc đầu tư 2026", "src": "cafef", "url": "https://cafef.vn/bat-dong-san.chn", "img": "🏪", "topic": "dau-tu", "sum": "Shophouse tăng 20-30% so với 2025, thu hút mạnh tại các quận trung tâm HCM.", "date": "2026-06-22T10:00:00"}, {"title": "Lãi suất vay mua nhà 2026: Từ 7.5%/năm", "src": "vnexpress", "url": "https://vnexpress.net/kinh-doanh", "img": "🏦", "topic": "tai-chinh", "sum": "Nhiều ngân hàng tung gói vay ưu đãi 7.5-8.5%/năm trong 12 tháng đầu, kích cầu BĐS.", "date": "2026-06-20T08:00:00"}, {"title": "Metro số 1 vận hành: Giá nhà Thủ Đức tăng 25%", "src": "batdongsan", "url": "https://batdongsan.com.vn/tin-tuc", "img": "🚇", "topic": "ha-tang", "sum": "Thanh khoản nhà phố dọc tuyến metro tăng đột biến, Thủ Đức và Bình Thạnh nổi bật.", "date": "2026-06-18T07:00:00"}, {"title": "Bình Chánh, Nhà Bè: Vùng đất mới của nhà đầu tư 2026", "src": "nhadat24h", "url": "https://nhadat24h.net/tin-tuc", "img": "🌾", "topic": "dau-tu", "sum": "Hạ tầng kết nối cải thiện, nhà phố Bình Chánh và Nhà Bè giá còn mềm, tiềm năng cao.", "date": "2026-06-15T09:00:00"}, {"title": "Hóc Môn nổi lên với nhà phố giá 3-10 tỷ", "src": "dantri", "url": "https://dantri.com.vn/bat-dong-san.htm", "img": "🏗️", "topic": "nha-pho", "sum": "Hóc Môn thu hút đầu tư với mức giá hấp dẫn, phù hợp ở thực lẫn đầu tư dài hạn.", "date": "2026-06-12T08:00:00"}, {"title": "Nhà phố Gò Vấp: Thanh khoản tốt nhất quý 2/2026", "src": "homedy", "url": "https://homedy.com/tin-tuc", "img": "🌳", "topic": "nha-pho", "sum": "Gò Vấp ghi nhận thanh khoản tốt nhất vùng ven với giá 5-15 tỷ, dễ giao dịch.", "date": "2026-06-10T09:00:00"}];
-const DISTS=["Qu\u1eadn 1", "Qu\u1eadn 2", "Qu\u1eadn 3", "Qu\u1eadn 4", "Qu\u1eadn 5", "Qu\u1eadn 6", "Qu\u1eadn 7", "Qu\u1eadn 8", "Qu\u1eadn 10", "Qu\u1eadn 11", "Qu\u1eadn 12", "B\u00ecnh Th\u1ea1nh", "B\u00ecnh T\u00e2n", "G\u00f2 V\u1ea5p", "Ph\u00fa Nhu\u1eadn", "T\u00e2n B\u00ecnh", "T\u00e2n Ph\u00fa", "Th\u1ee7 \u0110\u1ee9c", "B\u00ecnh Ch\u00e1nh", "Nh\u00e0 B\u00e8", "H\u00f3c M\u00f4n"];
+const DISTS=[...new Set(DATA.map(r=>r.q||r.district||'').filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi'));
 
 // ════════════════════════════════════════════════════
 // STATE
@@ -1247,9 +1247,17 @@ function rPgn(){
 }
 function nPg(p){const tot=Math.ceil(filt.length/PER);if(p<1||p>tot)return;pg=p;rCards();document.querySelector('.mwrap').scrollIntoView({behavior:'smooth'});}
 function updStats(){
-  const el=document.getElementById('s-tot');if(el)el.textContent=DATA.length.toLocaleString();
-  const em=document.getElementById('s-mt');if(em)em.textContent=DATA.filter(r=>r.b==='mat_tien').length.toLocaleString();
-  const ps=DATA.map(r=>pp(r.g)).filter(p=>p>0);
+  const allPosts=[...DATA,...(getUPosts()||[]).filter(p=>p.status==='public')];
+  const distSet=[...new Set(allPosts.map(r=>r.q||r.district||'').filter(Boolean))];
+  const el=document.getElementById('s-tot');if(el)el.textContent=allPosts.length.toLocaleString();
+  const ed=document.getElementById('s-dist');if(ed)ed.textContent=distSet.length;
+  const hc=document.getElementById('hero-cnt');if(hc)hc.textContent=allPosts.length.toLocaleString();
+  const hd=document.getElementById('hero-dist');if(hd)hd.textContent=distSet.length;
+  const hdate=document.getElementById('hero-date');if(hdate)hdate.textContent=new Date().toLocaleDateString('vi-VN');
+  const fc=document.getElementById('footer-cnt');if(fc)fc.textContent=allPosts.length.toLocaleString();
+  const fd=document.getElementById('footer-dist');if(fd)fd.textContent=distSet.length;
+  const em=document.getElementById('s-mt');if(em)em.textContent=allPosts.filter(r=>r.b==='mat_tien').length.toLocaleString();
+  const ps=allPosts.map(r=>pp(r.g)).filter(p=>p>0);
   const ea=document.getElementById('s-avg');if(ea&&ps.length)ea.textContent=(ps.reduce((a,b)=>a+b,0)/ps.length).toFixed(1)+' tỷ';
 }
 
@@ -1324,11 +1332,11 @@ function togCartFromPopup(){if(_popIdx<0)return;togCart(_popIdx,null);const cb=d
 function initTabs(){
   const cnt={};DATA.forEach(r=>{cnt[r.q]=(cnt[r.q]||0)+1;});
   const newT=`<div class="dt" id="tab-new" data-d="__NEW__" onclick="showNewTab()" style="color:#ef4444;font-weight:700">🆕 Mới nhất <span style="background:#fee2e2;color:#991b1b;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:3px">HOT</span></div>`;
-  const allT=`<div class="dt active" data-d="" onclick="fdist('')">Tất cả (${DATA.length.toLocaleString()})</div>`;
-  const distT=DISTS.map(d=>`<div class="dt" data-d="${d}" onclick="fdist('${d}')">${d} (${cnt[d]||0})</div>`).join('');
+  const allT=`<div class="dt active" data-d="" onclick="fdist('')">Tất cả (${[...DATA,...(getUPosts()||[]).filter(p=>p.status==='public')].length.toLocaleString()})</div>`;
+  const allComboPosts=[...DATA,...(getUPosts()||[]).filter(p=>p.status==='public')];const comboCnt={};allComboPosts.forEach(r=>{const q=r.q||r.district||'';if(q)comboCnt[q]=(comboCnt[q]||0)+1;});const activeDists=[...new Set(allComboPosts.map(r=>r.q||r.district||'').filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi'));const distT=activeDists.map(d=>`<div class="dt" data-d="${d}" onclick="fdist('${d}')">${d} (${comboCnt[d]||0})</div>`).join('');
   ['dTabs','dTabs2'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=newT+allT+distT;});
   const sel=document.getElementById('ds-h');
-  if(sel)DISTS.forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;sel.appendChild(o);});
+  if(sel){const allD=[...new Set([...DATA,...(getUPosts()||[]).filter(p=>p.status==='public')].map(r=>r.q||r.district||'').filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi'));allD.forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;sel.appendChild(o);});}
 }
 // ANNOUNCEMENTS - Admin cập nhật tại đây
 const ANNOUNCEMENTS = [
@@ -2008,7 +2016,7 @@ function init(){
   if(!localStorage.getItem('nhphcm_v5')){
     const nc=DATA.filter(r=>r.is_new).length;
     if(nc>0)addNotif('new_house','🆕 '+nc+' nhà phố mới vừa cập nhật!','Xem ngay trong tab Mới nhất HOT');
-    addNotif('update','📊 Database '+DATA.length.toLocaleString()+' căn · 21 quận/huyện','Đầy đủ tất cả trạng thái: Bán mạnh, Hạ chào, Đã bán, Dừng bán...');
+    addNotif('update','📊 Database '+DATA.length.toLocaleString()+' căn · '+DISTS.length+' quận/huyện','Đầy đủ tất cả trạng thái: Bán mạnh, Hạ chào, Đã bán, Dừng bán...');
     localStorage.setItem('nhphcm_v5','1');
   }
 }
