@@ -1014,7 +1014,7 @@ const DISTS=["Qu\u1eadn 1", "Qu\u1eadn 2", "Qu\u1eadn 3", "Qu\u1eadn 4", "Qu\u1e
 // ════════════════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════════════════
-let filt=[...DATA], pg=1, PER=12;
+let filt=[...DATA,...(getUPosts()||[]).filter(p=>p.status==='public').map((p,i)=>({...p,q:p.district||'',e:p.street||p.name||'',b:p.type||'owner',g:p.price||'',t:p.area||'',d:parseFloat(p.area)||0,m:p.front||'',p:p.pty||'',ng:p.ts?new Date(p.ts).toLocaleDateString('vi-VN'):'',is_user_post:true,idx:'u_'+p.id}))], pg=1, PER=12;
 let aT='all', aP='all', aF='all', aD='', aHT='all';
 let popPr=0, bill='month', curTop=200000;
 let cUser=JSON.parse(localStorage.getItem('nhphcm_user')||'null');
@@ -1111,7 +1111,7 @@ function runF(){
   const so=(document.getElementById('so-h')||document.getElementById('so-m')||{value:''}).value;
   const htF=document.getElementById('sf-ht')?.value||document.getElementById('sf-ht2')?.value||'all';
   aHT=htF;
-  filt=DATA.filter(r=>{
+  filt=[...DATA,...(getUPosts()||[]).filter(p=>p.status==='public').map((p,i)=>({...p,q:p.district||'',e:p.street||p.name||'',b:p.type||'owner',g:p.price||'',t:p.area||'',d:parseFloat(p.area)||0,m:p.front||'',p:p.pty||'',ng:p.ts?new Date(p.ts).toLocaleDateString('vi-VN'):'',is_user_post:true,idx:'u_'+p.id}))].filter(r=>{
     const mq=!q||(r.p+' '+r.e+' '+r.q).toLowerCase().includes(q);
     const mht=aHT==='all'||(r.ht||'Bán mạnh')===aHT;
     return mq&&(!aD||r.q===aD)&&(aT==='all'||r.b===aT)&&inPR(r.g,aP)&&flOk(r.t,aF)&&mht;
@@ -1786,7 +1786,8 @@ function addUserPost(data){
     front:data.front||'',legal:data.legal||'',
     desc:data.desc||'',
     imgs:data.imgs||[],
-    sold:data.sold||0
+    sold:data.sold||0,
+    status:'public'
   };
   posts.unshift(post);
   saveUPosts(posts);
@@ -2065,6 +2066,45 @@ function adminClearAllPosts(){
   toast('🗑️ Đã xóa tất cả tin đăng');
 }
 
+
+// ===== QUẢN LÝ THÀNH VIÊN (ADMIN) =====
+function adminLoadUsers(){
+  if(!isAdmin()){toast('❌ Không có quyền');return;}
+  const el=document.getElementById('adm-users-list');
+  if(!el)return;
+  const users=JSON.parse(localStorage.getItem('nhphcm_users')||'[]');
+  const statEl=document.getElementById('adm-user-stats');
+  const freeU=users.filter(u=>!u.plan||u.plan==='free').length;
+  if(statEl)statEl.innerHTML='Tổng: <b>'+users.length+'</b> &nbsp; Free: <b>'+freeU+'</b> &nbsp; Có gói: <b style="color:#c9922a">'+(users.length-freeU)+'</b>';
+  if(!users.length){el.innerHTML='<p style="color:#9ca3af;font-size:13px;text-align:center;padding:20px">Chưa có thành viên nào đăng ký</p>';return;}
+  el.innerHTML=users.map(u=>'<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f3f4f6"><div style="width:34px;height:34px;border-radius:50%;background:#2563eb;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0">'+((u.name||'?')[0]).toUpperCase()+'</div><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">'+u.name+' <span style="font-size:11px;padding:1px 6px;border-radius:8px;background:'+(u.plan&&u.plan!=='free'?'#fef3c7':'#f3f4f6')+';color:'+(u.plan&&u.plan!=='free'?'#92400e':'#6b7280')+'">'+(u.plan||'Free')+'</span></div><div style="font-size:11px;color:#9ca3af">'+(u.phone||'')+(u.email?' • '+u.email:'')+' • '+(u.joined||'?')+'</div></div><div style="display:flex;gap:4px;flex-shrink:0"><select onchange="adminSetPlan(\''+u.phone+'\',this.value)" style="font-size:11px;padding:2px 5px;border:1px solid #d1d5db;border-radius:4px"><option value="free" '+((!u.plan||u.plan==='free')?'selected':'')+'>Free</option><option value="verified" '+(u.plan==='verified'?'selected':'')+'>Xác Minh</option><option value="trusted" '+(u.plan==='trusted'?'selected':'')+'>Uy Tín</option><option value="partner" '+(u.plan==='partner'?'selected':'')+'>Đối Tác</option></select><button onclick="adminResetPass(\''+u.phone+'\',\''+u.name+'\') " style="font-size:11px;padding:2px 7px;background:#fef2f2;border:1px solid #fca5a5;color:#dc2626;border-radius:4px;cursor:pointer">↺</button></div></div>').join('');
+}
+function adminSetPlan(phone,plan){
+  if(!isAdmin())return;
+  const users=JSON.parse(localStorage.getItem('nhphcm_users')||'[]');
+  const idx=users.findIndex(u=>u.phone===phone);
+  if(idx===-1){toast('❌ Không tìm thấy');return;}
+  const planNames={free:'Tài Khoản Free',verified:'Đã Xác Minh',trusted:'Uy Tín',partner:'Đối Tác NHPHCM'};
+  users[idx].plan=plan;
+  users[idx].planUpdated=new Date().toLocaleDateString('vi-VN');
+  localStorage.setItem('nhphcm_users',JSON.stringify(users));
+  toast('✅ Đã cấp gói '+(planNames[plan]||plan)+' cho '+users[idx].name);
+  sendMail('Admin cấp gói '+plan,'Tên: '+users[idx].name+' | SĐT: '+phone+' | Gói: '+(planNames[plan]||plan));
+  adminLoadUsers();
+}
+function adminResetPass(phone,name){
+  if(!isAdmin())return;
+  if(!confirm('Reset mật khẩu cho '+name+'?'))return;
+  const users=JSON.parse(localStorage.getItem('nhphcm_users')||'[]');
+  const idx=users.findIndex(u=>u.phone===phone);
+  if(idx===-1){toast('❌ Không tìm thấy');return;}
+  const newPass='NHPHCM'+Math.random().toString(36).slice(2,8).toUpperCase();
+  users[idx].pass=newPass;
+  localStorage.setItem('nhphcm_users',JSON.stringify(users));
+  sendMail('Admin Reset MK - '+name,'Tên: '+name+' | SĐT: '+phone+' | MK mới: '+newPass);
+  toast('✅ MK mới: '+newPass);
+}
+
 init();
 </script>
 
@@ -2123,7 +2163,16 @@ init();
     <!-- THỐNG KÊ NHANH -->
     <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:16px">
       <div style="font-weight:700;font-size:15px;margin-bottom:10px;color:#1e1b4b">📈 Thống kê</div>
-      <div id="adm-stats" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+      <div id="adm-stats" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+
+    <!-- QUẢN LÝ THÀNH VIÊN -->
+    <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;padding:16px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:600;color:#1e1b4b;margin-bottom:8px">👥 QUẢN LÝ THÀNH VIÊN</div>
+      <div id="adm-user-stats" style="font-size:12px;color:#6b7280;margin-bottom:8px;padding:6px 10px;background:#f9fafb;border-radius:6px">Nhấn tải để xem thống kê</div>
+      <button onclick="adminLoadUsers()" style="background:#1e40af;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;margin-bottom:8px">🔄 Tải danh sách thành viên</button>
+      <div id="adm-users-list" style="max-height:400px;overflow-y:auto"></div>
+    </div>
+</div>
     </div>
   </div>
 </div>
