@@ -645,38 +645,58 @@ a{text-decoration:none;color:inherit}
             <div class="tub" onclick="selTop(500000,this)"><div style="font-size:14px;font-weight:700">500k</div><div style="font-size:10px;color:#065f46;font-weight:600">+5%</div></div>
             <div class="tub" onclick="selTop(1000000,this)"><div style="font-size:14px;font-weight:700">1 triệu</div><div style="font-size:10px;color:#7c3aed;font-weight:600">+10%</div></div>
           </div>
-          <div style="padding:8px 14px;border-top:1px solid #f1f5f9;display:flex;align-items:center;gap:7px">
-            <span style="font-size:12px;color:#6b7280;flex-shrink:0">Hoặc nhập:</span>
-            <input type="number" id="top-cu" placeholder="VD: 300000" min="50000" style="flex:1;border:1.5px solid #e5e7eb;border-radius:5px;padding:6px 9px;font-size:12px;outline:none;font-family:inherit" oninput="curTop=parseInt(this.value)||200000">
+          <div style="padding:8px 14px;border-top:1px solid #f1f5f9;display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:#6b7280;white-space:nowrap">Hoặc nhập:</span>
+          <input type="number" id="top-cu" placeholder="VD: 300000" min="50000" style="flex:1;border:1.5px solid #e5e7eb;border-radius:5px;padding:6px 9px;font-size:12px;outline:none;font-family:inherit" oninput="curTop=parseInt(this.value)||200000">
+        </div>
+        <div style="padding:14px;background:#f8fafc;border-top:1px solid #f1f5f9;border-radius:0 0 10px 10px">
+          <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;overflow:hidden">
+            <div style="background:linear-gradient(135deg,#006838,#004d29);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:8px">
+              <span style="font-size:18px">🏦</span>
+              <div>
+                <div style="font-size:13px;font-weight:700">MB Bank — Tài khoản chính thức của Mr. Duy Khuyến</div>
+                <div style="font-size:11px;opacity:.85">Quét QR bằng app MB Bank hoặc bất kỳ app ngân hàng nào</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;padding:12px;align-items:flex-start">
+              <div style="flex-shrink:0;text-align:center">
+                <img id="qr-mb" src="https://img.vietqr.io/image/MB-044441997-compact2.png?amount=200000&addInfo=NHPHCM%20%5BS%C4%90T%5D&accountName=DAO%20DUY%20KHUYEN" style="width:180px;height:180px;border-radius:8px;border:1px solid #e5e7eb;display:block" alt="QR MB Bank">
+                <div style="font-size:10px;color:#6b7280;margin-top:4px">Scan to Pay</div>
+              </div>
+              <div style="flex:1;font-size:12px">
+                <div style="margin-bottom:8px">
+                  <div style="color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Ngân hàng</div>
+                  <div style="font-weight:700;color:#006838">MB Bank (MBBank)</div>
+                </div>
+                <div style="margin-bottom:8px">
+                  <div style="color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Số tài khoản</div>
+                  <div style="font-weight:700;display:flex;align-items:center;gap:6px">044441997 <button onclick="navigator.clipboard.writeText('044441997');this.textContent='✅';setTimeout(()=>this.textContent='📋',1500)" style="border:none;background:none;cursor:pointer;font-size:13px;padding:0">📋</button></div>
+                </div>
+                <div style="margin-bottom:8px">
+                  <div style="color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Chủ tài khoản</div>
+                  <div style="font-weight:700">DAO DUY KHUYEN</div>
+                </div>
+                <div style="margin-bottom:8px">
+                  <div style="color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Số tiền nạp</div>
+                  <div id="top-amt" style="font-weight:700;color:#c9922a;font-size:14px">200,000đ</div>
+                </div>
+                <div>
+                  <div style="color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Nội dung CK <span style="color:#22c55e;font-size:9px">(tự điền khi quét QR)</span></div>
+                  <div id="top-ck-display" style="font-weight:700;color:#1e40af;font-size:11px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:4px;padding:4px 6px;display:flex;align-items:center;gap:4px">NHPHCM [SĐT] <button onclick="const v=document.getElementById('top-ck-display').dataset.val||'NHPHCM SDT';navigator.clipboard.writeText(v);this.textContent='✅';setTimeout(()=>this.textContent='📋',1500)" style="border:none;background:none;cursor:pointer;font-size:13px;padding:0">📋</button></div>
+                </div>
+              </div>
+            </div>
+            <div style="padding:10px 14px;background:#f0fdf4;border-top:1px solid #dcfce7;font-size:11px;color:#166534">
+              ✅ QR tự điền nội dung <b>NHPHCM [SĐT của bạn]</b> — Bạn chỉ cần nhập số tiền khi quét
+            </div>
+            <div style="padding:10px 14px;border-top:1px solid #f1f5f9;font-size:11px;color:#6b7280">
+              🎁 Nạp từ 500k tặng 5% · Nạp từ 1 triệu tặng 10% · Số dư <span style="color:#22c55e;font-weight:600">không hết hạn</span>
+            </div>
           </div>
-        </div>
-        <div style="background:#fff;border-radius:10px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:12px">
-          <div style="padding:9px 14px;border-bottom:1px solid #e5e7eb;font-size:13px;font-weight:700;color:var(--dark);background:#f9fafb">💳 Thanh toán — Techcombank</div>
-          <div style="padding:12px 14px">
-            <div style="background:#fef3dc;border:1px solid #fcd34d;border-radius:6px;padding:8px 11px;margin-bottom:10px;font-size:12px;color:#92650a;font-weight:600;display:flex;align-items:center;gap:7px">
-              <span style="font-size:18px">🏦</span>Techcombank — Tài khoản chính thức của Mr. Duy Khuyến
-            </div>
-            <div style="background:#f9fafb;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;font-size:13px;margin-bottom:11px">
-              <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Số tài khoản</span><strong style="color:var(--gold);font-size:15px;cursor:pointer" onclick="cpTxt('6666 6666 6736',this)">6666 6666 6736 📋</strong></div>
-              <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Chủ tài khoản</span><strong>DAO DUY KHUYEN</strong></div>
-              <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Số tiền nạp</span><strong id="top-amt" style="color:var(--gold)">199,000đ</strong></div>
-              <div style="display:flex;justify-content:space-between"><span style="color:#6b7280">Nội dung CK</span><strong style="color:var(--gold);cursor:pointer" onclick="cpTxt('NHPHCM NAP [SĐT]',this)">NHPHCM NAP [SĐT] 📋</strong></div>
-            </div>
-            <div style="text-align:center">
-                          <img src="qr-techcombank.png" style="width:100%;max-width:260px;border-radius:8px;border:1px solid #e5e7eb" alt="QR Techcombank">
-              <div style="font-size:11px;color:#6b7280;margin-top:5px">Quét bằng bất kỳ app ngân hàng nào</div>
-            </div>
-          </div>
-        </div>
-        <div style="background:#f0fdf4;border:1.5px solid #6ee7b7;border-radius:8px;padding:10px 12px;font-size:12px;color:#065f46;line-height:1.8;margin-bottom:12px">
-          ✅ Sau khi nạp: Gửi bill qua Zalo <strong>0987.645.314</strong> — cộng số dư trong <strong>30 phút</strong><br>
-          🎁 Nạp từ 500k tặng 5% · Nạp từ 1 triệu tặng 10% · Số dư <strong>không hết hạn</strong>
-        </div>
-        <button onclick="cfTop()" style="width:100%;background:var(--gold);color:var(--dark);font-weight:700;font-size:14px;padding:13px;border-radius:8px;border:none;cursor:pointer">✅ Tôi đã nạp tiền — Báo Mr. Duy xác nhận</button>
+          <button onclick="reportTopup()" style="width:100%;margin-top:10px;background:linear-gradient(135deg,#006838,#004d29);color:#fff;border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer">✅ Tôi đã nạp tiền — Báo Mr. Duy xác nhận</button>
       </div>
     </div>
   </div>
-</div>
 
 <!-- ══ POST ══ -->
 <div class="page" id="page-post">
@@ -1637,7 +1657,18 @@ function rFaq(){
 function tgFaq(i){const el=document.getElementById('fa'+i),ic=document.getElementById('fi'+i);const o=el.style.display==='block';el.style.display=o?'none':'block';ic.textContent=o?'+':'−';}
 function selPlan(id){if(id==='free'){toast('✅ Tài khoản Free đã kích hoạt!');return;}const p=PLANS.find(x=>x.id===id);if(p){toast('💎 Đã chọn gói '+p.name+' — Chuyển đến Nạp tiền...');swPT('topup');}}
 function buyP(n,p,d){const ph=cUser?cUser.phone:'[SĐT]';const m='🚀 MUA GÓI ĐẨY TIN - NHPHCM%0A%0AGói: '+n+'%0AGiá: '+vnd(p)+'đ%0AThời hạn: '+d+' ngày%0ASĐT: '+ph+'%0ANội dung CK: NHPHCM DAYTINN '+ph+'%0A%0ANhờ Mr. Duy kích hoạt sau thanh toán ạ!';window.open('https://zalo.me/0987645314?text='+m,'_blank');toast('✅ Gửi yêu cầu! Kích hoạt trong 30 phút.');}
-function selTop(a,el){curTop=a;document.querySelectorAll('.tub').forEach(b=>b.classList.remove('sel'));if(el)el.classList.add('sel');const d=document.getElementById('top-amt');if(d)d.textContent=vnd(a)+'đ';const cu=document.getElementById('top-cu');if(cu)cu.value='';}
+function selTop(a,b){
+  if(b){document.querySelectorAll('.tub').forEach(b=>b.classList.remove('sel'));b.classList.add('sel');}
+  curTop=a;
+  const d=document.getElementById('top-amt');if(d)d.textContent=vnd(a)+'đ';
+  const cu=document.getElementById('top-cu');if(cu)cu.value='';
+  const ph=cUser&&cUser.phone?cUser.phone:'SDT';
+  const ck='NHPHCM '+ph;
+  const qr=document.getElementById('qr-mb');
+  if(qr)qr.src='https://img.vietqr.io/image/MB-044441997-compact2.png?amount='+a+'&addInfo='+encodeURIComponent(ck)+'&accountName=DAO%20DUY%20KHUYEN';
+  const ckEl=document.getElementById('top-ck-display');
+  if(ckEl){ckEl.dataset.val=ck;ckEl.childNodes[0].textContent=ck+' ';}
+}
 function cfTop(){const ph=cUser?cUser.phone:'[SĐT]';const m='💳 NẠP TIỀN - NHPHCM%0A%0ASố tiền: '+vnd(curTop)+'đ%0ASĐT: '+ph+'%0ANội dung CK: NHPHCM NAP '+ph+'%0A%0AĐã CK xong, nhờ Mr. Duy xác nhận!';window.open('https://zalo.me/0987645314?text='+m,'_blank');toast('✅ Số dư được cộng trong 30 phút!');}
 
 // Boost latest user post when user buys push package
