@@ -1986,8 +1986,8 @@ function init(){
 // ADMIN FUNCTIONS
 // ════════════════════════════════════════════════════
 const ADMIN_EMAIL='daoduykhuyen2@gmail.com';
-const GAS_URL='YOUR_GAS_WEB_APP_URL';
-const USE_GAS=GAS_URL!=='YOUR_GAS_WEB_APP_URL';
+const GAS_URL='https://script.google.com/macros/s/AKfycbyYfJ88PsRZ5IEhQH0n4ndm8joWCy0sIYWe6OfUUuEgFwzblGRPITjZL_cvluYkolQh/exec';
+const USE_GAS=GAS_URL!=='https://script.google.com/macros/s/AKfycbyYfJ88PsRZ5IEhQH0n4ndm8joWCy0sIYWe6OfUUuEgFwzblGRPITjZL_cvluYkolQh/exec';
 async function callGAS(method,data){
   if(!USE_GAS)return{ok:false};
   try{
