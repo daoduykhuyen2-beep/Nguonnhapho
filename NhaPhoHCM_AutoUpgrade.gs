@@ -1,45 +1,18 @@
 // ============================================================
-// NGUON NHA PHO HCM — Backend Google Apps Script v2.0
+// NGUON NHA PHO HCM - Backend Google Apps Script v3.0
 // Google Sheets + SePay Webhook + Email Automation
+// UPDATED v3.0: checkPaymentStatus, boostPost theo ID, chong dup txId,
+//               BOOST_PRICE, boostCount theo thang, tu gia han
 // ============================================================
-// HUONG DAN SETUP (doc ky truoc khi chay):
-//
-// BUOC 1: Tao Google Sheet
-//   - Vao drive.google.com, tao Sheet moi
-//   - Copy Sheet ID tu URL (phan /d/XXXXX/edit)
-//   - Dan vao CFG.SHEET_ID duoi day
-//
-// BUOC 2: Mo Apps Script
-//   - Trong Sheet: Extensions > Apps Script
-//   - Xoa code cu, dan toan bo code nay vao
-//   - Luu (Ctrl+S)
-//
-// BUOC 3: Setup Sheet structure
-//   - Chay ham setupSheet() mot lan (Click Run > setupSheet)
-//   - Cho phep cac quyen can thiet
-//
-// BUOC 4: Deploy Web App
-//   - Deploy > New deployment
-//   - Type: Web app
-//   - Execute as: Me (tai khoan Gmail cua ban)
-//   - Who has access: Anyone
-//   - Nhan Deploy, copy URL
-//
-// BUOC 5: Cap nhat website
-//   - Mo index.html tren GitHub
-//   - Tim dong: const GAS_URL='YOUR_GAS_WEB_APP_URL'
-//   - Thay bang URL vua copy
-//   - Commit & push
-//
-// BUOC 6: Cau hinh SePay Webhook
-//   - Dang nhap SePay.vn
-//   - Vao Webhook settings
-//   - Webhook URL = URL deploy cua ban (buoc 4)
-//   - Method: POST
-//   - Bat tat ca event: Transfer In
+// SETUP:
+// 1. Tao Google Sheet > copy Sheet ID vao CFG.SHEET_ID
+// 2. Extensions > Apps Script > paste code nay > Luu
+// 3. Chay ham setupSheet() mot lan
+// 4. Deploy > New deployment > Web app > Anyone > copy URL
+// 5. Cap nhat GAS_URL trong index.html
+// 6. SePay.vn > Webhook > URL = URL deploy, POST, event = transfer in
 // ============================================================
 
-// === CAU HINH - CHI SUA PHAN NAY ===
 const CFG = {
   SHEET_ID: 'YOUR_GOOGLE_SHEET_ID_HERE',
   ADMIN_EMAIL: 'daoduykhuyen2@gmail.com',
@@ -49,49 +22,43 @@ const CFG = {
   SHEET_POSTS: 'Posts',
   SHEET_PAYMENTS: 'Payments',
   SHEET_LOG: 'Log',
-  // Gia goi (VND) - Khach chuyen dung so nay
+  SHEET_TXIDS: 'ProcessedTxIds',
   PLAN_PRICES: {
-    'verified': 99000,   // Goi Da Xac Minh - 99k/thang
-    'trusted': 199000,   // Goi Uy Tin - 199k/thang
-    'partner': 399000    // Goi Doi Tac - 399k/thang
+    'verified': 99000,
+    'trusted': 199000,
+    'partner': 399000
   },
-  PLAN_DAYS: {
-    'verified': 30,
-    'trusted': 30,
-    'partner': 30
-  },
+  PLAN_DAYS: { 'verified': 30, 'trusted': 30, 'partner': 30 },
   PLAN_NAMES: {
     'free': 'Tai Khoan Free',
     'verified': 'Da Xac Minh',
     'trusted': 'Uy Tin',
     'partner': 'Doi Tac NHPHCM'
-  }
+  },
+  BOOST_PRICE: 29000,
+  BOOST_DAYS_FEATURED: 7,
+  BOOST_LIMITS: { 'verified': 2, 'trusted': 5, 'partner': 10 },
+  WARN_DAYS_BEFORE_EXPIRE: 7
 };
 
 // ============================================================
-// WEBHOOK HANDLER - Nhan request tu SePay & Website
+// MAIN HANDLER
 // ============================================================
 function doPost(e) {
   try {
     let data = {};
     try { data = JSON.parse(e.postData.contents || '{}'); } catch(pe) {}
     const action = data.action || (e.parameter && e.parameter.action) || '';
-
-    // === SePay Webhook ===
-    // SePay gui data voi: transferAmount, description, gateway, referenceCode
     if (data.transferAmount !== undefined || data.amount !== undefined) {
       return handleSePay(data);
     }
-
-    // === Website API calls ===
     switch(action) {
-      case 'addUser': return addUser(data);
-      case 'addPost': return addPost(data);
+      case 'addUser':    return addUser(data);
+      case 'addPost':    return addPost(data);
       case 'updatePlan': return updatePlan(data);
-      case 'boostPost': return boostPost(data);
-      case 'resetPass': return adminResetPass(data);
-      default:
-        return jsonResponse({ok: false, msg: 'Unknown action: ' + action});
+      case 'boostPost':  return boostPost(data);
+      case 'resetPass':  return adminResetPass(data);
+      default: return jsonResponse({ok: false, msg: 'Unknown action: ' + action});
     }
   } catch(err) {
     writeLog('ERROR', 'doPost: ' + err.message, 'FAIL');
@@ -103,363 +70,399 @@ function doGet(e) {
   const action = (e.parameter && e.parameter.action) || 'ping';
   try {
     switch(action) {
-      case 'getUsers': return getUsers();
-      case 'getPosts': return getPosts();
-      case 'getUser': return getUserByPhone(e.parameter.phone);
-      case 'ping': return jsonResponse({ok: true, msg: 'NHPHCM API v2.0', ts: new Date().toLocaleString('vi-VN')});
-      default: return jsonResponse({ok: false, msg: 'Unknown action: ' + action});
+      case 'getUsers':           return getUsers();
+      case 'getPosts':           return getPosts();
+      case 'getUser':            return getUserByPhone(e.parameter.phone);
+      case 'checkPaymentStatus': return checkPaymentStatus(e.parameter);
+      case 'getBoostPrice':      return jsonResponse({ok:true, price:CFG.BOOST_PRICE, days:CFG.BOOST_DAYS_FEATURED});
+      case 'ping':               return jsonResponse({ok:true, msg:'NHPHCM API v3.0', ts:new Date().toLocaleString('vi-VN')});
+      default:                   return jsonResponse({ok:false, msg:'Unknown action: '+action});
     }
-  } catch(err) {
-    return jsonResponse({ok: false, msg: err.message});
-  }
+  } catch(err) { return jsonResponse({ok:false, msg:err.message}); }
 }
 
 // ============================================================
-// SEPAY WEBHOOK - Xu ly thanh toan tu dong
+// SEPAY WEBHOOK
 // ============================================================
 function handleSePay(data) {
-  const amount = parseInt(data.transferAmount || data.amount || 0);
-  const content = (data.description || data.content || '').toUpperCase().trim();
-  const txId = data.referenceCode || data.id || ('TX_' + Date.now());
-  const bank = data.gateway || data.bankShortName || 'SePay';
-  
-  writeLog('PAYMENT_IN', bank + ': ' + amount.toLocaleString() + 'd | ' + content, 'RECEIVED');
+  const amount  = parseInt(data.transferAmount || data.amount || 0);
+  const content = (data.description || data.memo || '').toUpperCase();
+  const txId    = data.referenceCode || data.transactionId || ('TX_' + Date.now());
+  const bank    = data.gateway || data.bankAbbreviation || 'SePay';
+  const today   = new Date().toLocaleDateString('vi-VN');
 
-  // Kiem tra prefix NHPHCM
+  writeLog('PAYMENT_IN', bank + ': ' + amount + 'd | ' + content, 'PROCESSING');
+
   if (!content.includes(CFG.CK_PREFIX)) {
-    writeLog('PAYMENT_SKIP', 'No prefix: ' + content, 'SKIPPED');
-    return jsonResponse({ok: true, msg: 'Not NHPHCM payment, ignored'});
+    writeLog('PAYMENT_SKIP', 'No prefix: ' + content, 'SKIP');
+    return jsonResponse({ok:false, msg:'Not NHPHCM payment'});
   }
 
-  // Tim so dien thoai trong noi dung CK
-  const phoneMatch = content.match(/(0[3-9][0-9]{8})/);
+  // Chong duplicate txId
+  if (isDuplicateTxId(txId)) {
+    writeLog('PAYMENT_DUP', 'Duplicate txId: ' + txId, 'SKIP');
+    return jsonResponse({ok:false, msg:'Duplicate transaction'});
+  }
+  saveTxId(txId);
+
+  const phoneMatch = content.match(/([0-9]{10})/);
   const phone = phoneMatch ? phoneMatch[1] : null;
 
   if (!phone) {
-    sendEmailAdmin(
-      'Can xu ly thu cong - ' + amount.toLocaleString() + 'd',
-      'Nhan CK ' + amount.toLocaleString() + 'd tu ' + bank +
-      '\nNoi dung: ' + content +
-      '\nMa GD: ' + txId +
-      '\nKhong tim duoc SDT. Vui long xu ly thu cong!'
-    );
-    writePayment(txId, bank, amount, content, 'UNKNOWN', '', 'MANUAL_REQUIRED');
-    return jsonResponse({ok: true, msg: 'Manual processing needed - email sent to admin'});
+    sendEmailAdmin('Can xu huong thu cong - ' + amount + 'd',
+      'Nhan CK ' + amount + 'd tu ' + bank + '\nNoi dung: ' + content + '\nMa GD: ' + txId);
+    return jsonResponse({ok:true, msg:'Recorded - manual processing needed'});
   }
 
-  // Xac dinh goi tu so tien
-  let planGranted = null;
-  for (const [plan, price] of Object.entries(CFG.PLAN_PRICES)) {
-    if (Math.abs(amount - price) <= 5000) {
-      planGranted = plan;
-      break;
-    }
+  // Kiem tra boost payment
+  if (amount === CFG.BOOST_PRICE && content.includes('BOOST')) {
+    return handleBoostPayment(phone, content, txId, amount, bank);
   }
 
-  if (!planGranted) {
-    sendEmailAdmin(
-      'So tien khong khop goi - SDT: ' + phone,
-      'SDT: ' + phone + ' | CK: ' + amount.toLocaleString() + 'd | Noi dung: ' + content +
-      '\n\nGoi hien co:\n- Da Xac Minh: 99.000d\n- Uy Tin: 199.000d\n- Doi Tac: 399.000d\n\nVui long lien he khach de xac nhan goi!'
-    );
-    writePayment(txId, bank, amount, content, phone, 'UNKNOWN', 'AMOUNT_MISMATCH');
-    return jsonResponse({ok: true, msg: 'Amount mismatch - admin notified'});
+  // Xac dinh goi theo so tien
+  let planKey = null;
+  for (const [key, price] of Object.entries(CFG.PLAN_PRICES)) {
+    if (amount === price) { planKey = key; break; }
   }
 
-  // Tim user theo SDT
   const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
   const usersSheet = ss.getSheetByName(CFG.SHEET_USERS);
   const rows = usersSheet.getDataRange().getValues();
   let userRow = -1;
-  let userName = 'Khach ' + phone;
-  let userEmail = '';
-
   for (let i = 1; i < rows.length; i++) {
-    if (String(rows[i][0]) === phone) {
-      userRow = i + 1;
-      userName = rows[i][1] || userName;
-      userEmail = rows[i][2] || '';
+    if (rows[i][0] === phone) { userRow = i; break; }
+  }
+
+  if (planKey) {
+    const planName = CFG.PLAN_NAMES[planKey] || planKey;
+    let newExp = addDays(today, CFG.PLAN_DAYS[planKey]);
+
+    // Tu gia han: neu dang dung goi nay va chua het han -> cong them tu ngay cu
+    if (userRow >= 0) {
+      const curPlan = rows[userRow][3] || 'free';
+      const curExp  = rows[userRow][5] || '';
+      if (curPlan === planKey && curExp) {
+        try {
+          const p = curExp.split('/');
+          const curDate = new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
+          if (curDate > new Date()) {
+            newExp = addDaysFromDate(curDate, CFG.PLAN_DAYS[planKey]);
+          }
+        } catch(de) {}
+      }
+      usersSheet.getRange(userRow+1, 4).setValue(planKey);
+      usersSheet.getRange(userRow+1, 5).setValue(today);
+      usersSheet.getRange(userRow+1, 6).setValue(newExp);
+      usersSheet.getRange(userRow+1, 7).setValue((parseFloat(rows[userRow][6])||0) + amount);
+      usersSheet.getRange(userRow+1, 9).setValue('active');
+    } else {
+      usersSheet.appendRow([phone,'','',planKey,today,newExp,amount,0,'active','',0,'']);
+      writeLog('USER_AUTO_CREATED', 'SDT: '+phone+' via payment', 'OK');
+    }
+
+    writePayment(txId, bank, amount, content, phone, planKey, 'CONFIRMED', today);
+    writeLog('PLAN_UPGRADED', 'SDT: '+phone+' -> '+planKey, 'OK');
+
+    const isRenew = userRow >= 0 && (rows[userRow][3]||'') === planKey;
+    sendEmailAdmin('Thanh toan thanh cong - ' + (userRow>=0?rows[userRow][1]:phone) + ' [' + planName + ']',
+      'SDT: '+phone+'\nSo tien: '+amount.toLocaleString()+'d\nGoi: '+planName+'\nHan: '+(isRenew?'Gia han den ':'Moi den ')+newExp);
+
+    return jsonResponse({ok:true, msg:'Payment confirmed', plan:planKey, expiry:newExp, phone:phone, isRenew:isRenew});
+  } else {
+    writePayment(txId, bank, amount, content, phone, 'UNKNOWN', 'PENDING', today);
+    sendEmailAdmin('Thanh toan - so tien khong khop: '+amount+'d',
+      'SDT: '+phone+'\nSo tien: '+amount+'d\nNoi dung: '+content+'\nCac goi: verified=99k, trusted=199k, partner=399k, boost=29k');
+    return jsonResponse({ok:true, msg:'Payment recorded - amount does not match any plan', amount:amount});
+  }
+}
+
+function handleBoostPayment(phone, content, txId, amount, bank) {
+  const postMatch = content.match(/POST([A-Z0-9]+)/);
+  const postId = postMatch ? postMatch[1] : null;
+  if (!postId) {
+    writeLog('BOOST_NO_ID','SDT: '+phone+' boost but no postId: '+content,'PENDING');
+    sendEmailAdmin('Boost payment - can xu ly thu cong','SDT: '+phone+'\nNoi dung: '+content+'\nSo tien: '+amount+'d');
+    return jsonResponse({ok:true, msg:'Boost payment recorded - manual processing'});
+  }
+  return boostPostById(postId, phone, txId);
+}
+
+// ============================================================
+// checkPaymentStatus - Frontend poll xac nhan thanh toan
+// ============================================================
+function checkPaymentStatus(params) {
+  const phone  = params.phone || '';
+  const amount = parseInt(params.amount || 0);
+  if (!phone) return jsonResponse({ok:false, msg:'Missing phone'});
+
+  const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+  const paySheet = ss.getSheetByName(CFG.SHEET_PAYMENTS);
+  const rows = paySheet.getDataRange().getValues();
+
+  for (let i = rows.length-1; i >= 1; i--) {
+    const rowPhone  = String(rows[i][4]||'');
+    const rowAmount = parseInt(rows[i][2]||0);
+    const rowStatus = rows[i][6]||'';
+    if (rowPhone === phone && rowStatus === 'CONFIRMED') {
+      if (amount > 0 && rowAmount !== amount) continue;
+      const uSheet = ss.getSheetByName(CFG.SHEET_USERS);
+      const urows = uSheet.getDataRange().getValues();
+      let expiry = '', plan = '', boostCount = 0;
+      for (let j=1; j<urows.length; j++) {
+        if (urows[j][0] === phone) { expiry=urows[j][5]; plan=urows[j][3]; boostCount=parseInt(urows[j][10]||0); break; }
+      }
+      return jsonResponse({ok:true, status:'confirmed', plan:plan, expiry:expiry, amount:rowAmount, boostCount:boostCount});
+    }
+  }
+  return jsonResponse({ok:true, status:'pending', msg:'Payment not yet confirmed'});
+}
+
+// ============================================================
+// boostPost - Day tin (chon bai cu the)
+// ============================================================
+function boostPost(data) {
+  const postId = data.postId;
+  const phone  = data.phone;
+  if (!postId || !phone) return jsonResponse({ok:false, msg:'Missing postId or phone'});
+
+  const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+  const uSheet = ss.getSheetByName(CFG.SHEET_USERS);
+  const urows = uSheet.getDataRange().getValues();
+  let userRow = -1;
+  for (let i=1; i<urows.length; i++) {
+    if (urows[i][0]===phone) { userRow=i; break; }
+  }
+  if (userRow<0) return jsonResponse({ok:false, msg:'User not found'});
+
+  const plan = urows[userRow][3]||'free';
+  if (plan==='free') return jsonResponse({ok:false, msg:'Goi Free khong ho tro day tin. Vui long nang cap goi Verified tro len.'});
+
+  const limit = CFG.BOOST_LIMITS[plan]||0;
+  const currentMonth = new Date().toISOString().substring(0,7);
+  const boostMonth   = String(urows[userRow][9]||'');
+  const usedBoosts   = boostMonth===currentMonth ? parseInt(urows[userRow][10]||0) : 0;
+
+  if (usedBoosts >= limit) {
+    return jsonResponse({ok:false, msg:'Da het luot day tin thang nay ('+usedBoosts+'/'+limit+'). Lien he dau thang sau.', remaining:0});
+  }
+
+  const result = boostPostById(postId, phone, 'PLAN_BOOST');
+  return result;
+}
+
+function boostPostById(postId, phone, txId) {
+  const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+  const pSheet = ss.getSheetByName(CFG.SHEET_POSTS);
+  const rows = pSheet.getDataRange().getValues();
+  let postRow = -1;
+  for (let i=1; i<rows.length; i++) {
+    if (String(rows[i][0])===String(postId)) { postRow=i; break; }
+  }
+  if (postRow<0) return jsonResponse({ok:false, msg:'Post not found: '+postId});
+
+  const boostExpiry = addDays(new Date().toLocaleDateString('vi-VN'), CFG.BOOST_DAYS_FEATURED);
+  pSheet.getRange(postRow+1, 13).setValue(boostExpiry);
+  pSheet.getRange(postRow+1, 14).setValue('boosted');
+
+  const uSheet = ss.getSheetByName(CFG.SHEET_USERS);
+  const urows = uSheet.getDataRange().getValues();
+  for (let i=1; i<urows.length; i++) {
+    if (urows[i][0]===phone) {
+      const curMonth = new Date().toISOString().substring(0,7);
+      const oldMonth = String(urows[i][9]||'');
+      const oldCount = oldMonth===curMonth ? parseInt(urows[i][10]||0) : 0;
+      uSheet.getRange(i+1,10).setValue(curMonth);
+      uSheet.getRange(i+1,11).setValue(oldCount+1);
+      const limit = CFG.BOOST_LIMITS[urows[i][3]||'free']||0;
+      uSheet.getRange(i+1,12).setValue(oldCount+1 >= limit ? 0 : limit-(oldCount+1));
       break;
     }
   }
 
-  // Tinh ngay het han
-  const today = new Date();
-  const expDate = new Date(today);
-  expDate.setDate(today.getDate() + (CFG.PLAN_DAYS[planGranted] || 30));
-  const expStr = expDate.toLocaleDateString('vi-VN');
-  const todayStr = today.toLocaleDateString('vi-VN');
-  const planName = CFG.PLAN_NAMES[planGranted] || planGranted;
-
-  if (userRow > 0) {
-    // Cap nhat goi
-    usersSheet.getRange(userRow, 4).setValue(planGranted);
-    usersSheet.getRange(userRow, 5).setValue(todayStr);
-    usersSheet.getRange(userRow, 6).setValue(expStr);
-    const prevTotal = parseFloat(rows[userRow-1][6]) || 0;
-    usersSheet.getRange(userRow, 7).setValue(prevTotal + amount);
-    usersSheet.getRange(userRow, 9).setValue('active');
-  } else {
-    // Tao user moi
-    usersSheet.appendRow([phone, userName, userEmail, planGranted, todayStr, expStr, amount, 10, 'active', 'Auto - payment']);
-    writeLog('USER_AUTO_CREATED', 'SDT: ' + phone + ' via payment', 'OK');
-  }
-
-  writePayment(txId, bank, amount, content, phone, planGranted, 'SUCCESS');
-  writeLog('PLAN_UPGRADED', 'SDT: ' + phone + ' -> ' + planGranted + ' | ' + amount.toLocaleString() + 'd', 'OK');
-
-  // Email thong bao admin
-  sendEmailAdmin(
-    'Thanh toan thanh cong - ' + userName + ' [' + planName + ']',
-    'Khach hang: ' + userName +
-    '\nSDT: ' + phone +
-    '\nSo tien: ' + amount.toLocaleString() + 'd' +
-    '\nGoi: ' + planName +
-    '\nHan: ' + expStr +
-    '\nMa GD: ' + txId +
-    '\nNgan hang: ' + bank
-  );
-
-  // Email xac nhan cho khach
-  if (userEmail) {
-    try {
-      MailApp.sendEmail({
-        to: userEmail,
-        subject: 'Nguon Nha Pho HCM - Kich hoat goi ' + planName + ' thanh cong!',
-        body: 'Xin chao ' + userName + ',\n\n' +
-              'Da nhan duoc thanh toan va kich hoat goi thanh cong!\n\n' +
-              'Thong tin goi:\n' +
-              '- Goi: ' + planName + '\n' +
-              '- Ngay kich hoat: ' + todayStr + '\n' +
-              '- Ngay het han: ' + expStr + '\n' +
-              '- So tien: ' + amount.toLocaleString() + 'd\n\n' +
-              'Dang nhap tai: https://nguonnhaphohcm.vn\n\n' +
-              'Tran trong,\nNguon Nha Pho HCM\n' +
-              'Mr. Duy Khuyen: 0987.645.314'
-      });
-    } catch(emailErr) {
-      writeLog('EMAIL_CUSTOMER_ERR', emailErr.message, 'WARN');
-    }
-  }
-
-  return jsonResponse({ok: true, plan: planGranted, phone, expires: expStr});
+  writeLog('BOOST','PostID: '+postId+' by '+phone+' txId: '+txId,'OK');
+  return jsonResponse({ok:true, msg:'Post boosted! '+CFG.BOOST_DAYS_FEATURED+' ngay featured.', postId:postId, boostExpiry:boostExpiry});
 }
 
 // ============================================================
-// USERS API
+// Chong duplicate txId
+// ============================================================
+function isDuplicateTxId(txId) {
+  try {
+    const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+    const sheet = ss.getSheetByName(CFG.SHEET_TXIDS);
+    if (!sheet) return false;
+    const rows = sheet.getDataRange().getValues();
+    for (let i=1; i<rows.length; i++) {
+      if (String(rows[i][0])===String(txId)) return true;
+    }
+    return false;
+  } catch(e) { return false; }
+}
+
+function saveTxId(txId) {
+  try {
+    const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+    let sheet = ss.getSheetByName(CFG.SHEET_TXIDS);
+    if (!sheet) { sheet=ss.insertSheet(CFG.SHEET_TXIDS); sheet.appendRow(['TxId','Timestamp']); }
+    sheet.appendRow([txId, new Date().toLocaleString('vi-VN')]);
+  } catch(e) { writeLog('TXID_SAVE_ERR',e.message,'FAIL'); }
+}
+
+// ============================================================
+// Tinh ngay
+// ============================================================
+function addDays(dateStr, days) {
+  try {
+    const p = dateStr.split('/');
+    const d = new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
+    d.setDate(d.getDate()+days);
+    return d.toLocaleDateString('vi-VN');
+  } catch(e) {
+    const d = new Date();
+    d.setDate(d.getDate()+days);
+    return d.toLocaleDateString('vi-VN');
+  }
+}
+
+function addDaysFromDate(dateObj, days) {
+  const d = new Date(dateObj);
+  d.setDate(d.getDate()+days);
+  return d.toLocaleDateString('vi-VN');
+}
+
+// ============================================================
+// USER MANAGEMENT
 // ============================================================
 function addUser(data) {
   try {
     const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
     const sheet = ss.getSheetByName(CFG.SHEET_USERS);
-    const rows = sheet.getDataRange().getValues();
-    
-    for (let i = 1; i < rows.length; i++) {
-      if (String(rows[i][0]) === data.phone) {
-        return jsonResponse({ok: false, msg: 'SDT da duoc dang ky', code: 'DUPLICATE_PHONE'});
-      }
-      if (data.email && rows[i][2] === data.email) {
-        return jsonResponse({ok: false, msg: 'Email da duoc dang ky', code: 'DUPLICATE_EMAIL'});
-      }
-    }
-    
-    const todayStr = new Date().toLocaleDateString('vi-VN');
-    sheet.appendRow([
-      data.phone, data.name, data.email || '', 'free',
-      todayStr, '', 0, 2, 'active', data.role || 'Chu nha'
-    ]);
-    
-    writeLog('USER_ADD', data.name + ' | ' + data.phone, 'OK');
-    sendEmailAdmin(
-      'Thanh vien moi dang ky - ' + data.name,
-      'Ten: ' + data.name + '\nSDT: ' + data.phone + '\nEmail: ' + (data.email || 'chua co') +
-      '\nVai tro: ' + (data.role || 'Chu nha') + '\nNgay: ' + todayStr
-    );
-    
-    return jsonResponse({
-      ok: true,
-      user: {phone: data.phone, name: data.name, email: data.email || '', plan: 'free', role: data.role || 'Chu nha', joined: todayStr}
-    });
+    const today = new Date().toLocaleDateString('vi-VN');
+    sheet.appendRow([data.phone,data.name,data.email||'','free',today,'',0,0,'active','',0,0,data.role||'Chu nha']);
+    writeLog('USER_ADD', data.name+'|'+data.phone, 'OK');
+    sendEmailAdmin('Thanh vien moi dang ky - '+data.name,
+      'Ten: '+data.name+'\nSDT: '+data.phone+'\nEmail: '+(data.email||'chua co')+'\nVai tro: '+(data.role||'Chu nha')+'\nNgay: '+today);
+    return jsonResponse({ok:true, user:{phone:data.phone,name:data.name,email:data.email}});
   } catch(e) {
-    writeLog('USER_ADD_ERR', e.message, 'FAIL');
-    return jsonResponse({ok: false, msg: e.message});
+    writeLog('USER_ADD_ERR',e.message,'FAIL');
+    return jsonResponse({ok:false, msg:e.message});
   }
 }
 
 function getUsers() {
   const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
-  const rows = ss.getSheetByName(CFG.SHEET_USERS).getDataRange().getValues();
-  const users = rows.slice(1).map(r => ({
-    phone: String(r[0]), name: r[1], email: r[2] || '', plan: r[3] || 'free',
-    activated: r[4] || '', expires: r[5] || '', total_paid: r[6] || 0,
-    posts_left: r[7] || 0, status: r[8] || 'active', role: r[9] || 'Chu nha'
-  })).filter(u => u.phone);
-  return jsonResponse({ok: true, count: users.length, users});
+  const users = ss.getSheetByName(CFG.SHEET_USERS).getDataRange().getValues().slice(1).map(r => ({
+    phone:r[0], name:r[1], email:r[2], plan:r[3], joined:r[4], expiry:r[5],
+    total:r[6], posts:r[7], status:r[8], boostMonth:r[9], boostCount:r[10], boostRemaining:r[11], role:r[12]
+  }));
+  return jsonResponse({ok:true, users});
 }
 
 function getUserByPhone(phone) {
-  if (!phone) return jsonResponse({ok: false, msg: 'Missing phone'});
   const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
-  const rows = ss.getSheetByName(CFG.SHEET_USERS).getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) {
-    if (String(rows[i][0]) === phone) {
-      return jsonResponse({ok: true, user: {
-        phone: String(rows[i][0]), name: rows[i][1], email: rows[i][2] || '',
-        plan: rows[i][3] || 'free', activated: rows[i][4] || '',
-        expires: rows[i][5] || '', total_paid: rows[i][6] || 0,
-        posts_left: rows[i][7] || 0, status: rows[i][8] || 'active', role: rows[i][9] || 'Chu nha'
-      }});
-    }
-  }
-  return jsonResponse({ok: false, msg: 'User not found'});
+  const rows = ss.getSheetByName(CFG.SHEET_USERS).getDataRange().getValues().slice(1);
+  const u = rows.find(r => r[0]===phone);
+  if (!u) return jsonResponse({ok:false, msg:'Not found'});
+  return jsonResponse({ok:true, user:{
+    phone:u[0],name:u[1],email:u[2],plan:u[3],joined:u[4],expiry:u[5],
+    total:u[6],posts:u[7],status:u[8],boostMonth:u[9],boostCount:u[10],boostRemaining:u[11],role:u[12]
+  }});
 }
 
 function updatePlan(data) {
-  if (!data.phone || !data.plan) return jsonResponse({ok: false, msg: 'Missing phone or plan'});
   const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
   const sheet = ss.getSheetByName(CFG.SHEET_USERS);
   const rows = sheet.getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) {
-    if (String(rows[i][0]) === data.phone) {
-      sheet.getRange(i+1, 4).setValue(data.plan);
-      sheet.getRange(i+1, 5).setValue(new Date().toLocaleDateString('vi-VN'));
-      if (data.expires) sheet.getRange(i+1, 6).setValue(data.expires);
-      writeLog('PLAN_UPDATE_ADMIN', data.phone + ' -> ' + data.plan, 'OK');
-      return jsonResponse({ok: true});
+  for (let i=1; i<rows.length; i++) {
+    if (rows[i][0]===data.phone) {
+      sheet.getRange(i+1,4).setValue(data.plan);
+      if (data.expiry) sheet.getRange(i+1,6).setValue(data.expiry);
+      writeLog('PLAN_UPDATE', data.phone+' -> '+data.plan, 'OK');
+      return jsonResponse({ok:true});
     }
   }
-  return jsonResponse({ok: false, msg: 'User not found'});
+  return jsonResponse({ok:false, msg:'User not found'});
 }
 
 function adminResetPass(data) {
-  if (!data.phone) return jsonResponse({ok: false, msg: 'Missing phone'});
-  const newPass = 'NHPHCM' + Math.random().toString(36).slice(2, 8).toUpperCase();
-  // Note: password is stored in localStorage on client side
-  // GAS just notifies admin
-  sendEmailAdmin('Admin Reset Mat Khau - ' + data.phone,
-    'SDT: ' + data.phone + '\nMat khau moi: ' + newPass + '\nAdmin: ' + (data.adminName || 'Admin'));
+  if (data.adminKey !== CFG.ADMIN_PHONE) return jsonResponse({ok:false, msg:'Unauthorized'});
+  const newPass = Math.random().toString(36).substring(2,8).toUpperCase();
+  sendEmailAdmin('Admin Reset Mat Khau - '+data.phone, 'SDT: '+data.phone+'\nMat khau moi: '+newPass);
   writeLog('PASS_RESET', data.phone, 'OK');
-  return jsonResponse({ok: true, newPass});
+  return jsonResponse({ok:true, newPass});
 }
 
 // ============================================================
-// POSTS API
+// POST MANAGEMENT
 // ============================================================
 function addPost(data) {
   try {
     const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
     const sheet = ss.getSheetByName(CFG.SHEET_POSTS);
-    const id = data.id || ('up_' + Date.now() + '_' + Math.random().toString(36).slice(2,6));
-    const todayStr = new Date().toLocaleDateString('vi-VN');
-    sheet.appendRow([
-      id, data.name || '', data.phone || '', data.pty || '', data.district || '',
-      data.price || '', data.area || '', data.desc || '', (data.imgs || []).join('|'),
-      todayStr, data.status || 'public', 0, data.type || 'owner', data.email || ''
-    ]);
-    writeLog('POST_ADD', (data.pty||'') + ' | ' + (data.district||'') + ' | ' + (data.phone||''), 'OK');
-    return jsonResponse({ok: true, id, posted: todayStr});
-  } catch(e) {
-    return jsonResponse({ok: false, msg: e.message});
-  }
+    const postId = 'POST'+Date.now();
+    const today = new Date().toLocaleDateString('vi-VN');
+    sheet.appendRow([postId,data.name||'',data.phone||'',data.company||'',data.price||'',
+      data.area||'',data.desc||'',(data.imgs||[]).join(','),today,data.status||'public',0,
+      data.type||'nguoi so huu','','']);
+    writeLog('POST_ADD',(data.company||'')+'|'+(data.phone||''),'OK');
+    return jsonResponse({ok:true, postId:postId, ngayDang:today});
+  } catch(e) { return jsonResponse({ok:false, msg:e.message}); }
 }
 
 function getPosts() {
   const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
-  const rows = ss.getSheetByName(CFG.SHEET_POSTS).getDataRange().getValues();
-  const posts = rows.slice(1)
-    .filter(r => r[0] && r[10] === 'public')
-    .map(r => ({
-      id: r[0], name: r[1], phone: r[2], pty: r[3], district: r[4],
-      price: r[5], area: r[6], desc: r[7],
-      imgs: String(r[8] || '').split('|').filter(Boolean),
-      ts_str: r[9], status: r[10], boosted: r[11] || 0, type: r[12] || 'owner', email: r[13] || ''
-    }));
-  return jsonResponse({ok: true, count: posts.length, posts});
-}
-
-function boostPost(data) {
-  if (!data.postId) return jsonResponse({ok: false, msg: 'Missing postId'});
-  const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
-  const sheet = ss.getSheetByName(CFG.SHEET_POSTS);
-  const rows = sheet.getDataRange().getValues();
-  for (let i = 1; i < rows.length; i++) {
-    if (rows[i][0] === data.postId) {
-      sheet.getRange(i+1, 12).setValue((rows[i][11] || 0) + 1);
-      return jsonResponse({ok: true});
-    }
-  }
-  return jsonResponse({ok: false, msg: 'Post not found'});
+  const posts = ss.getSheetByName(CFG.SHEET_POSTS).getDataRange().getValues().slice(1).map(r => ({
+    id:r[0],name:r[1],phone:r[2],company:r[3],price:r[4],area:r[5],desc:r[6],imgs:r[7],
+    date:r[8],status:r[9],views:r[10],type:r[11],boostExpiry:r[12],boostStatus:r[13]
+  }));
+  return jsonResponse({ok:true, posts});
 }
 
 // ============================================================
-// SETUP - Chay mot lan de tao cau truc sheet
+// SETUP SHEET - Chay 1 lan
 // ============================================================
 function setupSheet() {
   const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
-  const DARK = '#0d1b2a'; const GOLD = '#c9922a';
-  
-  const createSheet = (name, headers) => {
-    let s = ss.getSheetByName(name);
-    if (!s) s = ss.insertSheet(name);
-    else s.clearContents();
-    s.getRange(1,1,1,headers.length).setValues([headers]);
-    s.getRange(1,1,1,headers.length).setFontWeight('bold').setBackground(DARK).setFontColor(GOLD);
-    s.setFrozenRows(1);
-    return s;
-  };
-  
-  createSheet(CFG.SHEET_USERS, ['SDT','Ho ten','Email','Goi','Ngay KH','Het han','Tong nap','Tin con','Trang thai','Vai tro']);
-  createSheet(CFG.SHEET_POSTS, ['ID','Ten','SDT','Loai BDS','Quan','Gia','DT','Mo ta','Anh (pipe)','Ngay dang','Trang thai','Day','Loai TK','Email']);
-  createSheet(CFG.SHEET_PAYMENTS, ['Ma GD','Ngan hang','So tien','Noi dung CK','SDT','Goi','Trang thai','Thoi gian']);
-  createSheet(CFG.SHEET_LOG, ['Thoi gian','Su kien','Chi tiet','Ket qua']);
-  
-  SpreadsheetApp.getUi().alert(
-    'Setup xong!\n\n' +
-    'Da tao 4 sheets: Users, Posts, Payments, Log\n\n' +
-    'Buoc tiep theo:\n' +
-    '1. Deploy > New deployment > Web app\n' +
-    '2. Execute as: Me | Who can access: Anyone\n' +
-    '3. Copy URL deploy\n' +
-    '4. Cap nhat GAS_URL trong index.html tren GitHub\n' +
-    '5. Cau hinh SePay webhook voi URL do'
-  );
+
+  let us = ss.getSheetByName(CFG.SHEET_USERS)||ss.insertSheet(CFG.SHEET_USERS);
+  us.getRange(1,1,1,13).setValues([['Phone','Name','Email','Plan','JoinDate','Expiry','TotalPaid','Posts','Status','BoostMonth','BoostUsed','BoostRemaining','Role']]);
+
+  let ps = ss.getSheetByName(CFG.SHEET_POSTS)||ss.insertSheet(CFG.SHEET_POSTS);
+  ps.getRange(1,1,1,14).setValues([['PostId','Name','Phone','Company','Price','Area','Desc','Imgs','Date','Status','Views','Type','BoostExpiry','BoostStatus']]);
+
+  let pays = ss.getSheetByName(CFG.SHEET_PAYMENTS)||ss.insertSheet(CFG.SHEET_PAYMENTS);
+  pays.getRange(1,1,1,8).setValues([['Date','Bank','Amount','Content','Phone','Plan','Status','TxId']]);
+
+  let log = ss.getSheetByName(CFG.SHEET_LOG)||ss.insertSheet(CFG.SHEET_LOG);
+  log.getRange(1,1,1,4).setValues([['Timestamp','Event','Detail','Result']]);
+
+  let tx = ss.getSheetByName(CFG.SHEET_TXIDS)||ss.insertSheet(CFG.SHEET_TXIDS);
+  tx.getRange(1,1,1,2).setValues([['TxId','Timestamp']]);
+
+  SpreadsheetApp.getUi().alert('Thiet lap xong! 5 sheets: Users, Posts, Payments, Log, ProcessedTxIds\n\nTiep theo:\n1. Deploy > New deployment > Web app\n2. Execute as: Me | Access: Anyone\n3. Copy URL -> cap nhat GAS_URL trong index.html\n4. Cai SePay webhook voi URL nay');
 }
 
 // ============================================================
-// UTILITIES
+// TIEN ICH
 // ============================================================
 function sendEmailAdmin(subject, body) {
   try {
-    MailApp.sendEmail({
-      to: CFG.ADMIN_EMAIL,
-      subject: '[NHPHCM] ' + subject,
-      body: body + '\n\n---\nNguon Nha Pho HCM System\n' + new Date().toLocaleString('vi-VN')
-    });
-  } catch(e) {
-    Logger.log('Email admin err: ' + e.message);
-  }
+    MailApp.sendEmail({to:CFG.ADMIN_EMAIL, subject:'[NHPHCM] '+subject, body:body+'\n\n---\nNguon Nha Pho HCM\n'+new Date().toLocaleString('vi-VN')});
+  } catch(e) { writeLog('EMAIL_ERR',e.message,'FAIL'); }
 }
 
-function writePayment(txId, bank, amount, content, phone, plan, status) {
+function writePayment(txId, bank, amount, content, phone, plan, status, date) {
   try {
-    const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
-    ss.getSheetByName(CFG.SHEET_PAYMENTS).appendRow([
-      txId, bank, amount, content, phone, plan, status, new Date().toLocaleString('vi-VN')
-    ]);
-  } catch(e) { Logger.log('writePayment err: ' + e.message); }
+    SpreadsheetApp.openById(CFG.SHEET_ID).getSheetByName(CFG.SHEET_PAYMENTS).appendRow([date,bank,amount,content,phone,plan,status,txId]);
+  } catch(e) { writeLog('writePayment err: '+e.message,'','FAIL'); }
 }
 
 function writeLog(event, detail, result) {
   try {
-    const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
-    ss.getSheetByName(CFG.SHEET_LOG).appendRow([
-      new Date().toLocaleString('vi-VN'), event, detail, result || ''
-    ]);
-  } catch(e) { Logger.log('writeLog err: ' + e.message); }
+    SpreadsheetApp.openById(CFG.SHEET_ID).getSheetByName(CFG.SHEET_LOG).appendRow([new Date().toLocaleString('vi-VN'),event,detail,result||'']);
+  } catch(e) { Logger.log('writeLog err: '+e.message); }
 }
 
 function jsonResponse(data) {
-  return ContentService
-    .createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
 }
