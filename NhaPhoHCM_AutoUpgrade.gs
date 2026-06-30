@@ -1,520 +1,465 @@
-
 // ============================================================
-// NGUON NHA PHO HCM — Hệ thống tự động nâng cấp gói
-// Google Apps Script — Dán vào script.google.com
+// NGUON NHA PHO HCM — Backend Google Apps Script v2.0
+// Google Sheets + SePay Webhook + Email Automation
+// ============================================================
+// HUONG DAN SETUP (doc ky truoc khi chay):
+//
+// BUOC 1: Tao Google Sheet
+//   - Vao drive.google.com, tao Sheet moi
+//   - Copy Sheet ID tu URL (phan /d/XXXXX/edit)
+//   - Dan vao CFG.SHEET_ID duoi day
+//
+// BUOC 2: Mo Apps Script
+//   - Trong Sheet: Extensions > Apps Script
+//   - Xoa code cu, dan toan bo code nay vao
+//   - Luu (Ctrl+S)
+//
+// BUOC 3: Setup Sheet structure
+//   - Chay ham setupSheet() mot lan (Click Run > setupSheet)
+//   - Cho phep cac quyen can thiet
+//
+// BUOC 4: Deploy Web App
+//   - Deploy > New deployment
+//   - Type: Web app
+//   - Execute as: Me (tai khoan Gmail cua ban)
+//   - Who has access: Anyone
+//   - Nhan Deploy, copy URL
+//
+// BUOC 5: Cap nhat website
+//   - Mo index.html tren GitHub
+//   - Tim dong: const GAS_URL='YOUR_GAS_WEB_APP_URL'
+//   - Thay bang URL vua copy
+//   - Commit & push
+//
+// BUOC 6: Cau hinh SePay Webhook
+//   - Dang nhap SePay.vn
+//   - Vao Webhook settings
+//   - Webhook URL = URL deploy cua ban (buoc 4)
+//   - Method: POST
+//   - Bat tat ca event: Transfer In
 // ============================================================
 
-// ===== CẤU HÌNH — Anh chỉ cần sửa phần này =====
-const CONFIG = {
-  // Google Sheet ID (lấy từ URL sheet của anh)
-  SHEET_ID: 'YOUR_GOOGLE_SHEET_ID',
-  
-  // Zalo OA Access Token (lấy từ developers.zalo.me)
-  ZALO_TOKEN: 'YOUR_ZALO_OA_TOKEN',
-  
-  // Số Zalo cá nhân Mr. Duy để nhận thông báo admin
-  ADMIN_ZALO: '0987645314',
-  
-  // Tên các sheet
+// === CAU HINH - CHI SUA PHAN NAY ===
+const CFG = {
+  SHEET_ID: 'YOUR_GOOGLE_SHEET_ID_HERE',
+  ADMIN_EMAIL: 'daoduykhuyen2@gmail.com',
+  ADMIN_PHONE: '0987645314',
+  CK_PREFIX: 'NHPHCM',
   SHEET_USERS: 'Users',
+  SHEET_POSTS: 'Posts',
   SHEET_PAYMENTS: 'Payments',
   SHEET_LOG: 'Log',
-  
-  // Từ khóa nhận diện email ngân hàng
-  TCB_SENDER: 'no-reply@techcombank.com.vn',
-  VCB_SENDER: 'no-reply@vietcombank.com.vn',
-  
-  // Nội dung CK prefix để nhận diện
-  CK_PREFIX: 'NHPHCM',
-  
-  // Giá các gói (đồng)
+  // Gia goi (VND) - Khach chuyen dung so nay
   PLAN_PRICES: {
-    'BASIC': 199000,
-    'PRO':   499000,
-    'VIP':   999000,
+    'verified': 99000,   // Goi Da Xac Minh - 99k/thang
+    'trusted': 199000,   // Goi Uy Tin - 199k/thang
+    'partner': 399000    // Goi Doi Tac - 399k/thang
   },
-  
-  // Quyền lợi từng gói
-  PLAN_POSTS: {
-    'FREE':  2,
-    'BASIC': 10,
-    'PRO':   30,
-    'VIP':   9999,
+  PLAN_DAYS: {
+    'verified': 30,
+    'trusted': 30,
+    'partner': 30
+  },
+  PLAN_NAMES: {
+    'free': 'Tai Khoan Free',
+    'verified': 'Da Xac Minh',
+    'trusted': 'Uy Tin',
+    'partner': 'Doi Tac NHPHCM'
   }
 };
 
-// ===== BƯỚC 1: TẠO GOOGLE SHEET VỚI ĐỦ CỘT =====
-function setupSheet() {
-  const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-  
-  // Sheet Users
-  let usersSheet = ss.getSheetByName(CONFIG.SHEET_USERS);
-  if (!usersSheet) usersSheet = ss.insertSheet(CONFIG.SHEET_USERS);
-  usersSheet.getRange(1, 1, 1, 10).setValues([[
-    'SĐT', 'Họ tên', 'Email', 'Gói hiện tại', 
-    'Ngày kích hoạt', 'Ngày hết hạn', 'Tổng đã nạp',
-    'Số tin còn lại', 'Trạng thái', 'Ghi chú'
-  ]]);
-  usersSheet.getRange(1,1,1,10).setFontWeight('bold').setBackground('#0d1b2a').setFontColor('#c9922a');
-  
-  // Sheet Payments
-  let paySheet = ss.getSheetByName(CONFIG.SHEET_PAYMENTS);
-  if (!paySheet) paySheet = ss.insertSheet(CONFIG.SHEET_PAYMENTS);
-  paySheet.getRange(1, 1, 1, 9).setValues([[
-    'Thời gian', 'Ngân hàng', 'Số tiền', 'Nội dung CK',
-    'SĐT khách', 'Gói nhận', 'Trạng thái', 'Mã GD', 'Ghi chú'
-  ]]);
-  paySheet.getRange(1,1,1,9).setFontWeight('bold').setBackground('#0d1b2a').setFontColor('#c9922a');
-  
-  // Sheet Log
-  let logSheet = ss.getSheetByName(CONFIG.SHEET_LOG);
-  if (!logSheet) logSheet = ss.insertSheet(CONFIG.SHEET_LOG);
-  logSheet.getRange(1, 1, 1, 4).setValues([['Thời gian', 'Sự kiện', 'Chi tiết', 'Kết quả']]);
-  logSheet.getRange(1,1,1,4).setFontWeight('bold').setBackground('#0d1b2a').setFontColor('#c9922a');
-  
-  Logger.log('✅ Sheet đã được tạo xong!');
-  SpreadsheetApp.getUi().alert('✅ Đã tạo xong Google Sheet! Kiểm tra các tab: Users, Payments, Log');
-}
-
-// ===== BƯỚC 2: HÀM ĐỌC EMAIL NGÂN HÀNG =====
-function checkBankEmails() {
-  const now = new Date();
-  writeLog('CHECK_EMAIL', 'Bắt đầu kiểm tra email ngân hàng', '');
-  
-  // Tìm email TCB chưa đọc trong 24h qua
-  checkTechcombankEmails();
-  checkVietcombankEmails();
-}
-
-function checkTechcombankEmails() {
-  // Techcombank gửi email thông báo CK đến
-  const query = 'from:(' + CONFIG.TCB_SENDER + ') subject:(Thong bao giao dich OR Biến động số dư) is:unread newer_than:1d';
-  const threads = GmailApp.search(query);
-  
-  threads.forEach(thread => {
-    const messages = thread.getMessages();
-    messages.forEach(msg => {
-      if (msg.isUnread()) {
-        const body = msg.getPlainBody();
-        const subject = msg.getSubject();
-        parseTransactionEmail(body, subject, 'Techcombank');
-        msg.markRead();
-      }
-    });
-  });
-}
-
-function checkVietcombankEmails() {
-  const query = 'from:(' + CONFIG.VCB_SENDER + ') subject:(Thong bao OR bien dong) is:unread newer_than:1d';
-  const threads = GmailApp.search(query);
-  
-  threads.forEach(thread => {
-    const messages = thread.getMessages();
-    messages.forEach(msg => {
-      if (msg.isUnread()) {
-        const body = msg.getPlainBody();
-        const subject = msg.getSubject();
-        parseTransactionEmail(body, subject, 'Vietcombank');
-        msg.markRead();
-      }
-    });
-  });
-}
-
-// ===== BƯỚC 3: PHÂN TÍCH NỘI DUNG EMAIL =====
-function parseTransactionEmail(body, subject, bank) {
+// ============================================================
+// WEBHOOK HANDLER - Nhan request tu SePay & Website
+// ============================================================
+function doPost(e) {
   try {
-    // Tìm số tiền — pattern: + X,XXX,XXX VND hoặc Số tiền: X
-    const amountPatterns = [
-      /[+]?\s*([\d,\.]+)\s*VND/i,
-      /So tien[:\s]+([\d,\.]+)/i,
-      /Amount[:\s]+([\d,\.]+)/i,
-      /GD[:\s]+\+([\d,\.]+)/i,
-    ];
-    
-    let amount = 0;
-    for (const pattern of amountPatterns) {
-      const match = body.match(pattern);
-      if (match) {
-        amount = parseInt(match[1].replace(/[,\.]/g, '').replace(/(\d+)\d{3}$/, '$1000'));
-        if (amount > 10000) break; // Loại bỏ số không hợp lệ
-      }
+    let data = {};
+    try { data = JSON.parse(e.postData.contents || '{}'); } catch(pe) {}
+    const action = data.action || (e.parameter && e.parameter.action) || '';
+
+    // === SePay Webhook ===
+    // SePay gui data voi: transferAmount, description, gateway, referenceCode
+    if (data.transferAmount !== undefined || data.amount !== undefined) {
+      return handleSePay(data);
     }
-    
-    // Tìm nội dung CK
-    const contentPatterns = [
-      /Noi dung[:\s]+([^
-]+)/i,
-      /Description[:\s]+([^
-]+)/i,
-      /ND[:\s]+([^
-]+)/i,
-      /Ghi chu[:\s]+([^
-]+)/i,
-    ];
-    
-    let content = '';
-    for (const pattern of contentPatterns) {
-      const match = body.match(pattern);
-      if (match) { content = match[1].trim(); break; }
+
+    // === Website API calls ===
+    switch(action) {
+      case 'addUser': return addUser(data);
+      case 'addPost': return addPost(data);
+      case 'updatePlan': return updatePlan(data);
+      case 'boostPost': return boostPost(data);
+      case 'resetPass': return adminResetPass(data);
+      default:
+        return jsonResponse({ok: false, msg: 'Unknown action: ' + action});
     }
-    
-    // Chỉ xử lý nếu nội dung có prefix NHPHCM
-    if (!content.toUpperCase().includes(CONFIG.CK_PREFIX)) {
-      writeLog('SKIP', bank, 'Nội dung không phải NHPHCM: ' + content);
-      return;
-    }
-    
-    // Tìm SĐT từ nội dung — format: NHPHCM BASIC 0987645314
-    const phoneMatch = content.match(/0[3-9]\d{8}/);
-    const phone = phoneMatch ? phoneMatch[0] : '';
-    
-    // Tìm tên gói từ nội dung
-    let planName = '';
-    if (content.toUpperCase().includes('VIP')) planName = 'VIP';
-    else if (content.toUpperCase().includes('PRO')) planName = 'PRO';
-    else if (content.toUpperCase().includes('BASIC')) planName = 'BASIC';
-    else {
-      // Nhận diện qua số tiền
-      planName = detectPlanByAmount(amount);
-    }
-    
-    if (!planName) {
-      writeLog('UNKNOWN_PLAN', bank, 'Không nhận diện được gói — Amount: ' + amount + ' Content: ' + content);
-      notifyAdmin('⚠️ CK không rõ gói', bank + ' — ' + amount + 'đ — ' + content);
-      return;
-    }
-    
-    // Lưu payment record
-    const txId = 'TX' + Date.now();
-    savePayment(new Date(), bank, amount, content, phone, planName, 'SUCCESS', txId);
-    
-    // Nâng cấp tài khoản
-    if (phone) {
-      upgradeUserPlan(phone, planName, amount, txId);
-    } else {
-      writeLog('NO_PHONE', bank, 'Có CK nhưng không tìm được SĐT — ' + content);
-      notifyAdmin('⚠️ CK không có SĐT', bank + ' — ' + planName + ' — ' + amount + 'đ\nND: ' + content);
-    }
-    
-  } catch(e) {
-    writeLog('ERROR', 'parseTransactionEmail', e.toString());
+  } catch(err) {
+    writeLog('ERROR', 'doPost: ' + err.message, 'FAIL');
+    return jsonResponse({ok: false, msg: err.message});
   }
 }
 
-function detectPlanByAmount(amount) {
-  // Cho phép sai lệch ±5000đ (phí chuyển khoản)
-  const tolerance = 5000;
-  for (const [plan, price] of Object.entries(CONFIG.PLAN_PRICES)) {
-    if (Math.abs(amount - price) <= tolerance) return plan;
-    // Kiểm tra gói năm (x12 x0.8)
-    const yearPrice = price * 12 * 0.8;
-    if (Math.abs(amount - yearPrice) <= tolerance) return plan + '_YEAR';
+function doGet(e) {
+  const action = (e.parameter && e.parameter.action) || 'ping';
+  try {
+    switch(action) {
+      case 'getUsers': return getUsers();
+      case 'getPosts': return getPosts();
+      case 'getUser': return getUserByPhone(e.parameter.phone);
+      case 'ping': return jsonResponse({ok: true, msg: 'NHPHCM API v2.0', ts: new Date().toLocaleString('vi-VN')});
+      default: return jsonResponse({ok: false, msg: 'Unknown action: ' + action});
+    }
+  } catch(err) {
+    return jsonResponse({ok: false, msg: err.message});
   }
-  return '';
 }
 
-// ===== BƯỚC 4: NÂNG CẤP TÀI KHOẢN =====
-function upgradeUserPlan(phone, planName, amount, txId) {
-  const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-  const sheet = ss.getSheetByName(CONFIG.SHEET_USERS);
-  const data = sheet.getDataRange().getValues();
+// ============================================================
+// SEPAY WEBHOOK - Xu ly thanh toan tu dong
+// ============================================================
+function handleSePay(data) {
+  const amount = parseInt(data.transferAmount || data.amount || 0);
+  const content = (data.description || data.content || '').toUpperCase().trim();
+  const txId = data.referenceCode || data.id || ('TX_' + Date.now());
+  const bank = data.gateway || data.bankShortName || 'SePay';
   
-  const cleanPlan = planName.replace('_YEAR','');
-  const isYear = planName.includes('_YEAR');
-  const now = new Date();
-  const expiry = new Date(now);
-  expiry.setMonth(expiry.getMonth() + (isYear ? 12 : 1));
-  
-  const posts = CONFIG.PLAN_POSTS[cleanPlan] || 2;
-  
-  // Tìm user theo SĐT
-  let found = false;
-  for (let i = 1; i < data.length; i++) {
-    if (data[i][0] && data[i][0].toString().replace(/\D/g,'') === phone.replace(/\D/g,'')) {
-      // Cập nhật dòng existing
-      sheet.getRange(i+1, 4).setValue(cleanPlan);
-      sheet.getRange(i+1, 5).setValue(Utilities.formatDate(now, 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm'));
-      sheet.getRange(i+1, 6).setValue(Utilities.formatDate(expiry, 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy'));
-      sheet.getRange(i+1, 7).setValue((parseFloat(data[i][6])||0) + amount);
-      sheet.getRange(i+1, 8).setValue(posts === 9999 ? 'Không giới hạn' : posts);
-      sheet.getRange(i+1, 9).setValue('ACTIVE');
-      sheet.getRange(i+1, 10).setValue('TX: ' + txId);
-      // Highlight dòng vừa nâng cấp
-      sheet.getRange(i+1, 1, 1, 10).setBackground('#fef3dc');
-      found = true;
-      writeLog('UPGRADED', phone, cleanPlan + ' — ' + amount + 'đ — Hết hạn: ' + Utilities.formatDate(expiry, 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy'));
+  writeLog('PAYMENT_IN', bank + ': ' + amount.toLocaleString() + 'd | ' + content, 'RECEIVED');
+
+  // Kiem tra prefix NHPHCM
+  if (!content.includes(CFG.CK_PREFIX)) {
+    writeLog('PAYMENT_SKIP', 'No prefix: ' + content, 'SKIPPED');
+    return jsonResponse({ok: true, msg: 'Not NHPHCM payment, ignored'});
+  }
+
+  // Tim so dien thoai trong noi dung CK
+  const phoneMatch = content.match(/(0[3-9][0-9]{8})/);
+  const phone = phoneMatch ? phoneMatch[1] : null;
+
+  if (!phone) {
+    sendEmailAdmin(
+      'Can xu ly thu cong - ' + amount.toLocaleString() + 'd',
+      'Nhan CK ' + amount.toLocaleString() + 'd tu ' + bank +
+      '\nNoi dung: ' + content +
+      '\nMa GD: ' + txId +
+      '\nKhong tim duoc SDT. Vui long xu ly thu cong!'
+    );
+    writePayment(txId, bank, amount, content, 'UNKNOWN', '', 'MANUAL_REQUIRED');
+    return jsonResponse({ok: true, msg: 'Manual processing needed - email sent to admin'});
+  }
+
+  // Xac dinh goi tu so tien
+  let planGranted = null;
+  for (const [plan, price] of Object.entries(CFG.PLAN_PRICES)) {
+    if (Math.abs(amount - price) <= 5000) {
+      planGranted = plan;
       break;
     }
   }
-  
-  if (!found) {
-    // Thêm user mới
-    sheet.appendRow([
-      phone, '(Chưa cập nhật)', '', cleanPlan,
-      Utilities.formatDate(now, 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm'),
-      Utilities.formatDate(expiry, 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy'),
-      amount,
-      posts === 9999 ? 'Không giới hạn' : posts,
-      'ACTIVE',
-      'Tự động — TX: ' + txId
-    ]);
-    writeLog('NEW_USER', phone, 'Tạo mới — ' + cleanPlan);
+
+  if (!planGranted) {
+    sendEmailAdmin(
+      'So tien khong khop goi - SDT: ' + phone,
+      'SDT: ' + phone + ' | CK: ' + amount.toLocaleString() + 'd | Noi dung: ' + content +
+      '\n\nGoi hien co:\n- Da Xac Minh: 99.000d\n- Uy Tin: 199.000d\n- Doi Tac: 399.000d\n\nVui long lien he khach de xac nhan goi!'
+    );
+    writePayment(txId, bank, amount, content, phone, 'UNKNOWN', 'AMOUNT_MISMATCH');
+    return jsonResponse({ok: true, msg: 'Amount mismatch - admin notified'});
   }
+
+  // Tim user theo SDT
+  const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+  const usersSheet = ss.getSheetByName(CFG.SHEET_USERS);
+  const rows = usersSheet.getDataRange().getValues();
+  let userRow = -1;
+  let userName = 'Khach ' + phone;
+  let userEmail = '';
+
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === phone) {
+      userRow = i + 1;
+      userName = rows[i][1] || userName;
+      userEmail = rows[i][2] || '';
+      break;
+    }
+  }
+
+  // Tinh ngay het han
+  const today = new Date();
+  const expDate = new Date(today);
+  expDate.setDate(today.getDate() + (CFG.PLAN_DAYS[planGranted] || 30));
+  const expStr = expDate.toLocaleDateString('vi-VN');
+  const todayStr = today.toLocaleDateString('vi-VN');
+  const planName = CFG.PLAN_NAMES[planGranted] || planGranted;
+
+  if (userRow > 0) {
+    // Cap nhat goi
+    usersSheet.getRange(userRow, 4).setValue(planGranted);
+    usersSheet.getRange(userRow, 5).setValue(todayStr);
+    usersSheet.getRange(userRow, 6).setValue(expStr);
+    const prevTotal = parseFloat(rows[userRow-1][6]) || 0;
+    usersSheet.getRange(userRow, 7).setValue(prevTotal + amount);
+    usersSheet.getRange(userRow, 9).setValue('active');
+  } else {
+    // Tao user moi
+    usersSheet.appendRow([phone, userName, userEmail, planGranted, todayStr, expStr, amount, 10, 'active', 'Auto - payment']);
+    writeLog('USER_AUTO_CREATED', 'SDT: ' + phone + ' via payment', 'OK');
+  }
+
+  writePayment(txId, bank, amount, content, phone, planGranted, 'SUCCESS');
+  writeLog('PLAN_UPGRADED', 'SDT: ' + phone + ' -> ' + planGranted + ' | ' + amount.toLocaleString() + 'd', 'OK');
+
+  // Email thong bao admin
+  sendEmailAdmin(
+    'Thanh toan thanh cong - ' + userName + ' [' + planName + ']',
+    'Khach hang: ' + userName +
+    '\nSDT: ' + phone +
+    '\nSo tien: ' + amount.toLocaleString() + 'd' +
+    '\nGoi: ' + planName +
+    '\nHan: ' + expStr +
+    '\nMa GD: ' + txId +
+    '\nNgan hang: ' + bank
+  );
+
+  // Email xac nhan cho khach
+  if (userEmail) {
+    try {
+      MailApp.sendEmail({
+        to: userEmail,
+        subject: 'Nguon Nha Pho HCM - Kich hoat goi ' + planName + ' thanh cong!',
+        body: 'Xin chao ' + userName + ',\n\n' +
+              'Da nhan duoc thanh toan va kich hoat goi thanh cong!\n\n' +
+              'Thong tin goi:\n' +
+              '- Goi: ' + planName + '\n' +
+              '- Ngay kich hoat: ' + todayStr + '\n' +
+              '- Ngay het han: ' + expStr + '\n' +
+              '- So tien: ' + amount.toLocaleString() + 'd\n\n' +
+              'Dang nhap tai: https://nguonnhaphohcm.vn\n\n' +
+              'Tran trong,\nNguon Nha Pho HCM\n' +
+              'Mr. Duy Khuyen: 0987.645.314'
+      });
+    } catch(emailErr) {
+      writeLog('EMAIL_CUSTOMER_ERR', emailErr.message, 'WARN');
+    }
+  }
+
+  return jsonResponse({ok: true, plan: planGranted, phone, expires: expStr});
+}
+
+// ============================================================
+// USERS API
+// ============================================================
+function addUser(data) {
+  try {
+    const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+    const sheet = ss.getSheetByName(CFG.SHEET_USERS);
+    const rows = sheet.getDataRange().getValues();
+    
+    for (let i = 1; i < rows.length; i++) {
+      if (String(rows[i][0]) === data.phone) {
+        return jsonResponse({ok: false, msg: 'SDT da duoc dang ky', code: 'DUPLICATE_PHONE'});
+      }
+      if (data.email && rows[i][2] === data.email) {
+        return jsonResponse({ok: false, msg: 'Email da duoc dang ky', code: 'DUPLICATE_EMAIL'});
+      }
+    }
+    
+    const todayStr = new Date().toLocaleDateString('vi-VN');
+    sheet.appendRow([
+      data.phone, data.name, data.email || '', 'free',
+      todayStr, '', 0, 2, 'active', data.role || 'Chu nha'
+    ]);
+    
+    writeLog('USER_ADD', data.name + ' | ' + data.phone, 'OK');
+    sendEmailAdmin(
+      'Thanh vien moi dang ky - ' + data.name,
+      'Ten: ' + data.name + '\nSDT: ' + data.phone + '\nEmail: ' + (data.email || 'chua co') +
+      '\nVai tro: ' + (data.role || 'Chu nha') + '\nNgay: ' + todayStr
+    );
+    
+    return jsonResponse({
+      ok: true,
+      user: {phone: data.phone, name: data.name, email: data.email || '', plan: 'free', role: data.role || 'Chu nha', joined: todayStr}
+    });
+  } catch(e) {
+    writeLog('USER_ADD_ERR', e.message, 'FAIL');
+    return jsonResponse({ok: false, msg: e.message});
+  }
+}
+
+function getUsers() {
+  const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+  const rows = ss.getSheetByName(CFG.SHEET_USERS).getDataRange().getValues();
+  const users = rows.slice(1).map(r => ({
+    phone: String(r[0]), name: r[1], email: r[2] || '', plan: r[3] || 'free',
+    activated: r[4] || '', expires: r[5] || '', total_paid: r[6] || 0,
+    posts_left: r[7] || 0, status: r[8] || 'active', role: r[9] || 'Chu nha'
+  })).filter(u => u.phone);
+  return jsonResponse({ok: true, count: users.length, users});
+}
+
+function getUserByPhone(phone) {
+  if (!phone) return jsonResponse({ok: false, msg: 'Missing phone'});
+  const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+  const rows = ss.getSheetByName(CFG.SHEET_USERS).getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === phone) {
+      return jsonResponse({ok: true, user: {
+        phone: String(rows[i][0]), name: rows[i][1], email: rows[i][2] || '',
+        plan: rows[i][3] || 'free', activated: rows[i][4] || '',
+        expires: rows[i][5] || '', total_paid: rows[i][6] || 0,
+        posts_left: rows[i][7] || 0, status: rows[i][8] || 'active', role: rows[i][9] || 'Chu nha'
+      }});
+    }
+  }
+  return jsonResponse({ok: false, msg: 'User not found'});
+}
+
+function updatePlan(data) {
+  if (!data.phone || !data.plan) return jsonResponse({ok: false, msg: 'Missing phone or plan'});
+  const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+  const sheet = ss.getSheetByName(CFG.SHEET_USERS);
+  const rows = sheet.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === data.phone) {
+      sheet.getRange(i+1, 4).setValue(data.plan);
+      sheet.getRange(i+1, 5).setValue(new Date().toLocaleDateString('vi-VN'));
+      if (data.expires) sheet.getRange(i+1, 6).setValue(data.expires);
+      writeLog('PLAN_UPDATE_ADMIN', data.phone + ' -> ' + data.plan, 'OK');
+      return jsonResponse({ok: true});
+    }
+  }
+  return jsonResponse({ok: false, msg: 'User not found'});
+}
+
+function adminResetPass(data) {
+  if (!data.phone) return jsonResponse({ok: false, msg: 'Missing phone'});
+  const newPass = 'NHPHCM' + Math.random().toString(36).slice(2, 8).toUpperCase();
+  // Note: password is stored in localStorage on client side
+  // GAS just notifies admin
+  sendEmailAdmin('Admin Reset Mat Khau - ' + data.phone,
+    'SDT: ' + data.phone + '\nMat khau moi: ' + newPass + '\nAdmin: ' + (data.adminName || 'Admin'));
+  writeLog('PASS_RESET', data.phone, 'OK');
+  return jsonResponse({ok: true, newPass});
+}
+
+// ============================================================
+// POSTS API
+// ============================================================
+function addPost(data) {
+  try {
+    const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+    const sheet = ss.getSheetByName(CFG.SHEET_POSTS);
+    const id = data.id || ('up_' + Date.now() + '_' + Math.random().toString(36).slice(2,6));
+    const todayStr = new Date().toLocaleDateString('vi-VN');
+    sheet.appendRow([
+      id, data.name || '', data.phone || '', data.pty || '', data.district || '',
+      data.price || '', data.area || '', data.desc || '', (data.imgs || []).join('|'),
+      todayStr, data.status || 'public', 0, data.type || 'owner', data.email || ''
+    ]);
+    writeLog('POST_ADD', (data.pty||'') + ' | ' + (data.district||'') + ' | ' + (data.phone||''), 'OK');
+    return jsonResponse({ok: true, id, posted: todayStr});
+  } catch(e) {
+    return jsonResponse({ok: false, msg: e.message});
+  }
+}
+
+function getPosts() {
+  const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+  const rows = ss.getSheetByName(CFG.SHEET_POSTS).getDataRange().getValues();
+  const posts = rows.slice(1)
+    .filter(r => r[0] && r[10] === 'public')
+    .map(r => ({
+      id: r[0], name: r[1], phone: r[2], pty: r[3], district: r[4],
+      price: r[5], area: r[6], desc: r[7],
+      imgs: String(r[8] || '').split('|').filter(Boolean),
+      ts_str: r[9], status: r[10], boosted: r[11] || 0, type: r[12] || 'owner', email: r[13] || ''
+    }));
+  return jsonResponse({ok: true, count: posts.length, posts});
+}
+
+function boostPost(data) {
+  if (!data.postId) return jsonResponse({ok: false, msg: 'Missing postId'});
+  const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+  const sheet = ss.getSheetByName(CFG.SHEET_POSTS);
+  const rows = sheet.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][0] === data.postId) {
+      sheet.getRange(i+1, 12).setValue((rows[i][11] || 0) + 1);
+      return jsonResponse({ok: true});
+    }
+  }
+  return jsonResponse({ok: false, msg: 'Post not found'});
+}
+
+// ============================================================
+// SETUP - Chay mot lan de tao cau truc sheet
+// ============================================================
+function setupSheet() {
+  const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+  const DARK = '#0d1b2a'; const GOLD = '#c9922a';
   
-  // Gửi thông báo Zalo cho khách
-  sendZaloNotification(phone, cleanPlan, expiry, posts, isYear);
+  const createSheet = (name, headers) => {
+    let s = ss.getSheetByName(name);
+    if (!s) s = ss.insertSheet(name);
+    else s.clearContents();
+    s.getRange(1,1,1,headers.length).setValues([headers]);
+    s.getRange(1,1,1,headers.length).setFontWeight('bold').setBackground(DARK).setFontColor(GOLD);
+    s.setFrozenRows(1);
+    return s;
+  };
   
-  // Thông báo cho admin
-  notifyAdmin(
-    '✅ Nâng cấp thành công!',
-    '👤 SĐT: ' + phone +
-    '\n💎 Gói: ' + cleanPlan + (isYear?' (Năm)':'') +
-    '\n💰 Số tiền: ' + amount.toLocaleString('vi-VN') + 'đ' +
-    '\n📅 Hết hạn: ' + Utilities.formatDate(expiry, 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy') +
-    '\n🔖 Mã GD: ' + txId
+  createSheet(CFG.SHEET_USERS, ['SDT','Ho ten','Email','Goi','Ngay KH','Het han','Tong nap','Tin con','Trang thai','Vai tro']);
+  createSheet(CFG.SHEET_POSTS, ['ID','Ten','SDT','Loai BDS','Quan','Gia','DT','Mo ta','Anh (pipe)','Ngay dang','Trang thai','Day','Loai TK','Email']);
+  createSheet(CFG.SHEET_PAYMENTS, ['Ma GD','Ngan hang','So tien','Noi dung CK','SDT','Goi','Trang thai','Thoi gian']);
+  createSheet(CFG.SHEET_LOG, ['Thoi gian','Su kien','Chi tiet','Ket qua']);
+  
+  SpreadsheetApp.getUi().alert(
+    'Setup xong!\n\n' +
+    'Da tao 4 sheets: Users, Posts, Payments, Log\n\n' +
+    'Buoc tiep theo:\n' +
+    '1. Deploy > New deployment > Web app\n' +
+    '2. Execute as: Me | Who can access: Anyone\n' +
+    '3. Copy URL deploy\n' +
+    '4. Cap nhat GAS_URL trong index.html tren GitHub\n' +
+    '5. Cau hinh SePay webhook voi URL do'
   );
 }
 
-// ===== BƯỚC 5: GỬI ZALO THÔNG BÁO =====
-function sendZaloNotification(phone, plan, expiry, posts, isYear) {
-  const planEmoji = {FREE:'🆓', BASIC:'⭐', PRO:'💜', VIP:'👑'};
-  const expiryStr = Utilities.formatDate(expiry, 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy');
-  
-  const message = 
-    '🎉 KÍCH HOẠT GÓI THÀNH CÔNG!\n' +
-    '━━━━━━━━━━━━━━━━━━━━\n' +
-    (planEmoji[plan]||'💎') + ' Gói ' + plan + (isYear?' (Cả năm)':'') + '\n' +
-    '📋 Số tin đăng: ' + (posts===9999?'Không giới hạn':posts+' tin/tháng') + '\n' +
-    '📅 Hiệu lực đến: ' + expiryStr + '\n' +
-    '━━━━━━━━━━━━━━━━━━━━\n' +
-    '✅ Anh/chị có thể đăng tin ngay tại:\n' +
-    'nguonnhaphohcm.vn\n\n' +
-    'Cần hỗ trợ liên hệ Mr. Duy: 0987.645.314';
-  
-  // Gửi qua Zalo OA API
-  if (CONFIG.ZALO_TOKEN && CONFIG.ZALO_TOKEN !== 'YOUR_ZALO_OA_TOKEN') {
-    try {
-      const url = 'https://openapi.zalo.me/v2.0/oa/message';
-      const payload = {
-        recipient: { user_id: phone },
-        message: { text: message }
-      };
-      const options = {
-        method: 'post',
-        headers: {
-          'access_token': CONFIG.ZALO_TOKEN,
-          'Content-Type': 'application/json'
-        },
-        payload: JSON.stringify(payload)
-      };
-      UrlFetchApp.fetch(url, options);
-      writeLog('ZALO_SENT', phone, 'Gửi thông báo thành công');
-    } catch(e) {
-      writeLog('ZALO_ERROR', phone, e.toString());
-    }
-  } else {
-    writeLog('ZALO_SKIP', phone, 'Chưa cấu hình Zalo Token');
+// ============================================================
+// UTILITIES
+// ============================================================
+function sendEmailAdmin(subject, body) {
+  try {
+    MailApp.sendEmail({
+      to: CFG.ADMIN_EMAIL,
+      subject: '[NHPHCM] ' + subject,
+      body: body + '\n\n---\nNguon Nha Pho HCM System\n' + new Date().toLocaleString('vi-VN')
+    });
+  } catch(e) {
+    Logger.log('Email admin err: ' + e.message);
   }
 }
 
-function notifyAdmin(title, detail) {
-  // Gửi email cho admin
+function writePayment(txId, bank, amount, content, phone, plan, status) {
   try {
-    GmailApp.sendEmail(
-      Session.getEffectiveUser().getEmail(),
-      '🏠 NHPHCM — ' + title,
-      detail + '\n\n---\nHệ thống tự động — Nguồn Nhà Phố HCM'
-    );
-  } catch(e) {}
-  writeLog('ADMIN_NOTIFY', title, detail);
-}
-
-// ===== BƯỚC 6: LƯU PAYMENT LOG =====
-function savePayment(time, bank, amount, content, phone, plan, status, txId) {
-  const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-  const sheet = ss.getSheetByName(CONFIG.SHEET_PAYMENTS);
-  sheet.appendRow([
-    Utilities.formatDate(time, 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm:ss'),
-    bank, amount, content, phone, plan, status, txId, ''
-  ]);
-  // Màu theo trạng thái
-  const lastRow = sheet.getLastRow();
-  sheet.getRange(lastRow, 7).setBackground(status==='SUCCESS'?'#d1fae5':'#fee2e2');
+    const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+    ss.getSheetByName(CFG.SHEET_PAYMENTS).appendRow([
+      txId, bank, amount, content, phone, plan, status, new Date().toLocaleString('vi-VN')
+    ]);
+  } catch(e) { Logger.log('writePayment err: ' + e.message); }
 }
 
 function writeLog(event, detail, result) {
-  const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-  const sheet = ss.getSheetByName(CONFIG.SHEET_LOG);
-  sheet.appendRow([
-    Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm:ss'),
-    event, detail, result
-  ]);
+  try {
+    const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+    ss.getSheetByName(CFG.SHEET_LOG).appendRow([
+      new Date().toLocaleString('vi-VN'), event, detail, result || ''
+    ]);
+  } catch(e) { Logger.log('writeLog err: ' + e.message); }
 }
 
-// ===== BƯỚC 7: KIỂM TRA GÓI HẾT HẠN =====
-function checkExpiredPlans() {
-  const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-  const sheet = ss.getSheetByName(CONFIG.SHEET_USERS);
-  const data = sheet.getDataRange().getValues();
-  const today = new Date();
-  
-  for (let i = 1; i < data.length; i++) {
-    const plan = data[i][3];
-    const expiryStr = data[i][5];
-    const phone = data[i][0];
-    const status = data[i][8];
-    
-    if (!expiryStr || plan === 'FREE' || status === 'EXPIRED') continue;
-    
-    const expiry = new Date(expiryStr.split('/').reverse().join('-'));
-    const daysLeft = Math.floor((expiry - today) / (1000*60*60*24));
-    
-    if (daysLeft <= 3 && daysLeft > 0) {
-      // Sắp hết hạn — nhắc gia hạn
-      sendZaloNotification_Renew(phone.toString(), plan, daysLeft);
-    } else if (daysLeft <= 0) {
-      // Đã hết hạn — hạ xuống Free
-      sheet.getRange(i+1, 4).setValue('FREE');
-      sheet.getRange(i+1, 8).setValue(CONFIG.PLAN_POSTS['FREE']);
-      sheet.getRange(i+1, 9).setValue('EXPIRED');
-      sheet.getRange(i+1, 1, 1, 10).setBackground('#fee2e2');
-      writeLog('EXPIRED', phone.toString(), 'Gói ' + plan + ' đã hết hạn — hạ Free');
-    }
-  }
-}
-
-function sendZaloNotification_Renew(phone, plan, daysLeft) {
-  const message = 
-    '⚠️ NHẮC GIA HẠN GÓI\n' +
-    '━━━━━━━━━━━━━━━━━━━━\n' +
-    'Gói ' + plan + ' của anh/chị sắp hết hạn!\n' +
-    '⏰ Còn ' + daysLeft + ' ngày\n\n' +
-    'Gia hạn ngay để không bị gián đoạn:\n' +
-    'nguonnhaphohcm.vn → Gói & Giá\n\n' +
-    'Hỗ trợ: 0987.645.314';
-  
-  writeLog('RENEW_REMIND', phone, 'Còn ' + daysLeft + ' ngày');
-  // Gửi Zalo tương tự hàm trên
-}
-
-// ===== BƯỚC 8: API ENDPOINT ĐỂ WEBSITE GỌI =====
-function doGet(e) {
-  const action = e.parameter.action;
-  const phone = e.parameter.phone;
-  const token = e.parameter.token;
-  
-  // Xác thực token đơn giản
-  if (token !== 'NHPHCM2026SECRET') {
-    return ContentService.createTextOutput(JSON.stringify({error: 'Unauthorized'}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-  
-  if (action === 'checkPlan') {
-    const result = getUserPlan(phone);
-    return ContentService.createTextOutput(JSON.stringify(result))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-  
-  if (action === 'stats') {
-    const result = getStats();
-    return ContentService.createTextOutput(JSON.stringify(result))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-  
-  return ContentService.createTextOutput(JSON.stringify({status:'ok'}))
+function jsonResponse(data) {
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
-}
-
-function getUserPlan(phone) {
-  const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-  const sheet = ss.getSheetByName(CONFIG.SHEET_USERS);
-  const data = sheet.getDataRange().getValues();
-  
-  for (let i = 1; i < data.length; i++) {
-    if (data[i][0] && data[i][0].toString().replace(/\D/g,'') === phone.replace(/\D/g,'')) {
-      return {
-        found: true,
-        phone: data[i][0],
-        name: data[i][1],
-        plan: data[i][3],
-        expiry: data[i][5],
-        posts: data[i][7],
-        status: data[i][8]
-      };
-    }
-  }
-  return { found: false, plan: 'FREE', posts: 2 };
-}
-
-function getStats() {
-  const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
-  const users = ss.getSheetByName(CONFIG.SHEET_USERS).getDataRange().getValues();
-  const pays = ss.getSheetByName(CONFIG.SHEET_PAYMENTS).getDataRange().getValues();
-  
-  let totalRevenue = 0;
-  let planCounts = {FREE:0, BASIC:0, PRO:0, VIP:0};
-  
-  for (let i = 1; i < users.length; i++) {
-    const plan = users[i][3] || 'FREE';
-    planCounts[plan] = (planCounts[plan]||0) + 1;
-    totalRevenue += parseFloat(users[i][6])||0;
-  }
-  
-  return {
-    totalUsers: users.length - 1,
-    totalRevenue: totalRevenue,
-    planCounts: planCounts,
-    totalTransactions: pays.length - 1
-  };
-}
-
-// ===== SETUP TRIGGER TỰ ĐỘNG =====
-function setupTriggers() {
-  // Xóa trigger cũ
-  ScriptApp.getProjectTriggers().forEach(t => ScriptApp.deleteTrigger(t));
-  
-  // Kiểm tra email mỗi 15 phút
-  ScriptApp.newTrigger('checkBankEmails')
-    .timeBased()
-    .everyMinutes(15)
-    .create();
-  
-  // Kiểm tra gói hết hạn mỗi ngày lúc 8:00 sáng
-  ScriptApp.newTrigger('checkExpiredPlans')
-    .timeBased()
-    .everyDays(1)
-    .atHour(8)
-    .create();
-  
-  Logger.log('✅ Đã tạo triggers thành công!');
-  SpreadsheetApp.getUi().alert('✅ Triggers đã được tạo!\n\n• Kiểm tra email mỗi 15 phút\n• Kiểm tra hết hạn mỗi ngày lúc 8:00 sáng');
-}
-
-// ===== MENU TÙY CHỈNH TRONG SHEET =====
-function onOpen() {
-  SpreadsheetApp.getUi()
-    .createMenu('🏠 NHPHCM Admin')
-    .addItem('1. Tạo Sheet', 'setupSheet')
-    .addItem('2. Tạo Triggers', 'setupTriggers')
-    .addSeparator()
-    .addItem('Kiểm tra email ngay', 'checkBankEmails')
-    .addItem('Kiểm tra gói hết hạn', 'checkExpiredPlans')
-    .addSeparator()
-    .addItem('Xem thống kê', 'showStats')
-    .addToUi();
-}
-
-function showStats() {
-  const stats = getStats();
-  SpreadsheetApp.getUi().alert(
-    '📊 THỐNG KÊ NHPHCM\n\n' +
-    '👥 Tổng users: ' + stats.totalUsers + '\n' +
-    '💰 Tổng doanh thu: ' + stats.totalRevenue.toLocaleString() + 'đ\n' +
-    '📋 Tổng GD: ' + stats.totalTransactions + '\n\n' +
-    '🆓 Free: ' + (stats.planCounts.FREE||0) + ' users\n' +
-    '⭐ Basic: ' + (stats.planCounts.BASIC||0) + ' users\n' +
-    '💜 Pro: ' + (stats.planCounts.PRO||0) + ' users\n' +
-    '👑 VIP: ' + (stats.planCounts.VIP||0) + ' users'
-  );
 }
