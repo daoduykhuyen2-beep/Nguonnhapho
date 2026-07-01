@@ -9,7 +9,7 @@ const CFG = {
   ADMIN_EMAIL: 'daoduykhuyen2@gmail.com',
   ADMIN_PHONE: '0987645314',
   CK_PREFIX: 'NHPHCM',
-  WEBHOOK_SECRET: 'whsec_03kfeWP1yYcwFnN1p9r3R5rMp6KuAER8',  // Tuỳ chọn: điền webhook secret từ SePay nếu có
+    WEBHOOK_SECRET: '',  // Điền webhook secret từ SePay nếu có (lấy từ SePay Dashboard, không để vào đây)
   SHEET_USERS: 'Users',
   SHEET_POSTS: 'Posts',
   SHEET_PAYMENTS: 'Payments',
