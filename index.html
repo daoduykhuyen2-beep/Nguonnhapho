@@ -411,7 +411,11 @@ footer{background:#171A22;color:#B9BFCE;margin-top:52px;font-size:13.5px}
 .hop-qr .ma-don{background:var(--do-nhat);color:var(--do-dam);font-weight:800;padding:8px 14px;border-radius:8px;display:inline-block;margin:8px 0;font-size:15px;letter-spacing:.04em}
 @media print{.topbar,header,.noi,footer,.hop-lh a.nut,.hop-lh button,.form-lh,.qr-o,.thanh-ss,.man-ss,.phantrang,.canh-bao,.bando{display:none!important}body{background:#fff}.ct-bocuc{grid-template-columns:1fr}.ct-hop{box-shadow:none;break-inside:avoid}}
 </style>
-</head>
+  <!-- Bảo mật -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  </head>
 <body>
 
 <div class="topbar">
@@ -749,7 +753,10 @@ Tôi ở lại vì một lý do đơn giản: mỗi căn nhà ở trung tâm Sà
       <h1>Đăng nhập quản trị</h1>
       <p>Khu vực dành cho quản trị viên Nguồn Nhà Phố HCM</p>
       <input id="dnUser" type="text" placeholder="Tài khoản" autocomplete="username">
-      <input id="dnPass" type="password" placeholder="Mật khẩu" autocomplete="current-password" onkeydown="if(event.key==='Enter')dangNhap()">
+      <div style="position:relative">
+        <input id="dnPass" type="password" placeholder="Mật khẩu" autocomplete="current-password" onkeydown="if(event.key==='Enter')dangNhap()" style="padding-right:42px;width:100%;box-sizing:border-box">
+        <button type="button" onclick="batTatMK('dnPass','eyeAdmin')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:0;color:var(--xam)" title="Hiện/Ẩn mật khẩu"><svg id="eyeAdmin" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
       <button class="nut nut-do" style="width:100%;justify-content:center" onclick="dangNhap()">Đăng nhập</button>
       <p style="margin-top:12px;font-size:11.5px">Bản quản trị demo chạy trên trình duyệt (giai đoạn V1). Sang giai đoạn V3–V4 sẽ chuyển lên máy chủ với mật khẩu mã hóa & phân quyền đầy đủ.</p>
       <p style="margin-top:8px;font-size:12.5px;text-align:center"><a href="#" style="color:var(--do);font-weight:700" onclick="denTrang('taikhoan');return false">← Khách hàng đăng nhập / đăng ký tại đây</a></p>
@@ -3339,6 +3346,40 @@ function veTaiKhoan(tab){
       <div><b>${goi?goi.ql.day:0}</b><span>Lượt đẩy tin</span></div>
       <div><b>${soTim}</b><span>Nhà đã lưu ♥</span></div>
     </div>
+    <div class="ct-hop" style="background:linear-gradient(135deg,#fff8e1,#fff3e0);border:1px solid #ffcc02;margin:16px 0">
+      <h2 style="color:#e65100">&#128640; Nâng cấp gói đăng tin</h2>
+      <p style="font-size:13px;margin-bottom:12px">Mua gói đăng tin để đăng nhà lên trang và tiếp cận nhiều ngượi mua hơn.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
+        <div style="background:#fff;border:2px solid #ddd;border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:20px">&#128196;</div>
+          <b style="display:block;margin:4px 0 2px">Thường</b>
+          <span style="color:#666;font-size:12px">3 tin / tháng</span>
+          <div style="margin-top:6px;color:#e53935;font-weight:700">299k</div>
+          <button class="nut nut-do" style="margin-top:8px;width:100%;font-size:12px;padding:6px" onclick="muaGoi('thuong')">Mua gói</button>
+        </div>
+        <div style="background:#fff;border:2px solid #ffc107;border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:20px">&#11088;</div>
+          <b style="display:block;margin:4px 0 2px;color:#f57f17">VIP Vàng</b>
+          <span style="color:#666;font-size:12px">3 tin VIP nổi bật</span>
+          <div style="margin-top:6px;color:#e53935;font-weight:700">599k</div>
+          <button class="nut nut-do" style="margin-top:8px;width:100%;font-size:12px;padding:6px" onclick="muaGoi('vang')">Mua gói</button>
+        </div>
+        <div style="background:#fff;border:2px solid #1a237e;border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:20px">&#128142;</div>
+          <b style="display:block;margin:4px 0 2px;color:#1a237e">Kim Cương</b>
+          <span style="color:#666;font-size:12px">Hiển thị trên cùng</span>
+          <div style="margin-top:6px;color:#e53935;font-weight:700">999k</div>
+          <button class="nut nut-do" style="margin-top:8px;width:100%;font-size:12px;padding:6px" onclick="muaGoi('kc')">Mua gói</button>
+        </div>
+        <div style="background:#fff;border:2px solid #4caf50;border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:20px">&#128640;</div>
+          <b style="display:block;margin:4px 0 2px;color:#2e7d32">Đẩy tin</b>
+          <span style="color:#666;font-size:12px">5 lượt đẩy lên đầu</span>
+          <div style="margin-top:6px;color:#e53935;font-weight:700">199k</div>
+          <button class="nut nut-do" style="margin-top:8px;width:100%;font-size:12px;padding:6px" onclick="muaGoi('day')">Mua gói</button>
+        </div>
+      </div>
+    </div>
     ${goi?`<p style="font-size:13px;color:var(--xanh);font-weight:600;margin-bottom:14px">✓ Gói đang dùng: ${goi.ten} — hiệu lực đến ${goi.het.split("-").reverse().join("/")}</p>`
     :`<p style="font-size:13px;color:var(--xam);margin-bottom:14px">Chưa có gói nào — <a href="#/bang-gia" style="color:var(--do);font-weight:700" onclick="denTrang('bangia');return false">xem Bảng giá đăng tin →</a></p>`}
 
@@ -3391,13 +3432,23 @@ function veTaiKhoan(tab){
     <input id="tvTen" type="text" placeholder="Họ và tên *" autocomplete="name">
     <input id="tvSDT" type="tel" placeholder="Số điện thoại *" autocomplete="tel">
     <input id="tvEmail" type="email" placeholder="Email (không bắt buộc)" autocomplete="email">
-    <input id="tvMK" type="password" placeholder="Mật khẩu (tối thiểu 4 ký tự) *" autocomplete="new-password">
+    <div style="position:relative">
+      <input id="tvMK" type="password" placeholder="Mật khẩu (tối thiểu 4 ký tự) *" autocomplete="new-password" style="padding-right:42px;width:100%;box-sizing:border-box">
+      <button type="button" onclick="batTatMK('tvMK','eyeReg')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:0;color:var(--xam)" title="Hiện/Ẩn mật khẩu"><svg id="eyeReg" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    </div>
+    <div style="position:relative">
+      <input id="tvMK2" type="password" placeholder="Xác nhận mật khẩu *" autocomplete="new-password" style="padding-right:42px;width:100%;box-sizing:border-box" oninput="kiemTraMK2()">
+      <button type="button" onclick="batTatMK('tvMK2','eyeReg2')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:0;color:var(--xam)" title="Hiện/Ẩn mật khẩu"><svg id="eyeReg2" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    </div>
+    <p id="mkKhongKhop" style="color:#e53935;font-size:12px;margin:-6px 0 4px;display:none">&#9888; Mật khẩu xác nhận không khớp</p>
     <button class="nut nut-do" style="width:100%;justify-content:center" onclick="dangKyTV()">Tạo tài khoản</button>`
     :`
     <input id="tvSDT" type="tel" placeholder="Số điện thoại" autocomplete="tel">
-    <input id="tvMK" type="password" placeholder="Mật khẩu" autocomplete="current-password" onkeydown="if(event.key==='Enter')dangNhapTV()">
+    <div style="position:relative">
+      <input id="tvMK" type="password" placeholder="Mật khẩu" autocomplete="current-password" onkeydown="if(event.key==='Enter')dangNhapTV()" style="padding-right:42px;width:100%;box-sizing:border-box">
+      <button type="button" onclick="batTatMK('tvMK','eyeLogin')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:0;color:var(--xam)" title="Hiện/Ẩn mật khẩu"><svg id="eyeLogin" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    </div>
     <button class="nut nut-do" style="width:100%;justify-content:center" onclick="dangNhapTV()">Đăng nhập</button>`}
-    <p style="margin-top:14px;font-size:11.5px;text-align:center"><a href="#" style="color:var(--xam)" onclick="denTrang('dangnhap');return false">Đăng nhập quản trị viên →</a></p>
   </div>`;
 }
 function dangKyTV(){
@@ -3405,6 +3456,7 @@ function dangKyTV(){
   if(!ten){baoNhanh("Vui lòng nhập họ tên");return}
   if(sdt.replace(/\D/g,"").length<9){baoNhanh("Số điện thoại chưa hợp lệ");return}
   if(mk.length<4){baoNhanh("Mật khẩu cần tối thiểu 4 ký tự");return}
+  const mk2=$("tvMK2")?$("tvMK2").value:""; if(mk2&&mk!==mk2){baoNhanh("Mật khẩu xác nhận không khớp");return}
   const users=docKho("nnp_users",[]);
   if(users.some(u=>u.sdt===sdt)){baoNhanh("Số điện thoại này đã đăng ký — anh/chị đăng nhập nhé");veTaiKhoan("dangnhap");return}
   const u={id:"TV"+Date.now().toString(36).toUpperCase(),ten,sdt,email,mk:bam(sdt+"|"+mk),ngay:new Date().toISOString().slice(0,10)};
@@ -3413,10 +3465,11 @@ function dangKyTV(){
   capNhatNutQT();baoNhanh("Chào mừng "+ten+" đến với Nguồn Nhà Phố HCM!");veTaiKhoan();
 }
 function dangNhapTV(){
+  if(!kiemTraRateLimit())return;
   const sdt=$("tvSDT").value.trim(),mk=$("tvMK").value;
   const u=docKho("nnp_users",[]).find(x=>x.sdt===sdt&&x.mk===bam(sdt+"|"+mk));
   if(!u){baoNhanh("Sai số điện thoại hoặc mật khẩu");return}
-  luuKho("nnp_tv",u.id);capNhatNutQT();baoNhanh("Chào "+u.ten+"!");veTaiKhoan();
+  xoaRateLimit();luuKho("nnp_tv",u.id);capNhatNutQT();baoNhanh("Chào "+u.ten+"!");if(u.vaiTro==="admin"){denTrang("dangnhap")}else{veTaiKhoan()}
 }
 function dangXuatTV(){luuKho("nnp_tv",0);capNhatNutQT();baoNhanh("Đã đăng xuất");veTaiKhoan()}
 function xoaTV(id){
@@ -3457,6 +3510,7 @@ function veBaiViet(id){
 function bam(s){let h=5381;for(let i=0;i<s.length;i++){h=(Math.imul(h,33)^s.charCodeAt(i))>>>0}return h.toString(36)}
 const KHOA_QT="ewmcwh";
 function dangNhap(){
+  if(!kiemTraRateLimit())return;
   const u=$("dnUser").value.trim(),p=$("dnPass").value;
   if(bam(u+"|"+p)===KHOA_QT){
     luuKho("nnp_qt",1);capNhatNutQT();
@@ -3527,6 +3581,10 @@ function veQuanTri(tab){
       <div><b>${dons.filter(d=>d.tt==="cho").length}</b><span>Đơn nạp chờ duyệt</span></div>
       <div><b>${tinChoDuyet.length}</b><span>Tin chờ duyệt</span></div>
       <div><b>${tinBaoTatCa().length}</b><span>Tin thị trường</span></div>
+    
+      <div><b>${window._nnpStats?window._nnpStats.visits:0}</b><span>Truy cập (local)</span></div>
+      <div><b>${window._nnpStats?window._nnpStats.sessions:0}</b><span>Phiên hôm nay</span></div>
+      <div><b>${window._nnpStats?(window._nnpStats.days&&window._nnpStats.days[new Date().toISOString().slice(0,10)]||0):0}</b><span>Views hôm nay</span></div>
     </div>
     <div class="ct-hop"><h2>Hoạt động mới nhất</h2>
       ${leads.length?`<div style="overflow:auto"><table class="bang-qt"><tr><th>Thời gian</th><th>Loại</th><th>Nội dung</th></tr>${leads.slice(0,5).map(l=>`<tr><td class="nho">${l.luc}</td><td>${l.t}</td><td>${l.nd}${l.can!=="—"?' · căn <b>'+l.can+'</b>':''}</td></tr>`).join("")}</table></div>`
@@ -3708,6 +3766,78 @@ capNhatNutQT();
 (function(){const lg=document.querySelector("footer img.logo-trang"),gt=$("logoGT");if(lg&&gt)gt.src=lg.src})();
 theoHash();
 window.addEventListener("hashchange",theoHash);
+
+// ===== BẢO MẬT & UX: show/hide password, xác nhận mật khẩu =====
+function batTatMK(fieldId, eyeId) {
+  var field = $(fieldId), eye = $(eyeId);
+  if (!field) return;
+  if (field.type === 'password') {
+    field.type = 'text';
+    if(eye) eye.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  } else {
+    field.type = 'password';
+    if(eye) eye.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+}
+function kiemTraMK2() {
+  var mk = $('tvMK') ? $('tvMK').value : '';
+  var mk2 = $('tvMK2') ? $('tvMK2').value : '';
+  var warn = $('mkKhongKhop');
+  if (warn) warn.style.display = (mk2 && mk !== mk2) ? 'block' : 'none';
+}
+
+// ===== ĐO LƯỜNG TRUY CẬP: visitor counter (localStorage) =====
+(function trackVisitor() {
+  try {
+    var key = 'nnp_stats';
+    var today = new Date().toISOString().slice(0,10);
+    var stats = docKho(key, {visits:0, days:{}, sessions:0});
+    stats.visits = (stats.visits||0) + 1;
+    if(!stats.days) stats.days = {};
+    stats.days[today] = (stats.days[today]||0) + 1;
+    if (!sessionStorage.getItem('nnp_session')) {
+      sessionStorage.setItem('nnp_session', '1');
+      stats.sessions = (stats.sessions||0) + 1;
+    }
+    luuKho(key, stats);
+    window._nnpStats = stats;
+  } catch(e) {}
+})();
+
+// ===== BẢO MẬT: Rate limiting =====
+window._loginAttempts = parseInt(sessionStorage.getItem('nnp_la')||'0');
+window._loginBlockedUntil = parseInt(sessionStorage.getItem('nnp_lbu')||'0');
+function kiemTraRateLimit() {
+  var now = Date.now();
+  if (window._loginBlockedUntil > now) {
+    var wait = Math.ceil((window._loginBlockedUntil - now) / 1000);
+    baoNhanh('Quá nhiều lần thử. Vui lòng đợi ' + wait + 's nữa.');
+    return false;
+  }
+  return true;
+}
+function ghiLanThuDN() {
+  window._loginAttempts = (window._loginAttempts||0) + 1;
+  sessionStorage.setItem('nnp_la', window._loginAttempts);
+  if (window._loginAttempts >= 5) {
+    var bu = Date.now() + 60000;
+    window._loginBlockedUntil = bu;
+    sessionStorage.setItem('nnp_lbu', bu);
+    window._loginAttempts = 0;
+    sessionStorage.setItem('nnp_la', '0');
+    baoNhanh('Khóa 60 giây do đăng nhập sai nhiều lần.');
+  }
+}
+function xoaRateLimit() {
+  window._loginAttempts = 0;
+  window._loginBlockedUntil = 0;
+  sessionStorage.removeItem('nnp_la');
+  sessionStorage.removeItem('nnp_lbu');
+}
+function sanitize(s) {
+  if(typeof s!=='string') return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
+}
 </script>
 </body>
 </html>
