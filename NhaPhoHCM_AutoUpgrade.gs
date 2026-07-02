@@ -9,7 +9,7 @@ const CFG = {
   ADMIN_EMAIL: 'daoduykhuyen2@gmail.com',
   ADMIN_PHONE: '0987645314',
   CK_PREFIX: 'NHPHCM',
-    WEBHOOK_SECRET: '',  // Điền webhook secret từ SePay nếu có (lấy từ SePay Dashboard, không để vào đây)
+    WEBHOOK_SECRET: 'whsec_03kfeWP1yYcwFnN1p9r3R5rMp6KuAER8',
   SHEET_USERS: 'Users',
   SHEET_POSTS: 'Posts',
   SHEET_PAYMENTS: 'Payments',
@@ -18,21 +18,24 @@ const CFG = {
 
   // Giá các gói (VNĐ/tháng)
   PLAN_PRICES: {
-    'verified': 99000,
-    'uytin':    199000,
-    'doitac':   399000
+    'thuong':28500, 'vang':539000, 'kc':1540000,
+    'day1':28000,   'day3':75000,  'day6':134000,
+    'cb':299000,    'pro':2490000, 'vip':7490000
   },
   // Tên hiển thị
   PLAN_NAMES: {
-    'verified': 'Đã Xác Minh',
-    'uytin':    'Uy Tín',
-    'doitac':   'Đối Tác NHPHCM'
+    'thuong':'1 Tin Thường', 'vang':'1 Tin VIP Vàng', 'kc':'1 Tin VIP Kim Cương',
+    'day1':'Đẩy 1 lượt',    'day3':'Đẩy 3 lượt',     'day6':'Đẩy 6 lượt',
+    'cb':'Combo Cơ bản',    'pro':'Combo Chuyên nghiệp','vip':'Combo VIP Toàn diện'
   },
   // Số ngày mỗi gói
   PLAN_DAYS: {
-    'verified': 30,
-    'uytin':    30,
-    'doitac':   30
+    'thuong':15,'vang':7,'kc':7,'day1':0,'day3':0,'day6':0,'cb':30,'pro':30,'vip':30
+  },
+  PLAN_QUOTA: {
+    'thuong':{thuong:1,vang:0,kc:0,day:0},'vang':{thuong:0,vang:1,kc:0,day:0},'kc':{thuong:0,vang:0,kc:1,day:0},
+    'day1':{thuong:0,vang:0,kc:0,day:1},'day3':{thuong:0,vang:0,kc:0,day:3},'day6':{thuong:0,vang:0,kc:0,day:6},
+    'cb':{thuong:10,vang:0,kc:0,day:5},'pro':{thuong:20,vang:5,kc:0,day:15},'vip':{thuong:30,vang:10,kc:3,day:30}
   },
   // Số lần boost mỗi tháng
   BOOST_LIMITS: {
@@ -88,6 +91,7 @@ function doGet(e) {
       case 'getUsers':           return getUsers(e);
       case 'getPosts':           return getPosts(e);
       case 'getUser':            return getUserByPhone(e.parameter.phone);
+      case 'checkPayment':       return checkPayment(e.parameter.maDon);
       case 'checkPaymentStatus': return checkPaymentStatus(e.parameter);
       case 'getBoostPrice':      return jsonResponse({ok:true, price: CFG.BOOST_PRICE});
       case 'getPayHistory':      return getPayHistory(e.parameter.phone);
@@ -179,7 +183,10 @@ function handleSePay(data) {
 
   const isRenew = userRow >= 0 && (rows[userRow][3] || '') === planKey;
 
+  const quota = CFG.PLAN_QUOTA[planKey]||{thuong:0,vang:0,kc:0,day:0};
   if (userRow >= 0) {
+    let oldQl={}; try{oldQl=JSON.parse(rows[userRow][11]||'{}')}catch(e){}
+    const newQl={thuong:(oldQl.thuong||0)+(quota.thuong||0),vang:(oldQl.vang||0)+(quota.vang||0),kc:(oldQl.kc||0)+(quota.kc||0),day:(oldQl.day||0)+(quota.day||0)};
     // Update user hiện có
     usersSheet.getRange(userRow + 1, 4).setValue(planKey);
     usersSheet.getRange(userRow + 1, 5).setValue(todayStr);
@@ -195,10 +202,11 @@ function handleSePay(data) {
     usersSheet.getRange(userRow + 1, 9).setValue(Math.max(0, newBoostRem));
     usersSheet.getRange(userRow + 1, 10).setValue(thisMonth);
     usersSheet.getRange(userRow + 1, 11).setValue('active');
+    usersSheet.getRange(userRow + 1, 12).setValue(JSON.stringify(newQl));
   } else {
     // Tạo user mới
     const thisMonth = today.getMonth() + '/' + today.getFullYear();
-    usersSheet.appendRow([phone, '', '', planKey, todayStr, newExp, 0, 0, CFG.BOOST_LIMITS[planKey] || 0, thisMonth, 'active']);
+    usersSheet.appendRow([phone,'','',planKey,todayStr,newExp,0,0,CFG.BOOST_LIMITS[planKey]||0,thisMonth,'active',JSON.stringify(quota)]);
     writeLog('USER_AUTO_CREATED', 'SDT:' + phone + ' via payment', todayStr);
   }
 
@@ -470,7 +478,8 @@ function getUserByPhone(phone) {
         boostUsed:      parseInt(rows[i][7]) || 0,
         boostRemaining: parseInt(rows[i][8]) || 0,
         boostMonth:     rows[i][9],
-        status:         rows[i][10]
+        status:         rows[i][10],
+        ql: (function(){try{return JSON.parse(rows[i][11]||'{}')}catch(e){return {}}}())
       }});
     }
   }
@@ -679,4 +688,21 @@ function writeLog(action, detail, status) {
 function jsonResponse(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ===== checkPayment =====
+function checkPayment(maDon) {
+  if (!maDon) return jsonResponse({ok:false,msg:'Missing maDon'});
+  try {
+    const ss=SpreadsheetApp.openById(CFG.SHEET_ID);
+    const sheet=ss.getSheetByName(CFG.SHEET_PAYMENTS);
+    if (!sheet) return jsonResponse({ok:true,paid:false,msg:'Sheet not found'});
+    const rows=sheet.getDataRange().getValues();
+    for(let i=1;i<rows.length;i++){
+      if((rows[i][3]||'').toString().includes(maDon)){
+        return jsonResponse({ok:true,paid:(rows[i][6]||'')==='CONFIRMED',phone:rows[i][4],planKey:rows[i][5],status:rows[i][6]||''});
+      }
+    }
+    return jsonResponse({ok:true,paid:false,msg:'Not yet'});
+  } catch(e){return jsonResponse({ok:false,msg:e.toString()});}
 }
