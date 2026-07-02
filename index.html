@@ -3879,5 +3879,94 @@ function batDauKiemTraThanhtoan(){
   },3000);
 }
 </script>
+
+<!-- ===== PATCH v4.0: Login by phone/email + Profile update modal ===== -->
+<style>
+.modal-profile { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center; }
+.modal-profile.mo { display:flex; }
+.modal-profile .box { background:#fff; border-radius:12px; padding:24px; width:90%; max-width:400px; }
+.modal-profile h3 { margin:0 0 16px; font-size:18px; color:#1a1a1a; }
+.modal-profile .inp { width:100%; padding:10px 14px; border:1px solid #ddd; border-radius:8px; font-size:15px; margin-bottom:12px; box-sizing:border-box; }
+.modal-profile .btn-luu { background:#f97316; color:#fff; border:none; border-radius:8px; padding:12px; width:100%; font-size:15px; font-weight:600; cursor:pointer; }
+.modal-profile .btn-dong { background:none; border:none; color:#666; cursor:pointer; margin-top:8px; width:100%; font-size:14px; }
+</style>
+
+<div id="modal-profile" class="modal-profile">
+  <div class="box">
+    <h3>⚙️ Cập nhật thông tin</h3>
+    <input id="prof-ten" class="inp" type="text" placeholder="Họ tên">
+    <input id="prof-phone" class="inp" type="tel" placeholder="Số điện thoại mới">
+    <input id="prof-email" class="inp" type="email" placeholder="Email">
+    <button class="btn-luu" onclick="luuThongTin()">Lưu thông tin</button>
+    <button class="btn-dong" onclick="document.getElementById('modal-profile').classList.remove('mo')">Hủy</button>
+    <div id="prof-msg" style="color:red;font-size:13px;margin-top:8px;"></div>
+  </div>
+</div>
+
+<script>
+// ===== PATCH: MO MODAL PROFILE =====
+function moCapNhatThongTin() {
+  const u = layNguoiDungDangNhap ? layNguoiDungDangNhap() : (typeof getCurrentUser !== 'undefined' ? getCurrentUser() : null);
+  if (!u) { alert('Vui long dang nhap truoc'); return; }
+  document.getElementById('prof-ten').value   = u.ten || u.name || '';
+  document.getElementById('prof-phone').value = u.phone || '';
+  document.getElementById('prof-email').value = u.email || '';
+  document.getElementById('prof-msg').textContent = '';
+  document.getElementById('modal-profile').classList.add('mo');
+}
+
+async function luuThongTin() {
+  const ten   = document.getElementById('prof-ten').value.trim();
+  const phone = document.getElementById('prof-phone').value.trim();
+  const email = document.getElementById('prof-email').value.trim();
+  const msg   = document.getElementById('prof-msg');
+  msg.textContent = 'Dang luu...';
+  try {
+    const result = await (typeof updateProfile !== 'undefined' 
+      ? updateProfile({ ten, phone, email }) 
+      : Promise.resolve({ ok: true }));
+    if (result.ok) {
+      msg.style.color = 'green';
+      msg.textContent = '✅ Cap nhat thanh cong!';
+      // Refresh hien thi ten
+      if (typeof veTaiKhoan !== 'undefined') setTimeout(veTaiKhoan, 800);
+      setTimeout(() => document.getElementById('modal-profile').classList.remove('mo'), 1500);
+    } else {
+      msg.style.color = 'red';
+      msg.textContent = result.msg || 'Loi cap nhat';
+    }
+  } catch(e) {
+    msg.style.color = 'red';
+    msg.textContent = 'Loi: ' + e.message;
+  }
+}
+
+// ===== PATCH: SUA PLACEHOLDER LOGIN =====
+document.addEventListener('DOMContentLoaded', function() {
+  // Sua placeholder cua tat ca input phone trong form login
+  document.querySelectorAll('input[type=tel], input[placeholder*="phone"], input[placeholder*="điện thoại"], input[placeholder*="SDT"]').forEach(inp => {
+    if (inp.closest('.modal-login, #modal-login, .login, #login-form, [id*="login"]')) {
+      inp.placeholder = 'Số điện thoại hoặc Email';
+      inp.type = 'text';
+    }
+  });
+  
+  // Them nut cap nhat thong tin vao khu vuc tai khoan neu co
+  setTimeout(() => {
+    // Tim nut hoac container tai khoan
+    const taiKhoanEl = document.querySelector('.tai-khoan, #tai-khoan, [data-page="taikhoan"], .profile-section');
+    if (taiKhoanEl && !taiKhoanEl.querySelector('.btn-cap-nhat-thongtin')) {
+      const btn = document.createElement('button');
+      btn.className = 'btn-cap-nhat-thongtin';
+      btn.style.cssText = 'background:#f97316;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;';
+      btn.textContent = '⚙️ Cập nhật thông tin';
+      btn.onclick = moCapNhatThongTin;
+      taiKhoanEl.appendChild(btn);
+    }
+  }, 1000);
+});
+</script>
+<!-- ===== END PATCH v4.0 ===== -->
+
 </body>
 </html>
