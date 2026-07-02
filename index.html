@@ -3122,7 +3122,7 @@ const GOI_MD={
   pro:{ten:"Chuyên nghiệp",gia:2490000,ql:{thuong:20,vang:5,kc:0,day:15}},
   vip:{ten:"VIP Toàn diện",gia:7490000,ql:{thuong:30,vang:10,kc:3,day:30}}
  },
- bank:{nh:"",stk:"",ten:""}
+ bank:{nh:"MB",stk:"044441997",ten:"DAO DUY KHUYEN"}
 };
 function cauHinhGoi(){
   const c=docKho("nnp_goicfg",null);
@@ -3198,7 +3198,7 @@ function muaGoi(ma){
   if(le[ma])g={ma,ten:le[ma].ten,gia:le[ma].gia,ql:le[ma].ql};
   else if(c.combo[ma])g={ma,ten:"Gói "+c.combo[ma].ten+" (1 tháng)",gia:c.combo[ma].gia,ql:c.combo[ma].ql};
   else return;
-  donDangMua={maDon:"NNP"+Date.now().toString(36).toUpperCase(),tvId:u.id,tenTV:u.ten,sdt:u.sdt,goiMa:g.ma,tenGoi:g.ten,gia:g.gia,ql:g.ql};
+  donDangMua={maDon:"NHPHCM"+Date.now().toString(36).toUpperCase(),tvId:u.id,tenTV:u.ten,sdt:u.sdt,goiMa:g.ma,tenGoi:g.ten,gia:g.gia,ql:g.ql};
   const b=c.bank,coBank=b.nh&&b.stk;
   $("noiDungQR").innerHTML=`
     <h2 style="font-size:18px">${g.ten}</h2>
@@ -3212,8 +3212,9 @@ function muaGoi(ma){
     <button class="nut nut-vien" style="width:100%;justify-content:center;margin-top:8px" onclick="dongQR()">Đóng</button>
     <p style="font-size:11px;color:var(--xam-nhat);margin-top:10px">Đơn được duyệt thủ công trong giờ làm việc. Quyền lợi hiện trong mục Tài khoản ngay sau khi duyệt.</p>`;
   $("manQR").classList.add("mo");
+  batDauKiemTraThanhtoan();
 }
-function dongQR(){$("manQR").classList.remove("mo")}
+function dongQR(){clearInterval(window._pollTimer);$("manQR").classList.remove("mo")}
 function guiDon(){
   if(!donDangMua)return;
   const dons=docKho("nnp_dons",[]);
@@ -3837,6 +3838,45 @@ function xoaRateLimit() {
 function sanitize(s) {
   if(typeof s!=='string') return '';
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
+}
+
+// ===== THANH TOÁN TỰ ĐỘNG SePay =====
+const GAS_URL_PAY='https://script.google.com/macros/s/AKfycbzzcQIyuC3JGu3Nxfmbhea247Bb7oMxAVpXEuLpakI_aYPvJG8A8Ldq8JAoHe2j9BUd/exec';
+window._pollTimer=null;
+function batDauKiemTraThanhtoan(){
+  window._pollTimer=null;
+  clearInterval(window._pollTimer);
+  if(!donDangMua||!donDangMua.maDon)return;
+  let cnt=0;
+  window._pollTimer=setInterval(async function(){
+    cnt++;
+    if(cnt>60){clearInterval(window._pollTimer);return;}
+    try{
+      const r=await fetch(GAS_URL_PAY+'?action=checkPayment&maDon='+donDangMua.maDon,{redirect:'follow'});
+      const d=await r.json();
+      if(d.ok&&d.paid){
+        clearInterval(window._pollTimer);
+        const u=layNguoiDungDangNhap();
+        if(u){
+          const users=docKho('nnp_users',[]);
+          const ix=users.findIndex(x=>x.id===u.id);
+          if(ix>=0){
+            const ql=donDangMua.ql||{};
+            if(!users[ix].ql)users[ix].ql={thuong:0,vang:0,kc:0,day:0};
+            users[ix].ql.thuong=(users[ix].ql.thuong||0)+(ql.thuong||0);
+            users[ix].ql.vang=(users[ix].ql.vang||0)+(ql.vang||0);
+            users[ix].ql.kc=(users[ix].ql.kc||0)+(ql.kc||0);
+            users[ix].ql.day=(users[ix].ql.day||0)+(ql.day||0);
+            luuKho('nnp_users',users);
+          }
+        }
+        dongQR();
+        baoNhanh('\u2705 Thanh to\u00e1n th\u00e0nh c\u00f4ng! G\u00f3i '+((donDangMua&&donDangMua.tenGoi)||'')+' \u0111\u00e3 \u0111\u01b0\u1ee3c k\u00edch ho\u1ea1t.');
+        donDangMua=null;
+        veTaiKhoan();
+      }
+    }catch(e){}
+  },3000);
 }
 </script>
 </body>
