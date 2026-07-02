@@ -706,3 +706,78 @@ function checkPayment(maDon) {
     return jsonResponse({ok:true,paid:false,msg:'Not yet'});
   } catch(e){return jsonResponse({ok:false,msg:e.toString()});}
 }
+
+// ===== updateProfile: cap nhat thong tin nguoi dung =====
+function updateProfile(data) {
+  try {
+    const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+    const sheet = ss.getSheetByName(CFG.SHEET_USERS);
+    if (!sheet) return jsonResponse({ok:false, msg:'Sheet not found'});
+    const rows = sheet.getDataRange().getValues();
+    const headers = rows[0];
+    const phoneCol = headers.indexOf('phone');
+    const tenCol   = headers.indexOf('ten');
+    const emailCol = headers.indexOf('email');
+    const normPhone = normalizePhone(data.phone||'');
+    for (let i = 1; i < rows.length; i++) {
+      if (normalizePhone((rows[i][phoneCol]||'').toString()) === normPhone) {
+        if (data.ten   && tenCol   >= 0) sheet.getRange(i+1, tenCol+1).setValue(data.ten);
+        if (data.email && emailCol >= 0) sheet.getRange(i+1, emailCol+1).setValue(data.email);
+        if (data.newPhone && normalizePhone(data.newPhone) !== normPhone && phoneCol >= 0)
+          sheet.getRange(i+1, phoneCol+1).setValue(normalizePhone(data.newPhone));
+        return jsonResponse({ok:true, msg:'Cap nhat thanh cong'});
+      }
+    }
+    return jsonResponse({ok:false, msg:'Khong tim thay user'});
+  } catch(e) {
+    logGhi('updateProfile error', e.toString(), 'ERROR');
+    return jsonResponse({ok:false, msg:e.toString()});
+  }
+}
+
+// ===== getUserByEmail: tim user theo email =====
+function getUserByEmail(email) {
+  try {
+    const ss = SpreadsheetApp.openById(CFG.SHEET_ID);
+    const sheet = ss.getSheetByName(CFG.SHEET_USERS);
+    if (!sheet) return jsonResponse({ok:false, msg:'Sheet not found'});
+    const rows = sheet.getDataRange().getValues();
+    const headers = rows[0];
+    const emailCol = headers.indexOf('email');
+    if (emailCol < 0) return jsonResponse({ok:false, msg:'No email column'});
+    const normEmail = (email||'').toLowerCase().trim();
+    for (let i = 1; i < rows.length; i++) {
+      if ((rows[i][emailCol]||'').toLowerCase().trim() === normEmail) {
+        const user = {};
+        headers.forEach((h, j) => { user[h] = rows[i][j]; });
+        return jsonResponse({ok:true, user});
+      }
+    }
+    return jsonResponse({ok:false, msg:'Khong tim thay user voi email nay'});
+  } catch(e) {
+    return jsonResponse({ok:false, msg:e.toString()});
+  }
+}
+
+// ===== ROUTER EXTENSION v4.1 =====
+// Them cac case moi vao doGet va doPost.
+// NOTE: Copy 2 case nay vao switch trong doGet va doPost tuong ung
+// trong Google Apps Script Editor
+
+// doGet extension: case 'getUserByEmail' -> getUserByEmail(e.parameter.email)
+// doPost extension: case 'updateProfile' -> updateProfile(data)
+
+// Helper de call tu doGet/doPost hien tai:
+function routeGetExtra(action, e) {
+  switch(action) {
+    case 'getUserByEmail': return getUserByEmail(e.parameter.email);
+    default: return null;
+  }
+}
+
+function routePostExtra(action, data) {
+  switch(action) {
+    case 'updateProfile': return updateProfile(data);
+    default: return null;
+  }
+}
