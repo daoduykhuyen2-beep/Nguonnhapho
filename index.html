@@ -4240,13 +4240,31 @@ window.addEventListener("hashchange",theoHash);
     else{ await refreshSession(); alert('ng k� & ng nh�p th�nh c�ng!'); }
   };
   window.dangNhapTV=async function(){
-    var dinhdanh=val('tvSDT'),mk=val('tvMK');
-    if(!dinhdanh||!mk){ alert('Nh�p email (ho�c ST) v� m�t kh�u'); return; }
-    var email=dinhdanh;
-    if(!isEmail(dinhdanh)){ try{ var pr=await sb.from('profiles').select('email').eq('phone',dinhdanh).limit(1).single(); if(pr.data&&pr.data.email) email=pr.data.email; }catch(e){} }
-    var r=await sb.auth.signInWithPassword({ email:email, password:mk });
-    if(r.error){ alert('Sai email/m�t kh�u ho�c ch�a x�c nh�n email.'); return; }
-    await refreshSession(); alert('ng nh�p th�nh c�ng!');
+    // �u ti�n EMAIL (b�t bu�c khi ng k�); ST ch� l� ph�
+    var email=val('tvEmail'), sdt=val('tvSDT'), mk=val('tvMK');
+    var dinhdanh = email || sdt;
+    if(!dinhdanh || !mk){ alert('Vui l�ng nh�p Email (ho�c ST) v� m�t kh�u'); return; }
+    var loginEmail = email;
+    if(!isEmail(loginEmail)){
+      var idf = email || sdt;
+      if(isEmail(idf)){ loginEmail=idf; }
+      else{
+        try{ var pr=await sb.from('profiles').select('email').eq('phone', idf).limit(1).single(); if(pr.data&&pr.data.email) loginEmail=pr.data.email; }catch(e){}
+      }
+    }
+    if(!isEmail(loginEmail)){ alert('Kh�ng t�m th�y t�i kho�n. Vui l�ng ng nh�p b�ng Email � ng k�.'); return; }
+    var r=await sb.auth.signInWithPassword({ email:loginEmail, password:mk });
+    if(r.error){
+      var msg=(r.error.message||'').toLowerCase();
+      if(msg.indexOf('not confirmed')>=0 || msg.indexOf('confirm')>=0){
+        alert('T�i kho�n ch�a x�c nh�n Email. Vui l�ng m� Gmail v� b�m link x�c nh�n tr��c khi ng nh�p.');
+      }else{
+        alert('Sai Email ho�c m�t kh�u. Vui l�ng th� l�i.');
+      }
+      return;
+    }
+    await refreshSession();
+    alert('ng nh�p th�nh c�ng!');
   };
   window.dangXuatTV=async function(){ await sb.auth.signOut(); clearTV(); paintUI(null); alert('� ng xu�t.'); };
   window.nnpMuaGoi=async function(code){
