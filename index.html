@@ -977,7 +977,7 @@ Càng đóng góp nhiều — tự phát triển nguồn hàng, nguồn khách �
       <input id="dnUser" type="text" placeholder="Tài khoản" autocomplete="username">
       <input id="dnPass" type="password" placeholder="Mật khẩu" autocomplete="current-password" onkeydown="if(event.key==='Enter')dangNhap()">
       <button class="nut nut-do" style="width:100%;justify-content:center" onclick="dangNhap()">Đăng nhập</button>
-      <p style="margin-top:12px;font-size:11.5px">Bản quản trị demo chạy trên trình duyệt (giai đoạn V1). Sang giai đoạn V3–V4 sẽ chuyển lên máy chủ với mật khẩu mã hóa & phân quyền đầy đủ.</p>
+      <p style="margin-top:12px;font-size:11.5px">Khu vực quản trị nội bộ Nguồn Nhà Phố HCM. Vui lòng đăng nhập bằng tài khoản quản trị để tiếp tục.</p>
       <p style="margin-top:8px;font-size:12.5px;text-align:center"><a href="#" style="color:var(--do);font-weight:700" onclick="denTrang('taikhoan');return false">← Khách hàng đăng nhập / đăng ký tại đây</a></p>
     </div>
   </div>
@@ -4639,6 +4639,65 @@ sb.auth.onAuthStateChange(function(evt,session){ if(session){ refreshSession(); 
   if(document.body){ boot(); } else { document.addEventListener('DOMContentLoaded', boot); }
 })();
 </script>
+<script>
+(function(){
+  'use strict';
+  function q(s,r){return (r||document).querySelector(s);}
+  function qa(s,r){return [].slice.call((r||document).querySelectorAll(s));}
+  function fixLogos(){
+    try{
+      var good = qa('img').filter(function(i){var s=i.getAttribute('src')||''; return s.indexOf('data:image')===0 && (i.naturalWidth>0 || s.length>1000);});
+      var src = good.length? good[0].getAttribute('src') : '';
+      if(!src) return;
+      qa('img').forEach(function(i){var s=i.getAttribute('src')||''; if(s==='' || (i.complete&&i.naturalWidth===0)){ i.src=src; }});
+    }catch(e){}
+  }
+  function fixAdminText(){
+    try{
+      qa('p,div,span,small').forEach(function(el){
+        if(el.children.length===0 && el.textContent && el.textContent.indexOf('demo ch')>-1){
+          el.textContent = "Khu vực quản trị nội bộ Nguồn Nhà Phố HCM. Vui lòng đăng nhập bằng tài khoản quản trị để tiếp tục.";
+        }
+      });
+    }catch(e){}
+  }
+  function wrapLogout(){
+    try{
+      if(window.dangXuat && !window.dangXuat.__nnpWrapped){
+        var orig = window.dangXuat;
+        var wrapped = function(){ var r; try{ r=orig.apply(this, arguments); }catch(e){}
+          setTimeout(function(){ try{ location.hash='#/'; }catch(e){} }, 60);
+          return r; };
+        wrapped.__nnpWrapped = true;
+        window.dangXuat = wrapped;
+      }
+    }catch(e){}
+  }
+  function injectProfileCSS(){
+    if(q('#nnp-v41-css')) return;
+    var st=document.createElement('style'); st.id='nnp-v41-css';
+    st.textContent = ".hs-headcard{display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;}.hs-headcard .nnp-hs-cover{width:100%;}.hs-headcard .hs-avatarwrap{position:relative;margin:-56px auto 0 auto;z-index:2;}.hs-headcard .hs-idbox{margin-top:14px;width:100%;text-align:center;}.hs-headcard .hs-idbox h2{margin:0 0 4px 0;}.hs-headcard .hs-logout{position:absolute;top:16px;right:16px;z-index:3;}";
+    document.head.appendChild(st);
+  }
+  function hideDupProfile(){
+    try{
+      if(location.hash.indexOf('tai-khoan')===-1) return;
+      if(!q('.hs-headcard')) return;
+      qa('.trang-ds').forEach(function(sec){
+        if(q('.hs-wrap', sec)) return;
+        if(/undefined/.test(sec.textContent) || sec.textContent.indexOf('nh vi')>-1){ sec.style.display='none'; }
+      });
+    }catch(e){}
+  }
+  function run(){ injectProfileCSS(); fixLogos(); fixAdminText(); wrapLogout(); hideDupProfile(); }
+  function boot(){ run();
+    try{ var mo=new MutationObserver(function(){ run(); }); mo.observe(document.body,{childList:true,subtree:true}); }catch(e){}
+    window.addEventListener('hashchange', function(){ setTimeout(run,50); });
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', boot); } else { boot(); }
+})();
+</script>
+
 <!-- ========= HET NGUON NHA PHO V2 ========= -->
 
 </body>
