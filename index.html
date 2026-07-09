@@ -439,6 +439,21 @@ footer{background:#171A22;color:#B9BFCE;margin-top:52px;font-size:13.5px}
 .hop-qr .ma-don{background:var(--do-nhat);color:var(--do-dam);font-weight:800;padding:8px 14px;border-radius:8px;display:inline-block;margin:8px 0;font-size:15px;letter-spacing:.04em}
 @media print{.topbar,header,.noi,footer,.hop-lh a.nut,.hop-lh button,.form-lh,.qr-o,.thanh-ss,.man-ss,.phantrang,.canh-bao,.bando{display:none!important}body{background:#fff}.ct-bocuc{grid-template-columns:1fr}.ct-hop{box-shadow:none;break-inside:avoid}}
 </style>
+
+<style id="nnp-v2-css">
+.nnp-tier-badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700;color:#fff;background:#94a3b8;margin-left:6px;vertical-align:middle}
+.nnp-tier-hot{background:linear-gradient(90deg,#f97316,#ef4444)}
+.nnp-tier-vang{background:linear-gradient(90deg,#f59e0b,#d97706);color:#3b2500}
+.nnp-tier-kc{background:linear-gradient(90deg,#22d3ee,#3b82f6)}
+.nnp-hs-cover{height:160px;border-radius:14px;background:#e2e8f0 center/cover no-repeat;position:relative;margin-bottom:56px}
+.nnp-hs-avatar{width:96px;height:96px;border-radius:50%;object-fit:cover;border:4px solid #fff;position:absolute;left:20px;bottom:-48px;background:#f1f5f9}
+.nnp-hs-cambtn{position:absolute;right:12px;bottom:12px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer}
+.nnp-hs-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.nnp-hs-grid label{font-size:13px;color:#475569;display:block;margin-bottom:4px}
+.nnp-hs-grid input,.nnp-hs-grid textarea{width:100%;padding:9px 11px;border:1px solid #cbd5e1;border-radius:9px;font-size:14px;box-sizing:border-box}
+.nnp-hs-full{grid-column:1 / -1}
+.nnp-hs-save{margin-top:12px;background:#2563eb;color:#fff;border:none;border-radius:9px;padding:10px 20px;font-weight:600;cursor:pointer}
+</style>
 </head>
 <body>
 
@@ -4129,118 +4144,114 @@ window.addEventListener("hashchange",theoHash);
 <script>
 (function(){
   var SB_URL="https://stwudqradlupzphgjpql.supabase.co", SB_KEY="sb_publishable_p_4oWumLc2kigVnzh8BiWg_cgVUKNL2";
-  if(!window.supabase||!window.supabase.createClient){console.warn("[NNP] Chua tai duoc Supabase SDK");return;}
-  var sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
-  window.__sb=sb;
-  function $id(x){return document.getElementById(x);}
-  function val(x){var e=$id(x);return e?(e.value||"").trim():"";}
-  function bao(m){try{if(window.baoNhanh)baoNhanh(m);else console.log("[NNP]",m);}catch(e){}}
-  function laEmail(s){return /.+@.+\..+/.test(s);}
-  function sdt2email(s){return "sdt"+String(s).replace(/[^0-9]/g,"")+"@nnp.local";}
-  var PHIEN=null, HOSO=null;
-
-  async function taiHoSo(){
-    try{ if(!PHIEN){HOSO=null;return null;}
-      var q=await sb.from("profiles").select("*").eq("id",PHIEN.user.id).maybeSingle();
-      HOSO=q.data||null; return HOSO;
-    }catch(e){return null;}
+  if(!window.supabase||!window.supabase.createClient){ console.warn('supabase-js ch�a t�i'); return; }
+  var sb = window.supabase.createClient(SB_URL, SB_KEY, {
+    auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, storage: window.localStorage }
+  });
+  window.sb = sb;
+  var TIER_LABEL = { free:'', hot:'H�t th��ng', vang:'H�t V�ng', kimcuong:'Kim C��ng' };
+  var TIER_CLASS = { free:'', hot:'nnp-tier-hot', vang:'nnp-tier-vang', kimcuong:'nnp-tier-kc' };
+  function q(id){ return document.getElementById(id); }
+  function val(id){ var e=q(id); return e? (e.value||'').trim() : ''; }
+  function isEmail(s){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s); }
+  function saveTV(o){ try{ localStorage.setItem('nnp_tv', JSON.stringify(o)); }catch(e){} }
+  function readTV(){ try{ return JSON.parse(localStorage.getItem('nnp_tv')||'null'); }catch(e){ return null; } }
+  function clearTV(){ try{ localStorage.removeItem('nnp_tv'); }catch(e){} }
+  window.tvHienTai = function(){ return readTV(); };
+  async function loadProfile(uid){ try{ var r=await sb.from('profiles').select('*').eq('id',uid).single(); return r.data||null; }catch(e){ return null; } }
+  async function refreshSession(){
+    var s=(await sb.auth.getSession()).data.session;
+    if(!s){ clearTV(); paintUI(null); return null; }
+    var p=await loadProfile(s.user.id);
+    var tv={ id:s.user.id, email:s.user.email, ten:(p&&p.full_name)||s.user.email, sdt:(p&&p.phone)||'',
+      tier:(p&&p.membership_tier)||'free', tier_het:(p&&p.membership_expires_at)||null, is_admin:!!(p&&p.is_admin),
+      avatar:(p&&p.avatar_url)||'', cover:(p&&p.cover_url)||'', tuoi:(p&&p.age)||'', gioitinh:(p&&p.gender)||'',
+      diachi:(p&&p.address)||'', gioithieu:(p&&p.bio)||'' };
+    saveTV(tv); paintUI(tv); return tv;
   }
-  // Cung cap tvHienTai() theo dinh dang cu de giao dien khong doi
-  window.tvHienTai=function(){
-    if(!PHIEN)return null;
-    var u=PHIEN.user, p=HOSO||{};
-    return {id:u.id, ten:(p.full_name||u.user_metadata&&u.user_metadata.full_name||""), sdt:(p.phone||""), email:(p.email||u.email||""), ngay:(u.created_at||"").slice(0,10)};
+  function tierBadge(tier){ var t=tier||'free'; if(t==='free') return ''; return '<span class="nnp-tier-badge '+(TIER_CLASS[t]||'')+'">'+(TIER_LABEL[t]||t)+'</span>'; }
+  window.nnpTierBadge = tierBadge;
+  function paintUI(tv){ try{ if(typeof window.capNhatNutQT==='function') window.capNhatNutQT(); }catch(e){} try{ paintProfile(tv); }catch(e){} }
+  function paintProfile(tv){
+    if(!tv) return;
+    var setTxt=function(id,v){ var e=q(id); if(e) e.textContent=v||''; };
+    var setVal=function(id,v){ var e=q(id); if(e) e.value=v||''; };
+    setTxt('hs_ten',tv.ten); setTxt('hs_email',tv.email); setTxt('hs_sdt',tv.sdt||'(ch�a c�p nh�t)');
+    setVal('hs_ten_i',tv.ten); setVal('hs_tuoi_i',tv.tuoi); setVal('hs_gioitinh_i',tv.gioitinh);
+    setVal('hs_diachi_i',tv.diachi); setVal('hs_gioithieu_i',tv.gioithieu); setVal('hs_sdt_i',tv.sdt);
+    var av=q('hs_avatar'); if(av&&tv.avatar) av.src=tv.avatar;
+    var cv=q('hs_cover'); if(cv&&tv.cover) cv.style.backgroundImage="url('"+tv.cover+"')";
+    var tb=q('hs_tier'); if(tb) tb.innerHTML = tv.tier&&tv.tier!=='free' ? tierBadge(tv.tier) : '<span class="nnp-tier-badge">Th�nh vi�n th��ng</span>';
+  }
+  window.nnpPaintProfile=function(){ paintProfile(readTV()); };
+  async function uploadAnh(file,kind){
+    var tv=readTV(); if(!tv){ alert('B�n c�n ng nh�p'); return null; }
+    var ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+    var path=tv.id+'/'+kind+'_'+Date.now()+'.'+ext;
+    var up=await sb.storage.from('avatars').upload(path,file,{upsert:true,cacheControl:'3600'});
+    if(up.error){ alert('L�i t�i �nh: '+up.error.message); return null; }
+    return sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+  }
+  window.nnpChonAvatar=async function(input){ if(!input.files||!input.files[0])return; var url=await uploadAnh(input.files[0],'avatar'); if(!url)return; await sb.from('profiles').update({avatar_url:url}).eq('id',readTV().id); await refreshSession(); };
+  window.nnpChonCover=async function(input){ if(!input.files||!input.files[0])return; var url=await uploadAnh(input.files[0],'cover'); if(!url)return; await sb.from('profiles').update({cover_url:url}).eq('id',readTV().id); await refreshSession(); };
+  window.nnpLuuHoSo=async function(){
+    var tv=readTV(); if(!tv){ alert('B�n c�n ng nh�p'); return; }
+    var upd={ full_name:val('hs_ten_i')||tv.ten, age:(val('hs_tuoi_i')?parseInt(val('hs_tuoi_i'),10):null), gender:val('hs_gioitinh_i'), address:val('hs_diachi_i'), bio:val('hs_gioithieu_i'), phone:val('hs_sdt_i') };
+    var r=await sb.from('profiles').update(upd).eq('id',tv.id);
+    if(r.error){ alert('L�i l�u: '+r.error.message); return; }
+    await refreshSession(); alert('� l�u th�ng tin c� nh�n!');
   };
-
-  // ---- DANG KY ----
   window.dangKyTV=async function(){
-    var ten=val("tvTen"), sdt=val("tvSDT"), email=val("tvEmail"), mk=val("tvMK");
-    if(!ten){bao("Vui long nhap ho ten");return;}
-    if(!laEmail(email)){bao("Vui long nhap email that (Gmail) — email la bat buoc de dang ky");var e=$id("tvEmail");if(e)e.focus();return;}
-    if(sdt && !/^0\d{9}$/.test(sdt.replace(/\s/g,""))){bao("So dien thoai chua hop le (VD: 0987654321)");return;}
-    if(mk.length<6){bao("Mat khau can toi thieu 6 ky tu");return;}
-    try{
-      var r=await sb.auth.signUp({email:email,password:mk,options:{data:{full_name:ten,phone:sdt}}});
-      if(r.error){ bao(r.error.message.match(/already/i)?"Email nay da dang ky — moi anh/chi dang nhap":("Loi: "+r.error.message)); return; }
-      if(r.data&&r.data.user){ try{ await sb.from("profiles").upsert({id:r.data.user.id,full_name:ten,phone:(sdt||null),email:email},{onConflict:"id"}); }catch(e){} }
-      if(r.data&&r.data.session){ PHIEN=r.data.session; await taiHoSo(); bao("Chao mung "+ten+"! Tai khoan da tao xong."); }
-      else { bao("Da tao tai khoan! Vui long mo email ("+email+") de xac nhan, sau do dang nhap."); }
-      try{capNhatNutQT&&capNhatNutQT();}catch(e){}
-      try{veTaiKhoan&&veTaiKhoan();}catch(e){}
-    }catch(e){ bao("Loi dang ky: "+(e&&e.message||e)); }
+    var ten=val('tvTen'),email=val('tvEmail'),sdt=val('tvSDT'),mk=val('tvMK');
+    if(!ten){ alert('Vui l�ng nh�p h� t�n'); return; }
+    if(!isEmail(email)){ alert('Vui l�ng nh�p Gmail/email h�p l� (b�t bu�c)'); return; }
+    if(!mk||mk.length<6){ alert('M�t kh�u t�i thi�u 6 k� t�'); return; }
+    var r=await sb.auth.signUp({ email:email, password:mk, options:{ data:{ full_name:ten, phone:sdt } } });
+    if(r.error){ alert('L�i ng k�: '+r.error.message); return; }
+    try{ await sb.from('profiles').upsert({ id:r.data.user.id, full_name:ten, phone:sdt, email:email }); }catch(e){}
+    if(!r.data.session){ alert('ng k� th�nh c�ng! Vui l�ng m� Gmail v� b�m link x�c nh�n, sau � ng nh�p.'); }
+    else{ await refreshSession(); alert('ng k� & ng nh�p th�nh c�ng!'); }
   };
-
-  // ---- DANG NHAP ----
   window.dangNhapTV=async function(){
-    var id=val("tvSDT"), mk=val("tvMK");
-    if(!id||!mk){bao("Nhap email va mat khau de dang nhap");return;}
-    var authEmail=id;
-    if(!laEmail(id)){
-      try{ var q=await sb.from("profiles").select("email").eq("phone",id.replace(/\s/g,"")).not("email","is",null).limit(1).maybeSingle();
-        if(q&&q.data&&q.data.email){ authEmail=q.data.email; } else { bao("Vui long dang nhap bang email da dang ky"); return; } }
-      catch(e){ bao("Vui long dang nhap bang email da dang ky"); return; }
-    }
-    try{
-      var r=await sb.auth.signInWithPassword({email:authEmail,password:mk});
-      if(r.error){ bao("Sai email hoac mat khau (neu vua dang ky, hay xac nhan email truoc)"); return; }
-      PHIEN=r.data.session; await taiHoSo();
-      bao("Chao "+((HOSO&&HOSO.full_name)||"anh/chi")+"!");
-      try{capNhatNutQT&&capNhatNutQT();}catch(e){}
-      try{veTaiKhoan&&veTaiKhoan();}catch(e){}
-    }catch(e){ bao("Loi dang nhap: "+(e&&e.message||e)); }
+    var dinhdanh=val('tvSDT'),mk=val('tvMK');
+    if(!dinhdanh||!mk){ alert('Nh�p email (ho�c ST) v� m�t kh�u'); return; }
+    var email=dinhdanh;
+    if(!isEmail(dinhdanh)){ try{ var pr=await sb.from('profiles').select('email').eq('phone',dinhdanh).limit(1).single(); if(pr.data&&pr.data.email) email=pr.data.email; }catch(e){} }
+    var r=await sb.auth.signInWithPassword({ email:email, password:mk });
+    if(r.error){ alert('Sai email/m�t kh�u ho�c ch�a x�c nh�n email.'); return; }
+    await refreshSession(); alert('ng nh�p th�nh c�ng!');
   };
-
-  // ---- DANG XUAT ----
-  window.dangXuatTV=async function(){
-    try{await sb.auth.signOut();}catch(e){}
-    PHIEN=null;HOSO=null;
-    try{capNhatNutQT&&capNhatNutQT();}catch(e){}
-    try{denTrang&&denTrang("home");}catch(e){}
-    bao("Da dang xuat");
+  window.dangXuatTV=async function(){ await sb.auth.signOut(); clearTV(); paintUI(null); alert('� ng xu�t.'); };
+  window.nnpMuaGoi=async function(code){
+    var tv=readTV(); if(!tv){ alert('B�n c�n ng nh�p tr��c khi mua g�i'); return null; }
+    var r=await sb.rpc('tao_don_mua_goi',{ p_code:code });
+    if(r.error){ alert('L�i t�o �n: '+r.error.message); return null; }
+    return (r.data&&r.data[0])||r.data;
   };
-
-  // ---- DANG TIN (tao post that, gan voi tai khoan) ----
-  var _guiTinCu=window.guiTinTV;
-  window.guiTinTV=async function(){
-    if(!PHIEN){bao("Anh/chi dang nhap de dang tin");try{veTaiKhoan&&veTaiKhoan("dangnhap");}catch(e){}return;}
-    var tieu=val("mtTieude"), gia=val("mtGia"), dt=val("mtDT");
-    if(!tieu||!gia||!dt){bao("Can toi thieu: tieu de, gia, dien tich");return;}
-    var mota=val("mtMota"), quan=val("mtQuan"), duong=val("mtDuong");
-    var diachi=[duong,val("mtPhuong"),quan].filter(Boolean).join(", ");
-    try{
-      var r=await sb.rpc("create_post",{p_title:tieu,p_description:mota,p_price:parseInt(gia.replace(/[^0-9]/g,""))||0,p_area:parseFloat(dt.replace(/[^0-9.]/g,""))||null,p_address:diachi,p_contact_name:(HOSO&&HOSO.full_name)||"",p_contact_phone:(HOSO&&HOSO.phone)||""});
-      if(r.error){ bao("Loi dang tin: "+r.error.message); return; }
-      bao("Da dang tin! Tin cua anh/chi da vao kho — cho quan tri duyet la len trang.");
-      try{veTaiKhoan&&veTaiKhoan();}catch(e){}
-    }catch(e){ bao("Loi dang tin: "+(e&&e.message||e)); }
+  window.nnpGanBadgeBaiViet=function(container){
+    try{ var tv=readTV(); if(!tv||!tv.tier||tv.tier==='free') return;
+      if(container&&!container.querySelector('.nnp-tier-badge')){ var b=document.createElement('span'); b.className='nnp-tier-badge '+(TIER_CLASS[tv.tier]||''); b.textContent=TIER_LABEL[tv.tier]||tv.tier; container.appendChild(b); } }catch(e){}
   };
-
-  // ---- MUA GOI: tao don that + ref_code cho SePay, giu QR cua giao dien ----
-  window.taoDonMuaGoi=async function(code){
-    if(!PHIEN){bao("Anh/chi dang nhap de mua goi");return null;}
-    try{ var r=await sb.rpc("tao_don_mua_goi",{p_code:code});
-      if(r.error){bao("Loi tao don: "+r.error.message);return null;}
-      return (r.data&&r.data[0])||null;
-    }catch(e){bao("Loi: "+(e&&e.message||e));return null;}
-  };
-
-  // ---- THONG KE tu tang ----
-  async function capThongKe(){
-    try{
-      var a=await sb.from("web_posts").select("id",{count:"exact",head:true}).eq("status","active");
-      var b=await sb.rpc("is_admin"); // no-op safe call to warm
-      var them=(a&&typeof a.count==="number")?a.count:0;
-      document.querySelectorAll(".so-item b").forEach(function(el){ if(/^\s*1\.?680/.test(el.textContent)){el.textContent=(1680+them).toLocaleString("vi-VN")+"+";} });
-    }catch(e){}
+  function buildProfilePanel(){
+    var tv=readTV(); if(!tv) return;
+    if(document.getElementById('nnp-hs-panel')){ paintProfile(tv); return; }
+    var anchor=(document.querySelector('#trangTK, .man-taikhoan, [data-screen="taikhoan"]') ||
+      (function(){ var c=document.querySelectorAll('.man, section, div');
+        for(var i=0;i<c.length;i++){ var el=c[i]; if(el.offsetParent!==null && /Th�ng tin c� nh�n|T�i kho�n c�a t�i|t�i kho�n/.test(el.textContent||'') && el.children.length<40){ return el; } } return document.body; })());
+    if(!anchor) return;
+    var wrap=document.createElement('div'); wrap.id='nnp-hs-panel';
+    wrap.style.cssText='max-width:720px;margin:16px auto;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px';
+    wrap.innerHTML='<div class="nnp-hs-cover" id="hs_cover"><img class="nnp-hs-avatar" id="hs_avatar" alt="avatar"><button class="nnp-hs-cambtn" type="button" onclick="document.getElementById(\'hs_cover_file\').click()">�i �nh b�a</button><input type="file" id="hs_cover_file" accept="image/*" style="display:none" onchange="nnpChonCover(this)"></div>'+
+      '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><div><h3 style="margin:0" id="hs_ten"></h3><div style="color:#64748b;font-size:13px"><span id="hs_email"></span> � <span id="hs_sdt"></span></div></div><span id="hs_tier"></span><button class="nnp-hs-cambtn" style="position:static;background:#334155" type="button" onclick="document.getElementById(\'hs_avatar_file\').click()">�i �nh �i di�n</button><input type="file" id="hs_avatar_file" accept="image/*" style="display:none" onchange="nnpChonAvatar(this)"></div>'+
+      '<div class="nnp-hs-grid"><div><label>H� t�n</label><input id="hs_ten_i"></div><div><label>Tu�i</label><input id="hs_tuoi_i" type="number" min="1" max="120"></div><div><label>Gi�i t�nh</label><input id="hs_gioitinh_i" placeholder="Nam/N�/Kh�c"></div><div><label>S� i�n tho�i</label><input id="hs_sdt_i"></div><div class="nnp-hs-full"><label>�a ch�</label><input id="hs_diachi_i"></div><div class="nnp-hs-full"><label>Gi�i thi�u</label><textarea id="hs_gioithieu_i" rows="3"></textarea></div></div>'+
+      '<button class="nnp-hs-save" type="button" onclick="nnpLuuHoSo()">L�u th�ng tin</button>';
+    anchor.appendChild(wrap); paintProfile(tv);
   }
-
-  // Khoi phuc phien khi tai trang
-  (async function(){
-    try{ var s=await sb.auth.getSession(); PHIEN=(s.data&&s.data.session)||null; if(PHIEN)await taiHoSo(); }catch(e){}
-    sb.auth.onAuthStateChange(function(_e,session){ PHIEN=session; if(session){taiHoSo();} else {HOSO=null;} try{capNhatNutQT&&capNhatNutQT();}catch(e){} });
-    window.addEventListener("load",function(){ setTimeout(function(){ try{capNhatNutQT&&capNhatNutQT();}catch(e){} capThongKe(); },600); });
-    console.log("[NNP] V2 Supabase Auth san sang ✓");
-  })();
+  var _oldVeTK=window.veTaiKhoan;
+  window.veTaiKhoan=function(){ var r; try{ if(typeof _oldVeTK==='function') r=_oldVeTK.apply(this,arguments); }catch(e){} setTimeout(buildProfilePanel,60); return r; };
+  sb.auth.onAuthStateChange(function(evt,session){ if(session){ refreshSession(); } else { clearTV(); paintUI(null); } });
+  document.addEventListener('DOMContentLoaded', function(){ refreshSession(); });
+  refreshSession();
 })();
 </script>
 <!-- ========= HET NGUON NHA PHO V2 ========= -->
