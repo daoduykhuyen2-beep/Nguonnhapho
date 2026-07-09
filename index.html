@@ -2731,7 +2731,7 @@ const NHA_GOC = [
 ];
 
 let NHA=[];
-function napNHA(){var _d=docKho("nnp_daytin",{});NHA=NHA_GOC.concat(docKho("nnp_them",[])).map(function(n){return Object.assign({},n,{dayTin:(n.dayTin||0)+(_d[n.id]||0)});});}
+function napNHA(){var _d=docKho("nnp_daytin",{});var _local=NHA_GOC.concat(docKho("nnp_them",[]));var _rm=(window.NHA_REMOTE||[]);var _ids={};_local.forEach(function(n){_ids[n.id]=1;});var _merged=_local.concat(_rm.filter(function(n){return !_ids[n.id];}));NHA=_merged.map(function(n){return Object.assign({},n,{dayTin:(n.dayTin||0)+(_d[n.id]||0)});});}
 function KHO(){const an=docKho("nnp_an",[]);return NHA.filter(n=>!an.includes(n.id))}
 
 const KHOANG_GIA = {
@@ -3720,6 +3720,7 @@ function duyetTinTV(id){
     huong:t.huong,phaply:t.phaply,vitri:t.vitri,ngay:new Date().toISOString().slice(0,10),mota:t.mota,
     tvId:t.tvId,lienHe:t.lienHe};
   const th=docKho("nnp_them",[]);th.unshift(tin);luuKho("nnp_them",th);
+  try{nnpDbLuuTin(tin);}catch(e){}
   luuKho("nnp_tinchoduyet",ds.filter(x=>x.id!==id));
   napNHA();veQuanTri("tindang");baoNhanh("Đã duyệt tin của "+t.lienHe.ten+" — hạng "+(tier==="kc"?"VIP KC":tier==="vang"?"VIP Vàng":"Thường"));
 }
@@ -3733,6 +3734,7 @@ function dayTinAdmin(id){
   const t=th.find(x=>x.id===id);
   if(t){t.dayTin=(t.dayTin||0)+1;luuKho("nnp_them",th);}
   else{const d=docKho("nnp_daytin",{});d[id]=(d[id]||0)+1;luuKho("nnp_daytin",d);}
+  try{nnpDbDayTin(id);}catch(e){}
   napNHA();veQuanTri("tindang");baoNhanh("Đã đẩy tin "+id+" lên đầu");
 }
 function dayTinTV(id){
@@ -4243,6 +4245,82 @@ window.addEventListener("hashchange",theoHash);
     auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, storage: window.localStorage }
   });
   window.sb = sb;
+  /* ===== NNP DB SYNC (web_posts) ===== */
+  window.nnpDbLuuTin = function(tin){
+    if(!window.sb) return;
+    try{
+      var lh = tin.lienHe || {};
+      var row = {
+        client_id: String(tin.id),
+        owner_client: tin.tvId ? String(tin.tvId) : null,
+        title: tin.tieude || null,
+        loai: tin.loai || null,
+        quan: tin.quan || null,
+        phuong: tin.phuong || null,
+        duong: tin.duong || null,
+        gia: (tin.gia != null ? String(tin.gia) : null),
+        dien_tich: (tin.dt != null ? String(tin.dt) : null),
+        contact_name: lh.ten || lh.name || null,
+        contact_phone: lh.sdt || lh.phone || null,
+        mota: tin.mota || null,
+        status: tin.tier || "thuong",
+        created_local: tin.ngay || null,
+        anh: { imgs: (tin.anh || tin.imgs || []), tin: tin },
+        video: tin.video || null
+      };
+      window.sb.from("web_posts").upsert(row, { onConflict: "client_id" }).then(function(res){
+        if(res && res.error) console.warn("nnpDbLuuTin", res.error.message);
+      });
+    }catch(e){ console.warn("nnpDbLuuTin ex", e); }
+  };
+  window.nnpDbDayTin = function(id){
+    if(!window.sb) return;
+    try{
+      window.sb.from("web_posts").select("anh").eq("client_id", String(id)).maybeSingle().then(function(res){
+        if(!res || res.error || !res.data) return;
+        var anh = res.data.anh || {};
+        var tinObj = anh.tin || {};
+        tinObj.dayTin = (tinObj.dayTin||0) + 1;
+        anh.tin = tinObj;
+        window.sb.from("web_posts").update({ anh: anh }).eq("client_id", String(id)).then(function(){});
+      });
+    }catch(e){ console.warn("nnpDbDayTin ex", e); }
+  };
+  window.nnpDbTaiTin = function(cb){
+    if(!window.sb) return;
+    try{
+      window.sb.from("web_posts").select("*").order("created_at", { ascending: false }).limit(500).then(function(res){
+        if(!res || res.error || !res.data){ if(res&&res.error) console.warn("nnpDbTaiTin", res.error.message); return; }
+        var arr = res.data.map(function(r){
+          var anh = r.anh || {};
+          var t = anh.tin || {};
+          var tin = Object.assign({}, t, {
+            id: t.id || r.client_id,
+            loai: t.loai || r.loai,
+            tier: t.tier || r.status || "thuong",
+            tieude: t.tieude || r.title,
+            quan: t.quan || r.quan,
+            phuong: t.phuong || r.phuong,
+            duong: t.duong || r.duong,
+            gia: (t.gia!=null? t.gia : r.gia),
+            dt: (t.dt!=null? t.dt : r.dien_tich),
+            ngay: t.ngay || r.created_local || (r.created_at? String(r.created_at).slice(0,10):""),
+            mota: t.mota || r.mota,
+            dayTin: t.dayTin || 0,
+            tvId: t.tvId || r.owner_client,
+            anh: anh.imgs || t.anh || []
+          });
+          return tin;
+        });
+        window.NHA_REMOTE = arr;
+        try{ napNHA(); veTrangChu(); if(typeof apLoc==="function") apLoc(); if(typeof capNhatDemTim==="function") capNhatDemTim(); }catch(e){}
+        if(cb) try{cb(arr);}catch(e){}
+      });
+    }catch(e){ console.warn("nnpDbTaiTin ex", e); }
+  };
+  window.NHA_REMOTE = window.NHA_REMOTE || [];
+  try{ setTimeout(function(){ window.nnpDbTaiTin(); }, 800); }catch(e){}
+
   var TIER_LABEL = { free:'', hot:'Hạt thường', vang:'Hạt Vàng', kimcuong:'Kim Cương' };
   var TIER_CLASS = { free:'', hot:'nnp-tier-hot', vang:'nnp-tier-vang', kimcuong:'nnp-tier-kc' };
   function q(id){ return document.getElementById(id); }
