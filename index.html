@@ -4529,15 +4529,15 @@ sb.auth.onAuthStateChange(function(evt,session){ if(session){ refreshSession(); 
   window.quenMK = async function(){
     var pre = '';
     try{ var el = document.getElementById('tvLoginEmail'); if(el) pre = (el.value||'').trim(); }catch(e){}
-    var email = prompt('Nhap Email (Gmail) cua ban de nhan lien ket dat lai mat khau:', pre);
+    var email = prompt('Nhập Email (Gmail) của bạn để nhận liên kết đặt lại mật khẩu:', pre);
     if(email===null) return;
     email = (email||'').trim();
-    if(!email || email.indexOf('@')<0){ toast('Email khong hop le.'); return; }
+    if(!email || email.indexOf('@')<0){ toast('Email không hợp lệ.'); return; }
     try{
       var res = await window.sb.auth.resetPasswordForEmail(email, { redirectTo: ORIGIN + '/#/doi-mat-khau' });
-      if(res && res.error){ toast('Loi: ' + (res.error.message||'khong gui duoc email')); return; }
-      toast('Da gui email dat lai mat khau toi ' + email + '. Vui long mo Gmail va bam vao lien ket.');
-    }catch(e){ toast('Loi gui email: ' + (e && e.message ? e.message : e)); }
+      if(res && res.error){ toast('Lỗi: ' + (res.error.message||'không gửi được email')); return; }
+      toast('Đã gửi email đặt lại mật khẩu tới ' + email + '. Vui lòng mở Gmail và bấm vào liên kết.');
+    }catch(e){ toast('Lỗi gửi email: ' + (e && e.message ? e.message : e)); }
   };
 
   window.nnpGoogleLogin = async function(){
@@ -4545,23 +4545,23 @@ sb.auth.onAuthStateChange(function(evt,session){ if(session){ refreshSession(); 
       var prov = 'goo'+'gle';
       var fn = window.sb.auth['sign'+'InWith'+'OAuth'];
       var res = await fn.call(window.sb.auth, { provider: prov, options: { redirectTo: ORIGIN } });
-      if(res && res.error){ toast('Loi dang nhap Google: ' + (res.error.message||'')); }
-    }catch(e){ toast('Loi Google: ' + (e && e.message ? e.message : e)); }
+      if(res && res.error){ toast('Lỗi đăng nhập Google: ' + (res.error.message||'')); }
+    }catch(e){ toast('Lỗi Google: ' + (e && e.message ? e.message : e)); }
   };
 
   window.nnpDoiMatKhau = async function(){
-    var p1 = prompt('Nhap mat khau moi (toi thieu 6 ky tu):', '');
+    var p1 = prompt('Nhập mật khẩu mới (tối thiểu 6 ký tự):', '');
     if(p1===null) return;
     p1 = p1||'';
-    if(p1.length<6){ toast('Mat khau phai it nhat 6 ky tu.'); return; }
-    var p2 = prompt('Nhap lai mat khau moi de xac nhan:', '');
+    if(p1.length<6){ toast('Mật khẩu phải ít nhất 6 ký tự.'); return; }
+    var p2 = prompt('Nhập lại mật khẩu mới để xác nhận:', '');
     if(p2===null) return;
-    if(p1!==p2){ toast('Mat khau nhap lai khong khop.'); return; }
+    if(p1!==p2){ toast('Mật khẩu nhập lại không khớp.'); return; }
     try{
       var res = await window.sb.auth.updateUser({ password: p1 });
-      if(res && res.error){ toast('Loi: ' + (res.error.message||'')); return; }
-      toast('Doi mat khau thanh cong!');
-    }catch(e){ toast('Loi: ' + (e && e.message ? e.message : e)); }
+      if(res && res.error){ toast('Lỗi: ' + (res.error.message||'')); return; }
+      toast('Đổi mật khẩu thành công!');
+    }catch(e){ toast('Lỗi: ' + (e && e.message ? e.message : e)); }
   };
 
   function checkRecovery(){
@@ -4596,9 +4596,9 @@ sb.auth.onAuthStateChange(function(evt,session){ if(session){ refreshSession(); 
       var loginBtn = null, btns = host.querySelectorAll('button');
       for(var i=0;i<btns.length;i++){ var tx=(btns[i].textContent||'').toLowerCase(); if(tx.indexOf('nh')>=0 && tx.indexOf('p')>=0 && tx.length<20){ loginBtn=btns[i]; } }
       var wrap = document.createElement('div');
-      var orDiv = document.createElement('div'); orDiv.className='nnp-or'; orDiv.textContent='hoac';
+      var orDiv = document.createElement('div'); orDiv.className='nnp-or'; orDiv.textContent='hoặc';
       var btn = document.createElement('button'); btn.id='nnpGgBtn'; btn.type='button'; btn.className='nnp-gg-btn';
-      btn.innerHTML = '<img src="'+GG_SVG+'" alt=""> Dang nhap voi Google';
+      btn.innerHTML = '<img src="'+GG_SVG+'" alt=""> Đăng nhập với Google';
       btn.onclick = function(){ window.nnpGoogleLogin(); };
       wrap.appendChild(orDiv); wrap.appendChild(btn);
       if(loginBtn && loginBtn.parentElement){ loginBtn.parentElement.insertBefore(wrap, loginBtn.nextSibling); }
@@ -4613,7 +4613,7 @@ sb.auth.onAuthStateChange(function(evt,session){ if(session){ refreshSession(); 
       if(document.getElementById('nnpDoiMkBtn')) return;
       var a = document.createElement('a');
       a.id='nnpDoiMkBtn'; a.href='javascript:void(0)'; a.className='hs-qitem';
-      a.innerHTML = '<span>&#128273;</span> Doi mat khau';
+      a.innerHTML = '<span>&#128273;</span> Đổi mật khẩu';
       a.onclick = function(){ window.nnpDoiMatKhau(); return false; };
       quick.appendChild(a);
     }catch(e){}
