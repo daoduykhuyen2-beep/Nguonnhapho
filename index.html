@@ -3818,7 +3818,7 @@ function veTaiKhoan(tab){
     </div>
     <button class="nut nut-vien" onclick="denTrang('yeuthich')">♥ Xem nhà đã lưu (${soTim})</button>
     </div>`;
-    try{buildProfilePanel();}catch(_e){ console.error('BPP_ERR', _e && _e.message, _e && _e.stack); } return;
+    try{ if(window.buildProfilePanel) window.buildProfilePanel(); }catch(_e){} return;
   }
   const t=tab||"dangnhap";
   $("noiDungTV").innerHTML=`
@@ -4381,6 +4381,7 @@ window.addEventListener("hashchange",theoHash);
   host.insertBefore(wrap.firstElementChild, host.firstChild);
   paintProfile(tv);
 }
+  window.buildProfilePanel=buildProfilePanel;
   var _oldVeTK=window.veTaiKhoan;
   window.veTaiKhoan=function(){ var r; try{ if(typeof _oldVeTK==='function') r=_oldVeTK.apply(this,arguments); }catch(e){} setTimeout(buildProfilePanel,60); return r; };
   
