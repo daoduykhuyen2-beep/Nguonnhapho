@@ -3818,7 +3818,7 @@ function veTaiKhoan(tab){
     </div>
     <button class="nut nut-vien" onclick="denTrang('yeuthich')">♥ Xem nhà đã lưu (${soTim})</button>
     </div>`;
-    try{ if(window.buildProfilePanel) window.buildProfilePanel(); }catch(_e){} return;
+    try{ if(window.buildProfilePanel){ window.buildProfilePanel(); } else { setTimeout(function(){ try{ if(window.buildProfilePanel) window.buildProfilePanel(); }catch(_e){} }, 120); } }catch(_e){} return;
   }
   const t=tab||"dangnhap";
   $("noiDungTV").innerHTML=`
@@ -4245,7 +4245,7 @@ window.addEventListener("hashchange",theoHash);
       tier:(p&&p.membership_tier)||'free', tier_het:(p&&p.membership_expires_at)||null, is_admin:!!(p&&p.is_admin),
       avatar:(p&&p.avatar_url)||'', cover:(p&&p.cover_url)||'', tuoi:(p&&p.age)||'', gioitinh:(p&&p.gender)||'',
       diachi:(p&&p.address)||'', gioithieu:(p&&p.bio)||'', ngay:(s.user.created_at||'').slice(0,10) };
-    saveTV(tv); paintUI(tv); return tv;
+    saveTV(tv); paintUI(tv); try{ if((location.hash||'').indexOf('tai-khoan')>=0 && typeof veTaiKhoan==='function'){ veTaiKhoan(); } }catch(_e){} return tv;
   }
   function tierBadge(tier){ var t=tier||'free'; if(t==='free') return ''; return '<span class="nnp-tier-badge '+(TIER_CLASS[t]||'')+'">'+(TIER_LABEL[t]||t)+'</span>'; }
   window.nnpTierBadge = tierBadge;
