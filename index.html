@@ -453,6 +453,19 @@ footer{background:#171A22;color:#B9BFCE;margin-top:52px;font-size:13.5px}
 .nnp-hs-grid input,.nnp-hs-grid textarea{width:100%;padding:9px 11px;border:1px solid #cbd5e1;border-radius:9px;font-size:14px;box-sizing:border-box}
 .nnp-hs-full{grid-column:1 / -1}
 .nnp-hs-save{margin-top:12px;background:#2563eb;color:#fff;border:none;border-radius:9px;padding:10px 20px;font-weight:600;cursor:pointer}
+
+.nnp-mt-media{margin:14px 0}
+.nnp-mt-label{display:block;font-weight:600;font-size:14px;color:#334155;margin-bottom:6px}
+.nnp-mt-drop{border:1.5px dashed #cbd5e1;border-radius:12px;padding:12px;background:#f8fafc}
+.nnp-mt-row{display:flex;gap:10px;flex-wrap:wrap}
+.nnp-mt-btn{background:#fff;border:1px solid #cbd5e1;border-radius:9px;padding:9px 14px;font-size:14px;cursor:pointer;font-weight:600;color:#1e293b}
+.nnp-mt-btn:hover{border-color:#2563eb;color:#2563eb}
+.nnp-mt-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.nnp-mt-thumb{position:relative;width:84px;height:84px;border-radius:9px;overflow:hidden;background:#e2e8f0}
+.nnp-mt-thumb img,.nnp-mt-thumb video{width:100%;height:100%;object-fit:cover}
+.nnp-mt-vid::after{content:'�';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;text-shadow:0 1px 4px rgba(0,0,0,.6);pointer-events:none}
+.nnp-mt-x{position:absolute;top:2px;right:2px;width:20px;height:20px;line-height:18px;text-align:center;background:rgba(0,0,0,.6);color:#fff;border-radius:50%;font-size:15px;cursor:pointer}
+.nnp-mt-hint{font-size:12px;color:#64748b;margin-top:8px}
 </style>
 </head>
 <body>
@@ -3730,6 +3743,20 @@ function veTaiKhoan(tab){
         <div><label>Vị trí</label><select id="mtVitri"><option>Mặt tiền</option><option>Hẻm xe hơi</option><option>Hẻm xe máy</option></select></div>
         <textarea id="mtMota" placeholder="Mô tả chi tiết (không ghi số nhà — vị trí chính xác trao đổi khi có khách)"></textarea>
       </div>
+      <div class="nnp-mt-media">
+        <label class="nnp-mt-label">�nh &amp; Video nh� th�c t�</label>
+        <div class="nnp-mt-drop">
+          <div class="nnp-mt-row">
+            <button type="button" class="nnp-mt-btn" onclick="document.getElementById('mtAnhFile').click()">=� Th�m �nh (t�i a 15)</button>
+            <button type="button" class="nnp-mt-btn" onclick="document.getElementById('mtVideoFile').click()"><� Th�m video (1)</button>
+          </div>
+          <input type="file" id="mtAnhFile" accept="image/*" multiple style="display:none" onchange="nnpChonAnhTin(this)">
+          <input type="file" id="mtVideoFile" accept="video/*" style="display:none" onchange="nnpChonVideoTin(this)">
+          <div id="mtMediaPreview" class="nnp-mt-preview"></div>
+          <div id="mtMediaHint" class="nnp-mt-hint">�nh r� n�t, ch�p th�c t� cn nh� gi�p tin ��c duy�t nhanh &amp; nhi�u ng��i xem h�n.</div>
+        </div>
+      </div>
+
       <p style="font-size:11.5px;color:var(--xam-nhat);margin-top:8px">Tin hiển thị tên & SĐT của anh/chị (${u.ten} — ${u.sdt}). Nếu chọn hạng VIP mà chưa có quyền lợi, tin sẽ được duyệt ở hạng Thường.</p>
       <button class="nut nut-do" style="margin-top:10px" onclick="guiTinTV()">Gửi tin chờ duyệt</button>
       </details>
@@ -4249,7 +4276,78 @@ window.addEventListener("hashchange",theoHash);
   }
   var _oldVeTK=window.veTaiKhoan;
   window.veTaiKhoan=function(){ var r; try{ if(typeof _oldVeTK==='function') r=_oldVeTK.apply(this,arguments); }catch(e){} setTimeout(buildProfilePanel,60); return r; };
-  sb.auth.onAuthStateChange(function(evt,session){ if(session){ refreshSession(); } else { clearTV(); paintUI(null); } });
+  
+  // ===== ng tin: t�i �nh & video nh� th�c t� =====
+  window.__nnpTinAnh = [];
+  window.__nnpTinVideo = null;
+  function renderMediaPreview(){
+    var box=q('mtMediaPreview'); if(!box) return;
+    box.innerHTML='';
+    (window.__nnpTinAnh||[]).forEach(function(f,idx){
+      var url=URL.createObjectURL(f);
+      var d=document.createElement('div'); d.className='nnp-mt-thumb';
+      d.innerHTML='<img src="'+url+'"><span class="nnp-mt-x" onclick="nnpXoaAnhTin('+idx+')">�</span>';
+      box.appendChild(d);
+    });
+    if(window.__nnpTinVideo){
+      var vurl=URL.createObjectURL(window.__nnpTinVideo);
+      var dv=document.createElement('div'); dv.className='nnp-mt-thumb nnp-mt-vid';
+      dv.innerHTML='<video src="'+vurl+'" muted></video><span class="nnp-mt-x" onclick="nnpXoaVideoTin()">�</span>';
+      box.appendChild(dv);
+    }
+  }
+  window.nnpChonAnhTin=function(input){
+    var files=Array.prototype.slice.call(input.files||[]);
+    window.__nnpTinAnh=(window.__nnpTinAnh||[]).concat(files).slice(0,15);
+    input.value=''; renderMediaPreview();
+  };
+  window.nnpChonVideoTin=function(input){
+    var f=input.files&&input.files[0]; if(!f) return;
+    if(f.size>50*1024*1024){ alert('Video t�i a 50MB'); input.value=''; return; }
+    window.__nnpTinVideo=f; input.value=''; renderMediaPreview();
+  };
+  window.nnpXoaAnhTin=function(i){ window.__nnpTinAnh.splice(i,1); renderMediaPreview(); };
+  window.nnpXoaVideoTin=function(){ window.__nnpTinVideo=null; renderMediaPreview(); };
+  async function uploadTinMedia(){
+    var tv=readTV();
+    var base=(tv&&tv.id? tv.id : 'khach')+'/'+Date.now();
+    var anhUrls=[], videoUrl='';
+    var arr=window.__nnpTinAnh||[];
+    for(var i=0;i<arr.length;i++){
+      var f=arr[i]; var ext=(f.name.split('.').pop()||'jpg').toLowerCase();
+      var path=base+'/anh_'+i+'.'+ext;
+      var up=await sb.storage.from('posts').upload(path,f,{upsert:true,cacheControl:'3600'});
+      if(up.error){ console.warn('upload anh loi',up.error.message); continue; }
+      anhUrls.push(sb.storage.from('posts').getPublicUrl(path).data.publicUrl);
+    }
+    if(window.__nnpTinVideo){
+      var vf=window.__nnpTinVideo; var vext=(vf.name.split('.').pop()||'mp4').toLowerCase();
+      var vpath=base+'/video.'+vext;
+      var vup=await sb.storage.from('posts').upload(vpath,vf,{upsert:true,cacheControl:'3600'});
+      if(!vup.error){ videoUrl=sb.storage.from('posts').getPublicUrl(vpath).data.publicUrl; }
+    }
+    return {anh:anhUrls, video:videoUrl};
+  }
+  var _oldGuiTin=window.guiTinTV;
+  window.guiTinTV=async function(){
+    var hasMedia=(window.__nnpTinAnh&&window.__nnpTinAnh.length)||window.__nnpTinVideo;
+    var media={anh:[],video:''};
+    if(hasMedia){ try{ media=await uploadTinMedia(); }catch(e){ console.warn('media upload err',e); } }
+    var before=0; try{ before=(JSON.parse(localStorage.getItem('nnp_tinchoduyet')||'[]')).length; }catch(e){}
+    var r; try{ if(typeof _oldGuiTin==='function') r=_oldGuiTin.apply(this,arguments); }catch(e){ console.warn(e); }
+    try{
+      var list=JSON.parse(localStorage.getItem('nnp_tinchoduyet')||'[]');
+      if(list.length>before){
+        var last=list[list.length-1];
+        last.anh=media.anh; last.video=media.video;
+        localStorage.setItem('nnp_tinchoduyet', JSON.stringify(list));
+        if(typeof window.luuKho==='function') window.luuKho();
+      }
+    }catch(e){ console.warn('patch media err',e); }
+    window.__nnpTinAnh=[]; window.__nnpTinVideo=null; try{ renderMediaPreview(); }catch(e){}
+    return r;
+  };
+sb.auth.onAuthStateChange(function(evt,session){ if(session){ refreshSession(); } else { clearTV(); paintUI(null); } });
   document.addEventListener('DOMContentLoaded', function(){ refreshSession(); });
   refreshSession();
 })();
