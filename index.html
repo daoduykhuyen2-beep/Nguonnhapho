@@ -4121,31 +4121,127 @@ theoHash();
 window.addEventListener("hashchange",theoHash);
 </script>
 
-<!-- ========= CAU NOI SUPABASE (dong bo du lieu ve 1 noi) — them tu dong, KHONG doi giao dien ========= -->
+
+
+
+<!-- ========= NGUON NHA PHO V2 — Supabase Auth + DB that (KHONG doi giao dien) ========= -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
   var SB_URL="https://stwudqradlupzphgjpql.supabase.co", SB_KEY="sb_publishable_p_4oWumLc2kigVnzh8BiWg_cgVUKNL2";
   if(!window.supabase||!window.supabase.createClient){console.warn("[NNP] Chua tai duoc Supabase SDK");return;}
-  var sb=window.supabase.createClient(SB_URL,SB_KEY); window.__sb=sb;
-  function _read(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
-  async function syncUsers(){try{var users=_read("nnp_users",[]);if(!Array.isArray(users)||!users.length)return;
-    var rows=users.map(function(u){return{client_id:String(u.id||""),full_name:u.ten||null,phone:u.sdt||null,email:u.email||null,created_local:u.ngay||null};});
-    await sb.from("web_signups").upsert(rows,{onConflict:"client_id"});}catch(e){console.warn("[NNP] syncUsers",e&&e.message);}}
-  async function syncPosts(){try{var cho=_read("nnp_tinchoduyet",[]),them=_read("nnp_them",[]);var all=[].concat(cho||[],them||[]);if(!all.length)return;
-    var rows=all.map(function(p){return{client_id:String(p.id||""),owner_client:String(p.tvId||""),title:p.tieude||null,loai:p.loai||null,quan:p.quan||null,phuong:p.phuong||null,duong:p.duong||null,gia:(p.gia!=null?String(p.gia):null),dien_tich:(p.dt!=null?String(p.dt):null),contact_name:p.ten||null,contact_phone:p.sdt||null,mota:p.mota||null,status:(p.duyet?"active":"pending"),created_local:p.luc||null};});
-    await sb.from("web_posts").upsert(rows,{onConflict:"client_id"});}catch(e){console.warn("[NNP] syncPosts",e&&e.message);}}
-  var _origLuu=window.luuKho;
-  window.luuKho=function(k,v){var res=_origLuu?_origLuu.apply(this,arguments):localStorage.setItem(k,JSON.stringify(v));
-    try{if(k==="nnp_users")syncUsers();else if(k==="nnp_tinchoduyet"||k==="nnp_an"||k==="nnp_them")syncPosts();}catch(e){}return res;};
-  async function capNhatThongKe(){try{var q=await sb.from("web_posts").select("id",{count:"exact",head:true}).eq("status","active");
-    var them=(q&&typeof q.count==="number")?q.count:0;var local=(_read("nnp_them",[])||[]).length;var tong=1680+them+local;
-    document.querySelectorAll(".so-item b").forEach(function(b){if(/^\s*1\.?680/.test(b.textContent)){b.textContent=tong.toLocaleString("vi-VN")+"+";}});}catch(e){}}
-  window.addEventListener("load",function(){setTimeout(function(){syncUsers();syncPosts();capNhatThongKe();},800);});
-  console.log("[NNP] Cau noi Supabase da san sang ✓");
+  var sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
+  window.__sb=sb;
+  function $id(x){return document.getElementById(x);}
+  function val(x){var e=$id(x);return e?(e.value||"").trim():"";}
+  function bao(m){try{if(window.baoNhanh)baoNhanh(m);else console.log("[NNP]",m);}catch(e){}}
+  function laEmail(s){return /.+@.+\..+/.test(s);}
+  function sdt2email(s){return "sdt"+String(s).replace(/[^0-9]/g,"")+"@nnp.local";}
+  var PHIEN=null, HOSO=null;
+
+  async function taiHoSo(){
+    try{ if(!PHIEN){HOSO=null;return null;}
+      var q=await sb.from("profiles").select("*").eq("id",PHIEN.user.id).maybeSingle();
+      HOSO=q.data||null; return HOSO;
+    }catch(e){return null;}
+  }
+  // Cung cap tvHienTai() theo dinh dang cu de giao dien khong doi
+  window.tvHienTai=function(){
+    if(!PHIEN)return null;
+    var u=PHIEN.user, p=HOSO||{};
+    return {id:u.id, ten:(p.full_name||u.user_metadata&&u.user_metadata.full_name||""), sdt:(p.phone||""), email:(p.email||u.email||""), ngay:(u.created_at||"").slice(0,10)};
+  };
+
+  // ---- DANG KY ----
+  window.dangKyTV=async function(){
+    var ten=val("tvTen"), sdt=val("tvSDT"), email=val("tvEmail"), mk=val("tvMK");
+    if(!ten){bao("Vui long nhap ho ten");return;}
+    if(!/^0\d{9}$/.test(sdt.replace(/\s/g,""))){bao("So dien thoai chua hop le (VD: 0987654321)");return;}
+    if(mk.length<6){bao("Mat khau can toi thieu 6 ky tu");return;}
+    var authEmail = laEmail(email)? email : sdt2email(sdt);
+    try{
+      var r=await sb.auth.signUp({email:authEmail,password:mk,options:{data:{full_name:ten,phone:sdt}}});
+      if(r.error){ bao(r.error.message.match(/already/i)?"Tai khoan da ton tai — moi anh/chi dang nhap":("Loi: "+r.error.message)); return; }
+      // luu ho so
+      if(r.data&&r.data.user){
+        try{ await sb.from("profiles").upsert({id:r.data.user.id,full_name:ten,phone:sdt,email:(laEmail(email)?email:null)},{onConflict:"id"}); }catch(e){}
+      }
+      if(r.data&&r.data.session){ PHIEN=r.data.session; await taiHoSo(); bao("Chao mung "+ten+"! Tai khoan da tao xong."); }
+      else { bao("Da tao tai khoan! Neu he thong yeu cau xac nhan email, vui long kiem tra hop thu roi dang nhap."); }
+      try{capNhatNutQT&&capNhatNutQT();}catch(e){}
+      try{veTaiKhoan&&veTaiKhoan();}catch(e){}
+    }catch(e){ bao("Loi dang ky: "+(e&&e.message||e)); }
+  };
+
+  // ---- DANG NHAP ----
+  window.dangNhapTV=async function(){
+    var id=val("tvSDT"), mk=val("tvMK");
+    if(!id||!mk){bao("Nhap so dien thoai/email va mat khau");return;}
+    var authEmail = laEmail(id)? id : sdt2email(id);
+    try{
+      var r=await sb.auth.signInWithPassword({email:authEmail,password:mk});
+      if(r.error){ bao("Sai so dien thoai/email hoac mat khau"); return; }
+      PHIEN=r.data.session; await taiHoSo();
+      bao("Chao "+((HOSO&&HOSO.full_name)||"anh/chi")+"!");
+      try{capNhatNutQT&&capNhatNutQT();}catch(e){}
+      try{veTaiKhoan&&veTaiKhoan();}catch(e){}
+    }catch(e){ bao("Loi dang nhap: "+(e&&e.message||e)); }
+  };
+
+  // ---- DANG XUAT ----
+  window.dangXuatTV=async function(){
+    try{await sb.auth.signOut();}catch(e){}
+    PHIEN=null;HOSO=null;
+    try{capNhatNutQT&&capNhatNutQT();}catch(e){}
+    try{denTrang&&denTrang("home");}catch(e){}
+    bao("Da dang xuat");
+  };
+
+  // ---- DANG TIN (tao post that, gan voi tai khoan) ----
+  var _guiTinCu=window.guiTinTV;
+  window.guiTinTV=async function(){
+    if(!PHIEN){bao("Anh/chi dang nhap de dang tin");try{veTaiKhoan&&veTaiKhoan("dangnhap");}catch(e){}return;}
+    var tieu=val("mtTieude"), gia=val("mtGia"), dt=val("mtDT");
+    if(!tieu||!gia||!dt){bao("Can toi thieu: tieu de, gia, dien tich");return;}
+    var mota=val("mtMota"), quan=val("mtQuan"), duong=val("mtDuong");
+    var diachi=[duong,val("mtPhuong"),quan].filter(Boolean).join(", ");
+    try{
+      var r=await sb.rpc("create_post",{p_title:tieu,p_description:mota,p_price:parseInt(gia.replace(/[^0-9]/g,""))||0,p_area:parseFloat(dt.replace(/[^0-9.]/g,""))||null,p_address:diachi,p_contact_name:(HOSO&&HOSO.full_name)||"",p_contact_phone:(HOSO&&HOSO.phone)||""});
+      if(r.error){ bao("Loi dang tin: "+r.error.message); return; }
+      bao("Da dang tin! Tin cua anh/chi da vao kho — cho quan tri duyet la len trang.");
+      try{veTaiKhoan&&veTaiKhoan();}catch(e){}
+    }catch(e){ bao("Loi dang tin: "+(e&&e.message||e)); }
+  };
+
+  // ---- MUA GOI: tao don that + ref_code cho SePay, giu QR cua giao dien ----
+  window.taoDonMuaGoi=async function(code){
+    if(!PHIEN){bao("Anh/chi dang nhap de mua goi");return null;}
+    try{ var r=await sb.rpc("tao_don_mua_goi",{p_code:code});
+      if(r.error){bao("Loi tao don: "+r.error.message);return null;}
+      return (r.data&&r.data[0])||null;
+    }catch(e){bao("Loi: "+(e&&e.message||e));return null;}
+  };
+
+  // ---- THONG KE tu tang ----
+  async function capThongKe(){
+    try{
+      var a=await sb.from("web_posts").select("id",{count:"exact",head:true}).eq("status","active");
+      var b=await sb.rpc("is_admin"); // no-op safe call to warm
+      var them=(a&&typeof a.count==="number")?a.count:0;
+      document.querySelectorAll(".so-item b").forEach(function(el){ if(/^\s*1\.?680/.test(el.textContent)){el.textContent=(1680+them).toLocaleString("vi-VN")+"+";} });
+    }catch(e){}
+  }
+
+  // Khoi phuc phien khi tai trang
+  (async function(){
+    try{ var s=await sb.auth.getSession(); PHIEN=(s.data&&s.data.session)||null; if(PHIEN)await taiHoSo(); }catch(e){}
+    sb.auth.onAuthStateChange(function(_e,session){ PHIEN=session; if(session){taiHoSo();} else {HOSO=null;} try{capNhatNutQT&&capNhatNutQT();}catch(e){} });
+    window.addEventListener("load",function(){ setTimeout(function(){ try{capNhatNutQT&&capNhatNutQT();}catch(e){} capThongKe(); },600); });
+    console.log("[NNP] V2 Supabase Auth san sang ✓");
+  })();
 })();
 </script>
-<!-- ========= HET CAU NOI SUPABASE ========= -->
+<!-- ========= HET NGUON NHA PHO V2 ========= -->
 
 </body>
 </html>
