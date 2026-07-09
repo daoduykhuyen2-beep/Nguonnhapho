@@ -4606,7 +4606,22 @@ sb.auth.onAuthStateChange(function(evt,session){ if(session){ refreshSession(); 
     }catch(e){}
   }
 
-  function injectDoiMK(){
+  var DEFAV = 'data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2096%2096%22%3E%3Crect%20width%3D%2296%22%20height%3D%2296%22%20fill%3D%22%23e2e8f0%22%2F%3E%3Ccircle%20cx%3D%2248%22%20cy%3D%2238%22%20r%3D%2218%22%20fill%3D%22%23b8c2cf%22%2F%3E%3Cpath%20d%3D%22M16%2084c0-17%2014-26%2032-26s32%209%2032%2026z%22%20fill%3D%22%23b8c2cf%22%2F%3E%3C%2Fsvg%3E';
+  function fixAvatar(){
+    try{
+      var img = document.getElementById('hs_avatar');
+      if(img){
+        if(!img.getAttribute('data-nnpdef')){
+          img.setAttribute('data-nnpdef','1');
+          img.addEventListener('error', function(){ if(img.src!==DEFAV) img.src = DEFAV; });
+        }
+        var s = img.getAttribute('src');
+        if(!s || s==='null' || s==='undefined' || s===''){ img.src = DEFAV; }
+      }
+    }catch(e){}
+  }
+
+    function injectDoiMK(){
     try{
       var quick = document.querySelector('.hs-quick');
       if(!quick) return;
@@ -4619,8 +4634,8 @@ sb.auth.onAuthStateChange(function(evt,session){ if(session){ refreshSession(); 
     }catch(e){}
   }
 
-  var mo = new MutationObserver(function(){ injectGoogleBtn(); injectDoiMK(); });
-  function boot(){ mo.observe(document.body, {childList:true, subtree:true}); injectGoogleBtn(); injectDoiMK(); }
+  var mo = new MutationObserver(function(){ injectGoogleBtn(); injectDoiMK(); fixAvatar(); });
+  function boot(){ mo.observe(document.body, {childList:true, subtree:true}); injectGoogleBtn(); injectDoiMK(); fixAvatar(); }
   if(document.body){ boot(); } else { document.addEventListener('DOMContentLoaded', boot); }
 })();
 </script>
