@@ -4331,9 +4331,10 @@ window.addEventListener("hashchange",theoHash);
   function buildProfilePanel(){
   var tv=readTV(); if(!tv) return;
   var host=document.getElementById('noiDungTV'); if(!host) return;
-  if(document.getElementById('nnp-hs-panel')){ paintProfile(tv); return; }
   var tier=((tv.tier||'free')+'').toUpperCase();
-  host.innerHTML=`
+  var ex=document.getElementById('nnp-hs-panel'); if(ex){ paintProfile(tv); return; }
+  var wrap=document.createElement('div');
+  wrap.innerHTML=`
 <div id="nnp-hs-panel" class="hs-wrap">
   <div class="hs-headcard">
     <div class="nnp-hs-cover" id="hs_cover">
@@ -4377,6 +4378,7 @@ window.addEventListener("hashchange",theoHash);
     </div>
   </div>
 </div>`;
+  host.insertBefore(wrap.firstElementChild, host.firstChild);
   paintProfile(tv);
 }
   var _oldVeTK=window.veTaiKhoan;
