@@ -463,7 +463,7 @@ footer{background:#171A22;color:#B9BFCE;margin-top:52px;font-size:13.5px}
 .nnp-mt-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .nnp-mt-thumb{position:relative;width:84px;height:84px;border-radius:9px;overflow:hidden;background:#e2e8f0}
 .nnp-mt-thumb img,.nnp-mt-thumb video{width:100%;height:100%;object-fit:cover}
-.nnp-mt-vid::after{content:'�';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;text-shadow:0 1px 4px rgba(0,0,0,.6);pointer-events:none}
+.nnp-mt-vid::after{content:'▶';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;text-shadow:0 1px 4px rgba(0,0,0,.6);pointer-events:none}
 .nnp-mt-x{position:absolute;top:2px;right:2px;width:20px;height:20px;line-height:18px;text-align:center;background:rgba(0,0,0,.6);color:#fff;border-radius:50%;font-size:15px;cursor:pointer}
 .nnp-mt-hint{font-size:12px;color:#64748b;margin-top:8px}
 
@@ -3756,16 +3756,16 @@ function veTaiKhoan(tab){
         <textarea id="mtMota" placeholder="Mô tả chi tiết (không ghi số nhà — vị trí chính xác trao đổi khi có khách)"></textarea>
       </div>
       <div class="nnp-mt-media">
-        <label class="nnp-mt-label">�nh &amp; Video nh� th�c t�</label>
+        <label class="nnp-mt-label">Ảnh &amp; Video nhà thực tế</label>
         <div class="nnp-mt-drop">
           <div class="nnp-mt-row">
-            <button type="button" class="nnp-mt-btn" onclick="document.getElementById('mtAnhFile').click()">=� Th�m �nh (t�i a 15)</button>
-            <button type="button" class="nnp-mt-btn" onclick="document.getElementById('mtVideoFile').click()"><� Th�m video (1)</button>
+            <button type="button" class="nnp-mt-btn" onclick="document.getElementById('mtAnhFile').click()">=📷 Thêm ảnh (tối đa 15)</button>
+            <button type="button" class="nnp-mt-btn" onclick="document.getElementById('mtVideoFile').click()"><🎬 Thêm video (1)</button>
           </div>
           <input type="file" id="mtAnhFile" accept="image/*" multiple style="display:none" onchange="nnpChonAnhTin(this)">
           <input type="file" id="mtVideoFile" accept="video/*" style="display:none" onchange="nnpChonVideoTin(this)">
           <div id="mtMediaPreview" class="nnp-mt-preview"></div>
-          <div id="mtMediaHint" class="nnp-mt-hint">�nh r� n�t, ch�p th�c t� cn nh� gi�p tin ��c duy�t nhanh &amp; nhi�u ng��i xem h�n.</div>
+          <div id="mtMediaHint" class="nnp-mt-hint">Ảnh rõ nét, chụp thực tế căn nhà giúp tin được duyệt nhanh &amp; nhiều người xem hơn.</div>
         </div>
       </div>
 
@@ -4183,12 +4183,12 @@ window.addEventListener("hashchange",theoHash);
 <script>
 (function(){
   var SB_URL="https://stwudqradlupzphgjpql.supabase.co", SB_KEY="sb_publishable_p_4oWumLc2kigVnzh8BiWg_cgVUKNL2";
-  if(!window.supabase||!window.supabase.createClient){ console.warn('supabase-js ch�a t�i'); return; }
+  if(!window.supabase||!window.supabase.createClient){ console.warn('supabase-js chưa tải'); return; }
   var sb = window.supabase.createClient(SB_URL, SB_KEY, {
     auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, storage: window.localStorage }
   });
   window.sb = sb;
-  var TIER_LABEL = { free:'', hot:'H�t th��ng', vang:'H�t V�ng', kimcuong:'Kim C��ng' };
+  var TIER_LABEL = { free:'', hot:'Hạt thường', vang:'Hạt Vàng', kimcuong:'Kim Cương' };
   var TIER_CLASS = { free:'', hot:'nnp-tier-hot', vang:'nnp-tier-vang', kimcuong:'nnp-tier-kc' };
   function q(id){ return document.getElementById(id); }
   function val(id){ var e=q(id); return e? (e.value||'').trim() : ''; }
@@ -4215,47 +4215,47 @@ window.addEventListener("hashchange",theoHash);
     if(!tv) return;
     var setTxt=function(id,v){ var e=q(id); if(e) e.textContent=v||''; };
     var setVal=function(id,v){ var e=q(id); if(e) e.value=v||''; };
-    setTxt('hs_ten',tv.ten); setTxt('hs_email',tv.email); setTxt('hs_sdt',tv.sdt||'(ch�a c�p nh�t)');
+    setTxt('hs_ten',tv.ten); setTxt('hs_email',tv.email); setTxt('hs_sdt',tv.sdt||'(chưa cập nhật)');
     setVal('hs_ten_i',tv.ten); setVal('hs_tuoi_i',tv.tuoi); setVal('hs_gioitinh_i',tv.gioitinh);
     setVal('hs_diachi_i',tv.diachi); setVal('hs_gioithieu_i',tv.gioithieu); setVal('hs_sdt_i',tv.sdt);
     var av=q('hs_avatar'); if(av&&tv.avatar) av.src=tv.avatar;
     var cv=q('hs_cover'); if(cv&&tv.cover) cv.style.backgroundImage="url('"+tv.cover+"')";
-    var tb=q('hs_tier'); if(tb) tb.innerHTML = tv.tier&&tv.tier!=='free' ? tierBadge(tv.tier) : '<span class="nnp-tier-badge">Th�nh vi�n th��ng</span>';
+    var tb=q('hs_tier'); if(tb) tb.innerHTML = tv.tier&&tv.tier!=='free' ? tierBadge(tv.tier) : '<span class="nnp-tier-badge">Thành viên thường</span>';
   }
   window.nnpPaintProfile=function(){ paintProfile(readTV()); };
   async function uploadAnh(file,kind){
-    var tv=readTV(); if(!tv){ alert('B�n c�n ng nh�p'); return null; }
+    var tv=readTV(); if(!tv){ alert('Bạn cần đăng nhập'); return null; }
     var ext=(file.name.split('.').pop()||'jpg').toLowerCase();
     var path=tv.id+'/'+kind+'_'+Date.now()+'.'+ext;
     var up=await sb.storage.from('avatars').upload(path,file,{upsert:true,cacheControl:'3600'});
-    if(up.error){ alert('L�i t�i �nh: '+up.error.message); return null; }
+    if(up.error){ alert('Lỗi tải ảnh: '+up.error.message); return null; }
     return sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
   }
   window.nnpChonAvatar=async function(input){ if(!input.files||!input.files[0])return; var url=await uploadAnh(input.files[0],'avatar'); if(!url)return; await sb.from('profiles').update({avatar_url:url}).eq('id',readTV().id); await refreshSession(); };
   window.nnpChonCover=async function(input){ if(!input.files||!input.files[0])return; var url=await uploadAnh(input.files[0],'cover'); if(!url)return; await sb.from('profiles').update({cover_url:url}).eq('id',readTV().id); await refreshSession(); };
   window.nnpLuuHoSo=async function(){
-    var tv=readTV(); if(!tv){ alert('B�n c�n ng nh�p'); return; }
+    var tv=readTV(); if(!tv){ alert('Bạn cần đăng nhập'); return; }
     var upd={ full_name:val('hs_ten_i')||tv.ten, age:(val('hs_tuoi_i')?parseInt(val('hs_tuoi_i'),10):null), gender:val('hs_gioitinh_i'), address:val('hs_diachi_i'), bio:val('hs_gioithieu_i'), phone:val('hs_sdt_i') };
     var r=await sb.from('profiles').update(upd).eq('id',tv.id);
-    if(r.error){ alert('L�i l�u: '+r.error.message); return; }
-    await refreshSession(); alert('� l�u th�ng tin c� nh�n!');
+    if(r.error){ alert('Lỗi lưu: '+r.error.message); return; }
+    await refreshSession(); alert('✅ Đã lưu thông tin cá nhân!');
   };
   window.dangKyTV=async function(){
     var ten=val('tvTen'),email=val('tvEmail'),sdt=val('tvSDT'),mk=val('tvMK');
-    if(!ten){ alert('Vui l�ng nh�p h� t�n'); return; }
-    if(!isEmail(email)){ alert('Vui l�ng nh�p Gmail/email h�p l� (b�t bu�c)'); return; }
-    if(!mk||mk.length<6){ alert('M�t kh�u t�i thi�u 6 k� t�'); return; }
+    if(!ten){ alert('Vui lòng nhập họ tên'); return; }
+    if(!isEmail(email)){ alert('Vui lòng nhập Gmail/email hợp lệ (bắt buộc)'); return; }
+    if(!mk||mk.length<6){ alert('Mật khẩu tối thiểu 6 ký tự'); return; }
     var r=await sb.auth.signUp({ email:email, password:mk, options:{ data:{ full_name:ten, phone:sdt } } });
-    if(r.error){ alert('L�i ng k�: '+r.error.message); return; }
+    if(r.error){ alert('Lỗi đăng ký: '+r.error.message); return; }
     try{ await sb.from('profiles').upsert({ id:r.data.user.id, full_name:ten, phone:sdt, email:email }); }catch(e){}
-    if(!r.data.session){ alert('ng k� th�nh c�ng! Vui l�ng m� Gmail v� b�m link x�c nh�n, sau � ng nh�p.'); }
-    else{ await refreshSession(); alert('ng k� & ng nh�p th�nh c�ng!'); }
+    if(!r.data.session){ alert('đăng ký thành công! Vui lòng mở Gmail và bấm link xác nhận, sau đó đăng nhập.'); }
+    else{ await refreshSession(); alert('đăng ký & đăng nhập thành công!'); }
   };
   window.dangNhapTV=async function(){
-    // �u ti�n EMAIL (b�t bu�c khi ng k�); ST ch� l� ph�
+    // ưu tiên EMAIL (bắt buộc khi đăng ký); SĐT chỉ là phụ
     var email=val('tvEmail'), sdt=val('tvSDT'), mk=val('tvMK');
     var dinhdanh = email || sdt;
-    if(!dinhdanh || !mk){ alert('Vui l�ng nh�p Email (ho�c ST) v� m�t kh�u'); return; }
+    if(!dinhdanh || !mk){ alert('Vui lòng nhập Email (hoặc SĐT) và mật khẩu'); return; }
     var loginEmail = email;
     if(!isEmail(loginEmail)){
       var idf = email || sdt;
@@ -4264,25 +4264,25 @@ window.addEventListener("hashchange",theoHash);
         try{ var pr=await sb.from('profiles').select('email').eq('phone', idf).limit(1).single(); if(pr.data&&pr.data.email) loginEmail=pr.data.email; }catch(e){}
       }
     }
-    if(!isEmail(loginEmail)){ alert('Kh�ng t�m th�y t�i kho�n. Vui l�ng ng nh�p b�ng Email � ng k�.'); return; }
+    if(!isEmail(loginEmail)){ alert('Không tìm thấy tài khoản. Vui lòng đăng nhập bằng Email hoặc đăng ký.'); return; }
     var r=await sb.auth.signInWithPassword({ email:loginEmail, password:mk });
     if(r.error){
       var msg=(r.error.message||'').toLowerCase();
       if(msg.indexOf('not confirmed')>=0 || msg.indexOf('confirm')>=0){
-        alert('T�i kho�n ch�a x�c nh�n Email. Vui l�ng m� Gmail v� b�m link x�c nh�n tr��c khi ng nh�p.');
+        alert('Tài khoản chưa xác nhận Email. Vui lòng mở Gmail và bấm link xác nhận trước khi đăng nhập.');
       }else{
-        alert('Sai Email ho�c m�t kh�u. Vui l�ng th� l�i.');
+        alert('Sai Email hoặc mật khẩu. Vui lòng thử lại.');
       }
       return;
     }
     await refreshSession();
-    alert('ng nh�p th�nh c�ng!');
+    alert('đăng nhập thành công!');
   };
-  window.dangXuatTV=async function(){ await sb.auth.signOut(); clearTV(); paintUI(null); alert('� ng xu�t.'); };
+  window.dangXuatTV=async function(){ await sb.auth.signOut(); clearTV(); paintUI(null); alert('✅ Đã đăng xuất.'); };
   window.nnpMuaGoi=async function(code){
-    var tv=readTV(); if(!tv){ alert('B�n c�n ng nh�p tr��c khi mua g�i'); return null; }
+    var tv=readTV(); if(!tv){ alert('Bạn cần đăng nhập trước khi mua gói'); return null; }
     var r=await sb.rpc('tao_don_mua_goi',{ p_code:code });
-    if(r.error){ alert('L�i t�o �n: '+r.error.message); return null; }
+    if(r.error){ alert('Lỗi tạo đơn: '+r.error.message); return null; }
     return (r.data&&r.data[0])||r.data;
   };
   window.nnpGanBadgeBaiViet=function(container){
@@ -4294,20 +4294,20 @@ window.addEventListener("hashchange",theoHash);
     if(document.getElementById('nnp-hs-panel')){ paintProfile(tv); return; }
     var anchor=(document.querySelector('#trangTK, .man-taikhoan, [data-screen="taikhoan"]') ||
       (function(){ var c=document.querySelectorAll('.man, section, div');
-        for(var i=0;i<c.length;i++){ var el=c[i]; if(el.offsetParent!==null && /Th�ng tin c� nh�n|T�i kho�n c�a t�i|t�i kho�n/.test(el.textContent||'') && el.children.length<40){ return el; } } return document.body; })());
+        for(var i=0;i<c.length;i++){ var el=c[i]; if(el.offsetParent!==null && /Thông tin cá nhân|Tài khoản của tôi|tài khoản/.test(el.textContent||'') && el.children.length<40){ return el; } } return document.body; })());
     if(!anchor) return;
     var wrap=document.createElement('div'); wrap.id='nnp-hs-panel';
     wrap.style.cssText='max-width:720px;margin:16px auto;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px';
-    wrap.innerHTML='<div class="nnp-hs-cover" id="hs_cover"><img class="nnp-hs-avatar" id="hs_avatar" alt="avatar"><button class="nnp-hs-cambtn" type="button" onclick="document.getElementById(\'hs_cover_file\').click()">�i �nh b�a</button><input type="file" id="hs_cover_file" accept="image/*" style="display:none" onchange="nnpChonCover(this)"></div>'+
-      '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><div><h3 style="margin:0" id="hs_ten"></h3><div style="color:#64748b;font-size:13px"><span id="hs_email"></span> � <span id="hs_sdt"></span></div></div><span id="hs_tier"></span><button class="nnp-hs-cambtn" style="position:static;background:#334155" type="button" onclick="document.getElementById(\'hs_avatar_file\').click()">�i �nh �i di�n</button><input type="file" id="hs_avatar_file" accept="image/*" style="display:none" onchange="nnpChonAvatar(this)"></div>'+
-      '<div class="nnp-hs-grid"><div><label>H� t�n</label><input id="hs_ten_i"></div><div><label>Tu�i</label><input id="hs_tuoi_i" type="number" min="1" max="120"></div><div><label>Gi�i t�nh</label><input id="hs_gioitinh_i" placeholder="Nam/N�/Kh�c"></div><div><label>S� i�n tho�i</label><input id="hs_sdt_i"></div><div class="nnp-hs-full"><label>�a ch�</label><input id="hs_diachi_i"></div><div class="nnp-hs-full"><label>Gi�i thi�u</label><textarea id="hs_gioithieu_i" rows="3"></textarea></div></div>'+
-      '<button class="nnp-hs-save" type="button" onclick="nnpLuuHoSo()">L�u th�ng tin</button>';
+    wrap.innerHTML='<div class="nnp-hs-cover" id="hs_cover"><img class="nnp-hs-avatar" id="hs_avatar" alt="avatar"><button class="nnp-hs-cambtn" type="button" onclick="document.getElementById(\'hs_cover_file\').click()">Đổi ảnh bìa</button><input type="file" id="hs_cover_file" accept="image/*" style="display:none" onchange="nnpChonCover(this)"></div>'+
+      '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><div><h3 style="margin:0" id="hs_ten"></h3><div style="color:#64748b;font-size:13px"><span id="hs_email"></span> • <span id="hs_sdt"></span></div></div><span id="hs_tier"></span><button class="nnp-hs-cambtn" style="position:static;background:#334155" type="button" onclick="document.getElementById(\'hs_avatar_file\').click()">Đổi ảnh đại diện</button><input type="file" id="hs_avatar_file" accept="image/*" style="display:none" onchange="nnpChonAvatar(this)"></div>'+
+      '<div class="nnp-hs-grid"><div><label>Họ tên</label><input id="hs_ten_i"></div><div><label>Tuổi</label><input id="hs_tuoi_i" type="number" min="1" max="120"></div><div><label>Giới tính</label><input id="hs_gioitinh_i" placeholder="Nam/Nữ/Khác"></div><div><label>Số điện thoạii</label><input id="hs_sdt_i"></div><div class="nnp-hs-full"><label>Địa chỉ</label><input id="hs_diachi_i"></div><div class="nnp-hs-full"><label>Giới thiệu</label><textarea id="hs_gioithieu_i" rows="3"></textarea></div></div>'+
+      '<button class="nnp-hs-save" type="button" onclick="nnpLuuHoSo()">Lưu thông tin</button>';
     anchor.appendChild(wrap); paintProfile(tv);
   }
   var _oldVeTK=window.veTaiKhoan;
   window.veTaiKhoan=function(){ var r; try{ if(typeof _oldVeTK==='function') r=_oldVeTK.apply(this,arguments); }catch(e){} setTimeout(buildProfilePanel,60); return r; };
   
-  // ===== ng tin: t�i �nh & video nh� th�c t� =====
+  // ===== ng tin: tĐổi ảnh & video nhà thực tế =====
   window.__nnpTinAnh = [];
   window.__nnpTinVideo = null;
   function renderMediaPreview(){
@@ -4316,13 +4316,13 @@ window.addEventListener("hashchange",theoHash);
     (window.__nnpTinAnh||[]).forEach(function(f,idx){
       var url=URL.createObjectURL(f);
       var d=document.createElement('div'); d.className='nnp-mt-thumb';
-      d.innerHTML='<img src="'+url+'"><span class="nnp-mt-x" onclick="nnpXoaAnhTin('+idx+')">�</span>';
+      d.innerHTML='<img src="'+url+'"><span class="nnp-mt-x" onclick="nnpXoaAnhTin('+idx+')">📷</span>';
       box.appendChild(d);
     });
     if(window.__nnpTinVideo){
       var vurl=URL.createObjectURL(window.__nnpTinVideo);
       var dv=document.createElement('div'); dv.className='nnp-mt-thumb nnp-mt-vid';
-      dv.innerHTML='<video src="'+vurl+'" muted></video><span class="nnp-mt-x" onclick="nnpXoaVideoTin()">�</span>';
+      dv.innerHTML='<video src="'+vurl+'" muted></video><span class="nnp-mt-x" onclick="nnpXoaVideoTin()">📷</span>';
       box.appendChild(dv);
     }
   }
@@ -4333,7 +4333,7 @@ window.addEventListener("hashchange",theoHash);
   };
   window.nnpChonVideoTin=function(input){
     var f=input.files&&input.files[0]; if(!f) return;
-    if(f.size>50*1024*1024){ alert('Video t�i a 50MB'); input.value=''; return; }
+    if(f.size>50*1024*1024){ alert('Video tải a 50MB'); input.value=''; return; }
     window.__nnpTinVideo=f; input.value=''; renderMediaPreview();
   };
   window.nnpXoaAnhTin=function(i){ window.__nnpTinAnh.splice(i,1); renderMediaPreview(); };
@@ -4359,25 +4359,25 @@ window.addEventListener("hashchange",theoHash);
     return {anh:anhUrls, video:videoUrl};
   }
   var _oldGuiTin=window.guiTinTV;
-  // ===== V3: ng tin l�n M�Y CH� (create_post RPC) + ki�m duy�t =====
+  // ===== V3: đăng tin lên MÁY CHỦ (create_post RPC) + kiểm duyệt =====
   function mapCategory(txt){
     if(!txt) return 1;
     var s=(''+txt).toLowerCase();
-    if(s.indexOf('m�t ti�n')>=0||s.indexOf('mat tien')>=0) return 2;
-    if(s.indexOf('bi�t th�')>=0||s.indexOf('villa')>=0) return 3;
-    if(s.indexOf('tr�')>=0||s.indexOf('tro')>=0||s.indexOf('ph�ng')>=0) return 4;
-    if(s.indexOf('�t')>=0||s.indexOf('dat nen')>=0||s.indexOf('n�n')>=0) return 5;
-    if(s.indexOf('cn h�')>=0||s.indexOf('chung c�')>=0||s.indexOf('can ho')>=0) return 6;
+    if(s.indexOf('mặt tiền')>=0||s.indexOf('mat tien')>=0) return 2;
+    if(s.indexOf('biệt thự')>=0||s.indexOf('villa')>=0) return 3;
+    if(s.indexOf('trọ')>=0||s.indexOf('tro')>=0||s.indexOf('phòng')>=0) return 4;
+    if(s.indexOf('đất')>=0||s.indexOf('dat nen')>=0||s.indexOf('nền')>=0) return 5;
+    if(s.indexOf('căn hộ')>=0||s.indexOf('chung cư')>=0||s.indexOf('can ho')>=0) return 6;
     return 1;
   }
   window.guiTinTV=async function(){
     var tv=readTV();
-    if(!tv){ alert('B�n c�n NG NH�P � ng tin (d� li�u l�u tr�n m�y ch�).'); return; }
+    if(!tv){ alert('Bạn cần ĐĂNG NHẬP để đăng tin (dữ liệu lưu trên máy chủ).'); return; }
     var media={anh:[],video:''};
     var hasMedia=(window.__nnpTinAnh&&window.__nnpTinAnh.length)||window.__nnpTinVideo;
     if(hasMedia){ try{ media=await uploadTinMedia(); }catch(e){ console.warn('media',e); } }
     var tieude=val('mtTieude'), mota=val('mtMota');
-    if(!tieude){ alert('Vui l�ng nh�p ti�u � tin'); return; }
+    if(!tieude){ alert('Vui lòng nhập tiêu đề tin'); return; }
     var gia=parseFloat(val('mtGia')||'0')||0;
     var dt=parseFloat(val('mtDT')||'0')||0;
     var loai=val('mtLoai');
@@ -4392,36 +4392,36 @@ window.addEventListener("hashchange",theoHash);
       p_video_url:media.video||null
     };
     var r=await sb.rpc('create_post', args);
-    if(r.error){ alert('L�i ng tin: '+r.error.message); return; }
+    if(r.error){ alert('Lỗi đăng tin: '+r.error.message); return; }
     try{ if(typeof _oldGuiTin==='function') _oldGuiTin.apply(this,arguments); }catch(e){}
     window.__nnpTinAnh=[]; window.__nnpTinVideo=null; try{ renderMediaPreview(); }catch(e){}
-    alert('ng tin th�nh c�ng! Tin c�a b�n ang CH� DUY�T, admin s� duy�t s�m.');
+    alert('đăng tin thành công! Tin của bạn đang CHỜ DUYỆT, admin sẽ duyệt sớm.');
   };
   window.nnpTaiTinChoDuyet=async function(){
     var tv=readTV(); if(!tv||!tv.is_admin){ return; }
     var box=document.getElementById('nnp-admin-duyet'); if(!box) return;
     var r=await sb.from('posts').select('id,title,price,address,status,cover_image,created_at').eq('status','pending').order('created_at',{ascending:false});
-    if(r.error){ box.innerHTML='L�i t�i tin: '+r.error.message; return; }
+    if(r.error){ box.innerHTML='Lỗi tải tin: '+r.error.message; return; }
     var rows=r.data||[];
-    if(!rows.length){ box.innerHTML='<div style="padding:12px;color:#64748b">Kh�ng c� tin ch� duy�t.</div>'; return; }
+    if(!rows.length){ box.innerHTML='<div style="padding:12px;color:#64748b">Không có tin chờ duyệt.</div>'; return; }
     box.innerHTML=rows.map(function(p){
-      return '<div class="nnp-duyet-item"><img src="'+(p.cover_image||'')+'" onerror="this.style.visibility=\'hidden\'"><div class="nnp-duyet-info"><b>'+(p.title||'(kh�ng ti�u �)')+'</b><div>'+(p.address||'')+' � '+((p.price||0)/1000000000)+' t�</div></div><div class="nnp-duyet-act"><button class="nnp-duyet-ok" onclick="nnpDuyet('+p.id+',true)">Duy�t</button><button class="nnp-duyet-no" onclick="nnpDuyet('+p.id+',false)">T� ch�i</button></div></div>';
+      return '<div class="nnp-duyet-item"><img src="'+(p.cover_image||'')+'" onerror="this.style.visibility=\'hidden\'"><div class="nnp-duyet-info"><b>'+(p.title||'(không tiêu đề)')+'</b><div>'+(p.address||'')+' • '+((p.price||0)/1000000000)+' tỷ</div></div><div class="nnp-duyet-act"><button class="nnp-duyet-ok" onclick="nnpDuyet('+p.id+',true)">Duyệt</button><button class="nnp-duyet-no" onclick="nnpDuyet('+p.id+',false)">Từ chối</button></div></div>';
     }).join('');
   };
   window.nnpDuyet=async function(id, ok){
     var r=await sb.rpc(ok?'duyet_tin':'tu_choi_tin', { p_post_id:id });
-    if(r.error){ alert('L�i: '+r.error.message); return; }
+    if(r.error){ alert('Lỗi: '+r.error.message); return; }
     await window.nnpTaiTinChoDuyet();
   };
   function nnpGanNutAdmin(){
     var tv=readTV(); if(!tv||!tv.is_admin) return;
     if(document.getElementById('nnp-admin-fab')) return;
-    var fab=document.createElement('button'); fab.id='nnp-admin-fab'; fab.textContent='=� Duy�t tin';
+    var fab=document.createElement('button'); fab.id='nnp-admin-fab'; fab.textContent='🛡️ Duyệt tin';
     fab.onclick=function(){
       var m=document.getElementById('nnp-admin-modal');
       if(!m){
         m=document.createElement('div'); m.id='nnp-admin-modal';
-        m.innerHTML='<div class="nnp-admin-card"><div class="nnp-admin-head"><b>Duy�t tin (Admin)</b><span onclick="document.getElementById(\'nnp-admin-modal\').style.display=\'none\'" style="cursor:pointer"></span></div><div id="nnp-admin-duyet">ang t�i...</div></div>';
+        m.innerHTML='<div class="nnp-admin-card"><div class="nnp-admin-head"><b>Duyệt tin (Admin)</b><span onclick="document.getElementById(\'nnp-admin-modal\').style.display=\'none\'" style="cursor:pointer"></span></div><div id="nnp-admin-duyet">đang tải...</div></div>';
         document.body.appendChild(m);
       }
       m.style.display='flex'; window.nnpTaiTinChoDuyet();
