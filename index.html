@@ -466,6 +466,18 @@ footer{background:#171A22;color:#B9BFCE;margin-top:52px;font-size:13.5px}
 .nnp-mt-vid::after{content:'�';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;text-shadow:0 1px 4px rgba(0,0,0,.6);pointer-events:none}
 .nnp-mt-x{position:absolute;top:2px;right:2px;width:20px;height:20px;line-height:18px;text-align:center;background:rgba(0,0,0,.6);color:#fff;border-radius:50%;font-size:15px;cursor:pointer}
 .nnp-mt-hint{font-size:12px;color:#64748b;margin-top:8px}
+
+#nnp-admin-fab{position:fixed;right:18px;bottom:18px;z-index:9998;background:#2563eb;color:#fff;border:none;border-radius:999px;padding:12px 18px;font-weight:700;font-size:15px;box-shadow:0 6px 20px rgba(37,99,235,.4);cursor:pointer}
+#nnp-admin-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.55);align-items:center;justify-content:center;padding:16px}
+.nnp-admin-card{background:#fff;border-radius:16px;max-width:640px;width:100%;max-height:82vh;overflow:auto;padding:16px}
+.nnp-admin-head{display:flex;justify-content:space-between;align-items:center;font-size:18px;margin-bottom:12px;border-bottom:1px solid #e2e8f0;padding-bottom:10px}
+.nnp-duyet-item{display:flex;gap:12px;align-items:center;padding:10px;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:8px}
+.nnp-duyet-item img{width:64px;height:64px;object-fit:cover;border-radius:8px;background:#f1f5f9}
+.nnp-duyet-info{flex:1;min-width:0;font-size:14px}
+.nnp-duyet-info div{color:#64748b;font-size:13px}
+.nnp-duyet-act{display:flex;gap:6px}
+.nnp-duyet-ok{background:#16a34a;color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:600}
+.nnp-duyet-no{background:#ef4444;color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:600}
 </style>
 </head>
 <body>
@@ -4347,24 +4359,77 @@ window.addEventListener("hashchange",theoHash);
     return {anh:anhUrls, video:videoUrl};
   }
   var _oldGuiTin=window.guiTinTV;
+  // ===== V3: ng tin l�n M�Y CH� (create_post RPC) + ki�m duy�t =====
+  function mapCategory(txt){
+    if(!txt) return 1;
+    var s=(''+txt).toLowerCase();
+    if(s.indexOf('m�t ti�n')>=0||s.indexOf('mat tien')>=0) return 2;
+    if(s.indexOf('bi�t th�')>=0||s.indexOf('villa')>=0) return 3;
+    if(s.indexOf('tr�')>=0||s.indexOf('tro')>=0||s.indexOf('ph�ng')>=0) return 4;
+    if(s.indexOf('�t')>=0||s.indexOf('dat nen')>=0||s.indexOf('n�n')>=0) return 5;
+    if(s.indexOf('cn h�')>=0||s.indexOf('chung c�')>=0||s.indexOf('can ho')>=0) return 6;
+    return 1;
+  }
   window.guiTinTV=async function(){
-    var hasMedia=(window.__nnpTinAnh&&window.__nnpTinAnh.length)||window.__nnpTinVideo;
+    var tv=readTV();
+    if(!tv){ alert('B�n c�n NG NH�P � ng tin (d� li�u l�u tr�n m�y ch�).'); return; }
     var media={anh:[],video:''};
-    if(hasMedia){ try{ media=await uploadTinMedia(); }catch(e){ console.warn('media upload err',e); } }
-    var before=0; try{ before=(JSON.parse(localStorage.getItem('nnp_tinchoduyet')||'[]')).length; }catch(e){}
-    var r; try{ if(typeof _oldGuiTin==='function') r=_oldGuiTin.apply(this,arguments); }catch(e){ console.warn(e); }
-    try{
-      var list=JSON.parse(localStorage.getItem('nnp_tinchoduyet')||'[]');
-      if(list.length>before){
-        var last=list[list.length-1];
-        last.anh=media.anh; last.video=media.video;
-        localStorage.setItem('nnp_tinchoduyet', JSON.stringify(list));
-        if(typeof window.luuKho==='function') window.luuKho();
-      }
-    }catch(e){ console.warn('patch media err',e); }
+    var hasMedia=(window.__nnpTinAnh&&window.__nnpTinAnh.length)||window.__nnpTinVideo;
+    if(hasMedia){ try{ media=await uploadTinMedia(); }catch(e){ console.warn('media',e); } }
+    var tieude=val('mtTieude'), mota=val('mtMota');
+    if(!tieude){ alert('Vui l�ng nh�p ti�u � tin'); return; }
+    var gia=parseFloat(val('mtGia')||'0')||0;
+    var dt=parseFloat(val('mtDT')||'0')||0;
+    var loai=val('mtLoai');
+    var quan=val('mtQuan'), phuong=val('mtPhuong'), duong=val('mtDuong');
+    var diachi=[duong,phuong,quan].filter(Boolean).join(', ');
+    var args={
+      p_title:tieude, p_description:mota, p_price:Math.round(gia*1000000000),
+      p_area:dt, p_bedrooms:0, p_bathrooms:0, p_address:diachi,
+      p_category_id:mapCategory(loai), p_location_id:1,
+      p_images:media.anh, p_cover_image:(media.anh&&media.anh[0])||null,
+      p_contact_name:tv.ten, p_contact_phone:tv.sdt||'',
+      p_video_url:media.video||null
+    };
+    var r=await sb.rpc('create_post', args);
+    if(r.error){ alert('L�i ng tin: '+r.error.message); return; }
+    try{ if(typeof _oldGuiTin==='function') _oldGuiTin.apply(this,arguments); }catch(e){}
     window.__nnpTinAnh=[]; window.__nnpTinVideo=null; try{ renderMediaPreview(); }catch(e){}
-    return r;
+    alert('ng tin th�nh c�ng! Tin c�a b�n ang CH� DUY�T, admin s� duy�t s�m.');
   };
+  window.nnpTaiTinChoDuyet=async function(){
+    var tv=readTV(); if(!tv||!tv.is_admin){ return; }
+    var box=document.getElementById('nnp-admin-duyet'); if(!box) return;
+    var r=await sb.from('posts').select('id,title,price,address,status,cover_image,created_at').eq('status','pending').order('created_at',{ascending:false});
+    if(r.error){ box.innerHTML='L�i t�i tin: '+r.error.message; return; }
+    var rows=r.data||[];
+    if(!rows.length){ box.innerHTML='<div style="padding:12px;color:#64748b">Kh�ng c� tin ch� duy�t.</div>'; return; }
+    box.innerHTML=rows.map(function(p){
+      return '<div class="nnp-duyet-item"><img src="'+(p.cover_image||'')+'" onerror="this.style.visibility=\'hidden\'"><div class="nnp-duyet-info"><b>'+(p.title||'(kh�ng ti�u �)')+'</b><div>'+(p.address||'')+' � '+((p.price||0)/1000000000)+' t�</div></div><div class="nnp-duyet-act"><button class="nnp-duyet-ok" onclick="nnpDuyet('+p.id+',true)">Duy�t</button><button class="nnp-duyet-no" onclick="nnpDuyet('+p.id+',false)">T� ch�i</button></div></div>';
+    }).join('');
+  };
+  window.nnpDuyet=async function(id, ok){
+    var r=await sb.rpc(ok?'duyet_tin':'tu_choi_tin', { p_post_id:id });
+    if(r.error){ alert('L�i: '+r.error.message); return; }
+    await window.nnpTaiTinChoDuyet();
+  };
+  function nnpGanNutAdmin(){
+    var tv=readTV(); if(!tv||!tv.is_admin) return;
+    if(document.getElementById('nnp-admin-fab')) return;
+    var fab=document.createElement('button'); fab.id='nnp-admin-fab'; fab.textContent='=� Duy�t tin';
+    fab.onclick=function(){
+      var m=document.getElementById('nnp-admin-modal');
+      if(!m){
+        m=document.createElement('div'); m.id='nnp-admin-modal';
+        m.innerHTML='<div class="nnp-admin-card"><div class="nnp-admin-head"><b>Duy�t tin (Admin)</b><span onclick="document.getElementById(\'nnp-admin-modal\').style.display=\'none\'" style="cursor:pointer"></span></div><div id="nnp-admin-duyet">ang t�i...</div></div>';
+        document.body.appendChild(m);
+      }
+      m.style.display='flex'; window.nnpTaiTinChoDuyet();
+    };
+    document.body.appendChild(fab);
+  }
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(nnpGanNutAdmin, 800); });
+  setTimeout(nnpGanNutAdmin, 1500);
 sb.auth.onAuthStateChange(function(evt,session){ if(session){ refreshSession(); } else { clearTV(); paintUI(null); } });
   document.addEventListener('DOMContentLoaded', function(){ refreshSession(); });
   refreshSession();
