@@ -479,6 +479,42 @@ footer{background:#171A22;color:#B9BFCE;margin-top:52px;font-size:13.5px}
 .nnp-duyet-ok{background:#16a34a;color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:600}
 .nnp-duyet-no{background:#ef4444;color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:600}
 </style>
+<style id="nnp-hs-style">
+.hs-wrap{max-width:1080px;margin:0 auto;padding:8px 0 40px}
+.hs-headcard{position:relative;background:#fff;border:1px solid #eceff3;border-radius:16px;box-shadow:0 2px 14px rgba(20,30,50,.06);padding:0 24px 22px;margin-bottom:22px}
+.nnp-hs-cover{height:170px;border-radius:14px 14px 0 0;margin:0 -24px 0;background:#e2e8f0 center/cover no-repeat;position:relative}
+.hs-avatarwrap{position:relative;width:112px;height:112px;margin:-56px auto 8px;left:0}
+.nnp-hs-avatar{width:112px;height:112px;border-radius:50%;object-fit:cover;border:4px solid #fff;background:#cbd5e1;box-shadow:0 2px 10px rgba(0,0,0,.12);display:block}
+.nnp-hs-cambtn{position:absolute;border:0;cursor:pointer;background:rgba(17,24,39,.72);color:#fff;font-size:12px;font-weight:600;border-radius:8px;padding:6px 10px;line-height:1}
+.hs-cam-cover{right:14px;bottom:12px}
+.hs-cam-ava{right:2px;bottom:6px;border-radius:50%;width:32px;height:32px;padding:0;font-size:14px}
+.hs-idbox{text-align:center}
+.hs-idbox h2{margin:2px 0 4px;font-size:22px;font-weight:800;color:#0f172a}
+.hs-sub{color:#64748b;font-size:14px;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}
+.hs-dot{opacity:.5}
+.hs-tierbadge{display:inline-block;margin-top:10px;background:linear-gradient(90deg,#f59e0b,#ef4444);color:#fff;font-weight:700;font-size:12px;letter-spacing:.5px;padding:5px 14px;border-radius:999px}
+.hs-logout{position:absolute;top:184px;right:24px;background:#fff;border:1px solid #e2e8f0;color:#ef4444;font-weight:700;font-size:13px;border-radius:10px;padding:8px 16px;cursor:pointer}
+.hs-logout:hover{background:#fef2f2}
+.hs-body{display:grid;grid-template-columns:1fr 320px;gap:22px;align-items:start}
+.hs-card{background:#fff;border:1px solid #eceff3;border-radius:16px;box-shadow:0 2px 14px rgba(20,30,50,.05);padding:20px 22px;margin-bottom:22px}
+.hs-card-h{font-size:16px;font-weight:800;color:#0f172a;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f1f5f9}
+.nnp-hs-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
+.nnp-hs-grid .fld{display:flex;flex-direction:column;gap:6px}
+.nnp-hs-grid .fld-full{grid-column:1/-1}
+.nnp-hs-grid label{font-size:13px;font-weight:600;color:#475569}
+.nnp-hs-grid input,.nnp-hs-grid select,.nnp-hs-grid textarea{width:100%;border:1px solid #dbe2ea;border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;background:#fff;box-sizing:border-box;color:#0f172a}
+.nnp-hs-grid input:focus,.nnp-hs-grid select:focus,.nnp-hs-grid textarea:focus{outline:none;border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.12)}
+.nnp-hs-grid textarea{resize:vertical;min-height:72px}
+.hs-actions{margin-top:18px;text-align:right}
+.hs-save{background:linear-gradient(90deg,#ef4444,#dc2626);color:#fff;border:0;font-weight:700;font-size:14px;border-radius:10px;padding:11px 26px;cursor:pointer;box-shadow:0 2px 8px rgba(239,68,68,.25)}
+.hs-save:hover{filter:brightness(1.05)}
+.hs-quick .hs-card-h{margin-bottom:12px}
+.hs-qitem{display:flex;align-items:center;gap:10px;padding:12px 12px;border-radius:10px;color:#0f172a;text-decoration:none;font-weight:600;font-size:14px;transition:background .15s}
+.hs-qitem span{font-size:18px;width:24px;text-align:center}
+.hs-qitem:hover{background:#f8fafc}
+.hs-qitem+.hs-qitem{border-top:1px solid #f1f5f9}
+@media(max-width:860px){.hs-body{grid-template-columns:1fr}.nnp-hs-grid{grid-template-columns:1fr}.hs-logout{position:static;display:block;margin:12px auto 0}}
+</style>
 </head>
 <body>
 
@@ -3802,10 +3838,10 @@ function veTaiKhoan(tab){
     <button class="nut nut-do" style="width:100%;justify-content:center" onclick="dangKyTV()">Tạo tài khoản</button>`
     :`
     <input id="tvLoginEmail" type="email" placeholder="Email (Gmail) *" autocomplete="email" onkeydown="if(event.key==='Enter')dangNhapTV()">
-    <input id="tvLoginSDT" type="tel" placeholder="Số điện thoại (dự phòng, không bắt buộc)" autocomplete="tel">
+    
     <input id="tvLoginMK" type="password" placeholder="Mật khẩu" autocomplete="current-password" onkeydown="if(event.key==='Enter')dangNhapTV()">
     <button class="nut nut-do" style="width:100%;justify-content:center" onclick="dangNhapTV()">Đăng nhập</button><p style="margin-top:12px;font-size:12.5px;text-align:center"><a href="#" style="color:var(--do);font-weight:700" onclick="quenMK();return false">Quên mật khẩu?</a></p>`}
-    <p style="margin-top:14px;font-size:11.5px;text-align:center"><a href="#" style="color:var(--xam)" onclick="denTrang('dangnhap');return false">Đăng nhập quản trị viên →</a></p>
+    
   </div>`;
 }
 function dangKyTV(){
@@ -4256,9 +4292,9 @@ window.addEventListener("hashchange",theoHash);
   };
   window.dangNhapTV=async function(){
     // ưu tiên EMAIL (bắt buộc khi đăng ký); SĐT chỉ là phụ
-    var email=val('tvLoginEmail'), sdt=val('tvLoginSDT'), mk=val('tvLoginMK');
+    var email=val('tvLoginEmail'), sdt='', mk=val('tvLoginMK');
     var dinhdanh = email || sdt;
-    if(!dinhdanh || !mk){ alert('Vui lòng nhập Email (hoặc SĐT) và mật khẩu'); return; }
+    if(!dinhdanh || !mk){ alert('Vui lòng nhập Email và mật khẩu'); return; }
     var loginEmail = email;
     if(!isEmail(loginEmail)){
       var idf = email || sdt;
@@ -4278,8 +4314,8 @@ window.addEventListener("hashchange",theoHash);
       }
       return;
     }
-    await refreshSession();
-    alert('đăng nhập thành công!');
+    var _tv=await refreshSession();
+    try{ if(_tv && _tv.is_admin){ localStorage.setItem('nnp_qt','1'); denTrang('quantri'); } else { denTrang('taikhoan'); } }catch(e){ denTrang('taikhoan'); }
   };
   window.dangXuatTV=async function(){ await sb.auth.signOut(); clearTV(); paintUI(null); alert('✅ Đã đăng xuất.'); };
   window.nnpMuaGoi=async function(code){
@@ -4293,20 +4329,56 @@ window.addEventListener("hashchange",theoHash);
       if(container&&!container.querySelector('.nnp-tier-badge')){ var b=document.createElement('span'); b.className='nnp-tier-badge '+(TIER_CLASS[tv.tier]||''); b.textContent=TIER_LABEL[tv.tier]||tv.tier; container.appendChild(b); } }catch(e){}
   };
   function buildProfilePanel(){
-    var tv=readTV(); if(!tv) return;
-    if(document.getElementById('nnp-hs-panel')){ paintProfile(tv); return; }
-    var anchor=(document.querySelector('#trangTK, .man-taikhoan, [data-screen="taikhoan"]') ||
-      (function(){ var c=document.querySelectorAll('.man, section, div');
-        for(var i=0;i<c.length;i++){ var el=c[i]; if(el.offsetParent!==null && /Thông tin cá nhân|Tài khoản của tôi|tài khoản/.test(el.textContent||'') && el.children.length<40){ return el; } } return document.body; })());
-    if(!anchor) return;
-    var wrap=document.createElement('div'); wrap.id='nnp-hs-panel';
-    wrap.style.cssText='max-width:720px;margin:16px auto;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px';
-    wrap.innerHTML='<div class="nnp-hs-cover" id="hs_cover"><img class="nnp-hs-avatar" id="hs_avatar" alt="avatar"><button class="nnp-hs-cambtn" type="button" onclick="document.getElementById(\'hs_cover_file\').click()">Đổi ảnh bìa</button><input type="file" id="hs_cover_file" accept="image/*" style="display:none" onchange="nnpChonCover(this)"></div>'+
-      '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><div><h3 style="margin:0" id="hs_ten"></h3><div style="color:#64748b;font-size:13px"><span id="hs_email"></span> • <span id="hs_sdt"></span></div></div><span id="hs_tier"></span><button class="nnp-hs-cambtn" style="position:static;background:#334155" type="button" onclick="document.getElementById(\'hs_avatar_file\').click()">Đổi ảnh đại diện</button><input type="file" id="hs_avatar_file" accept="image/*" style="display:none" onchange="nnpChonAvatar(this)"></div>'+
-      '<div class="nnp-hs-grid"><div><label>Họ tên</label><input id="hs_ten_i"></div><div><label>Tuổi</label><input id="hs_tuoi_i" type="number" min="1" max="120"></div><div><label>Giới tính</label><input id="hs_gioitinh_i" placeholder="Nam/Nữ/Khác"></div><div><label>Số điện thoạii</label><input id="hs_sdt_i"></div><div class="nnp-hs-full"><label>Địa chỉ</label><input id="hs_diachi_i"></div><div class="nnp-hs-full"><label>Giới thiệu</label><textarea id="hs_gioithieu_i" rows="3"></textarea></div></div>'+
-      '<button class="nnp-hs-save" type="button" onclick="nnpLuuHoSo()">Lưu thông tin</button>';
-    anchor.appendChild(wrap); paintProfile(tv);
-  }
+  var tv=readTV(); if(!tv) return;
+  var host=document.getElementById('noiDungTV'); if(!host) return;
+  if(document.getElementById('nnp-hs-panel')){ paintProfile(tv); return; }
+  var tier=((tv.tier||'free')+'').toUpperCase();
+  host.innerHTML=`
+<div id="nnp-hs-panel" class="hs-wrap">
+  <div class="hs-headcard">
+    <div class="nnp-hs-cover" id="hs_cover">
+      <button class="nnp-hs-cambtn hs-cam-cover" type="button" onclick="document.getElementById('hs_cover_file').click()">\uD83D\uDCF7 \u1EA2nh b\u00eca</button>
+      <input type="file" id="hs_cover_file" accept="image/*" style="display:none" onchange="nnpChonCover(this)">
+    </div>
+    <div class="hs-avatarwrap">
+      <img class="nnp-hs-avatar" id="hs_avatar" alt="avatar">
+      <button class="nnp-hs-cambtn hs-cam-ava" type="button" onclick="document.getElementById('hs_avatar_file').click()">\uD83D\uDCF7</button>
+      <input type="file" id="hs_avatar_file" accept="image/*" style="display:none" onchange="nnpChonAvatar(this)">
+    </div>
+    <div class="hs-idbox">
+      <h2 id="hs_ten"></h2>
+      <div class="hs-sub"><span id="hs_email"></span><span class="hs-dot">\u00b7</span><span id="hs_sdt"></span></div>
+      <span class="hs-tierbadge" id="hs_tier">${tier}</span>
+    </div>
+    <button class="hs-logout" type="button" onclick="dangXuatTV()">\u0110\u0103ng xu\u1EA5t</button>
+  </div>
+  <div class="hs-body">
+    <div class="hs-col hs-col-main">
+      <div class="hs-card">
+        <div class="hs-card-h">\u1EA2nh &amp; th\u00f4ng tin c\u00e1 nh\u00e2n</div>
+        <div class="nnp-hs-grid">
+          <div class="fld"><label>H\u1ecd t\u00ean</label><input id="hs_ten_i"></div>
+          <div class="fld"><label>Tu\u1ed5i</label><input id="hs_tuoi_i" type="number" min="1" max="120"></div>
+          <div class="fld"><label>Gi\u1edbi t\u00ednh</label><select id="hs_gioitinh_i"><option value="">--</option><option>Nam</option><option>N\u1eef</option><option>Kh\u00e1c</option></select></div>
+          <div class="fld"><label>S\u1ed1 \u0111i\u1ec7n tho\u1ea1i</label><input id="hs_sdt_i"></div>
+          <div class="fld fld-full"><label>\u0110\u1ecba ch\u1ec9</label><input id="hs_diachi_i"></div>
+          <div class="fld fld-full"><label>Gi\u1edbi thi\u1ec7u b\u1ea3n th\u00e2n</label><textarea id="hs_gioithieu_i" rows="3"></textarea></div>
+        </div>
+        <div class="hs-actions"><button class="hs-save" type="button" onclick="nnpLuuHoSo()">L\u01b0u thay \u0111\u1ed5i</button></div>
+      </div>
+    </div>
+    <div class="hs-col hs-col-side">
+      <div class="hs-card hs-quick">
+        <div class="hs-card-h">Ti\u1ec7n \u00edch</div>
+        <a class="hs-qitem" href="#/bang-gia" onclick="denTrang('bangia');return false"><span>\uD83D\uDCB3</span> Mua g\u00f3i VIP &amp; \u0111\u1ea9y tin</a>
+        <a class="hs-qitem" href="#/tai-khoan" onclick="denTrang('taikhoan');return false"><span>\uD83D\uDCDD</span> \u0110\u0103ng tin m\u1edbi</a>
+        <a class="hs-qitem" href="#/yeu-thich" onclick="denTrang('yeuthich');return false"><span>\u2665</span> Nh\u00e0 \u0111\u00e3 l\u01b0u</a>
+      </div>
+    </div>
+  </div>
+</div>`;
+  paintProfile(tv);
+}
   var _oldVeTK=window.veTaiKhoan;
   window.veTaiKhoan=function(){ var r; try{ if(typeof _oldVeTK==='function') r=_oldVeTK.apply(this,arguments); }catch(e){} setTimeout(buildProfilePanel,60); return r; };
   
