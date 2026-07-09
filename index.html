@@ -3703,7 +3703,9 @@ function dayTinTV(id){
    THÀNH VIÊN — đăng ký / đăng nhập khách hàng
 ===================================================== */
 function tvHienTai(){
-  const id=docKho("nnp_tv",0);if(!id)return null;
+  var o=docKho("nnp_tv",null);
+  if(o&&typeof o==="object"&&o.id) return o;
+  var id=o; if(!id) return null;
   return docKho("nnp_users",[]).find(u=>u.id===id)||null;
 }
 function veTaiKhoan(tab){
@@ -3796,7 +3798,7 @@ function veTaiKhoan(tab){
     <input id="tvTen" type="text" placeholder="Họ và tên *" autocomplete="name">
     <input id="tvSDT" type="tel" placeholder="Số điện thoại (không bắt buộc)" autocomplete="tel">
     <input id="tvEmail" type="email" placeholder="Email (Gmail) *" autocomplete="email">
-    <input id="tvMK" type="password" placeholder="Mật khẩu (tối thiểu 4 ký tự) *" autocomplete="new-password">
+    <input id="tvMK" type="password" placeholder="Mật khẩu (tối thiểu 6 ký tự) *" autocomplete="new-password">
     <button class="nut nut-do" style="width:100%;justify-content:center" onclick="dangKyTV()">Tạo tài khoản</button>`
     :`
     <input id="tvLoginEmail" type="email" placeholder="Email (Gmail) *" autocomplete="email" onkeydown="if(event.key==='Enter')dangNhapTV()">
@@ -3810,7 +3812,7 @@ function dangKyTV(){
   const ten=$("tvTen").value.trim(),sdt=$("tvSDT").value.trim(),email=$("tvEmail").value.trim(),mk=$("tvMK").value;
   if(!ten){baoNhanh("Vui lòng nhập họ tên");return}
   if(sdt.replace(/\D/g,"").length<9){baoNhanh("Số điện thoại chưa hợp lệ");return}
-  if(mk.length<4){baoNhanh("Mật khẩu cần tối thiểu 4 ký tự");return}
+  if(mk.length<4){baoNhanh("Mật khẩu cần tối thiểu 6 ký tự");return}
   const users=docKho("nnp_users",[]);
   if(users.some(u=>u.sdt===sdt)){baoNhanh("Số điện thoại này đã đăng ký — anh/chị đăng nhập nhé");veTaiKhoan("dangnhap");return}
   const u={id:"TV"+Date.now().toString(36).toUpperCase(),ten,sdt,email,mk:bam(sdt+"|"+mk),ngay:new Date().toISOString().slice(0,10)};
