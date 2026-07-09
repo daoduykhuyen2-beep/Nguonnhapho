@@ -3794,13 +3794,14 @@ function veTaiKhoan(tab){
     ${t==="dangky"?`
     <div class="loi-ich-tv"><b>Quyền lợi thành viên:</b>✓ Đăng tin bán/cho thuê lên trang &nbsp; ✓ Mua gói VIP & đẩy tin &nbsp; ✓ Lưu nhà yêu thích, ưu tiên báo tin giảm giá</div>
     <input id="tvTen" type="text" placeholder="Họ và tên *" autocomplete="name">
-    <input id="tvSDT" type="tel" placeholder="Số điện thoại *" autocomplete="tel">
-    <input id="tvEmail" type="email" placeholder="Email (không bắt buộc)" autocomplete="email">
+    <input id="tvSDT" type="tel" placeholder="Số điện thoại (không bắt buộc)" autocomplete="tel">
+    <input id="tvEmail" type="email" placeholder="Email (Gmail) *" autocomplete="email">
     <input id="tvMK" type="password" placeholder="Mật khẩu (tối thiểu 4 ký tự) *" autocomplete="new-password">
     <button class="nut nut-do" style="width:100%;justify-content:center" onclick="dangKyTV()">Tạo tài khoản</button>`
     :`
-    <input id="tvSDT" type="tel" placeholder="Số điện thoại" autocomplete="tel">
-    <input id="tvMK" type="password" placeholder="Mật khẩu" autocomplete="current-password" onkeydown="if(event.key==='Enter')dangNhapTV()">
+    <input id="tvLoginEmail" type="email" placeholder="Email (Gmail) *" autocomplete="email" onkeydown="if(event.key==='Enter')dangNhapTV()">
+    <input id="tvLoginSDT" type="tel" placeholder="Số điện thoại (dự phòng, không bắt buộc)" autocomplete="tel">
+    <input id="tvLoginMK" type="password" placeholder="Mật khẩu" autocomplete="current-password" onkeydown="if(event.key==='Enter')dangNhapTV()">
     <button class="nut nut-do" style="width:100%;justify-content:center" onclick="dangNhapTV()">Đăng nhập</button><p style="margin-top:12px;font-size:12.5px;text-align:center"><a href="#" style="color:var(--do);font-weight:700" onclick="quenMK();return false">Quên mật khẩu?</a></p>`}
     <p style="margin-top:14px;font-size:11.5px;text-align:center"><a href="#" style="color:var(--xam)" onclick="denTrang('dangnhap');return false">Đăng nhập quản trị viên →</a></p>
   </div>`;
@@ -4253,7 +4254,7 @@ window.addEventListener("hashchange",theoHash);
   };
   window.dangNhapTV=async function(){
     // ưu tiên EMAIL (bắt buộc khi đăng ký); SĐT chỉ là phụ
-    var email=val('tvEmail'), sdt=val('tvSDT'), mk=val('tvMK');
+    var email=val('tvLoginEmail'), sdt=val('tvLoginSDT'), mk=val('tvLoginMK');
     var dinhdanh = email || sdt;
     if(!dinhdanh || !mk){ alert('Vui lòng nhập Email (hoặc SĐT) và mật khẩu'); return; }
     var loginEmail = email;
