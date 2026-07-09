@@ -3722,7 +3722,7 @@ function veTaiKhoan(tab){
     $("noiDungTV").innerHTML=`
     <div class="trang-ds" style="padding-top:24px">
     <div class="tieude-khoi">
-      <div><h2>Tài khoản của <i>${u.ten}</i></h2><p>Thành viên từ ${u.ngay.split("-").reverse().join("/")} · ${u.sdt}</p></div>
+      <div><h2>Tài khoản của <i>${u.ten}</i></h2><p>Thành viên từ ${(u.ngay?String(u.ngay).slice(0,10).split("-").reverse().join("/"):"")} · ${u.sdt}</p></div>
       <button class="nut nut-vien" onclick="dangXuatTV()">Đăng xuất</button>
     </div>
     <div class="kpi">
@@ -3732,7 +3732,7 @@ function veTaiKhoan(tab){
       <div><b>${goi?goi.ql.day:0}</b><span>Lượt đẩy tin</span></div>
       <div><b>${soTim}</b><span>Nhà đã lưu ♥</span></div>
     </div>
-    ${goi?`<p style="font-size:13px;color:var(--xanh);font-weight:600;margin-bottom:14px">✓ Gói đang dùng: ${goi.ten} — hiệu lực đến ${goi.het.split("-").reverse().join("/")}</p>`
+    ${goi?`<p style="font-size:13px;color:var(--xanh);font-weight:600;margin-bottom:14px">✓ Gói đang dùng: ${goi.ten} — hiệu lực đến ${(goi.het?String(goi.het).slice(0,10).split("-").reverse().join("/"):"")}</p>`
     :`<p style="font-size:13px;color:var(--xam);margin-bottom:14px">Chưa có gói nào — <a href="#/bang-gia" style="color:var(--do);font-weight:700" onclick="denTrang('bangia');return false">xem Bảng giá đăng tin →</a></p>`}
 
     <div class="ct-hop"><h2>📝 Đăng tin của tôi</h2>
@@ -4028,7 +4028,7 @@ function veQuanTri(tab){
 
   else if(tabQT==="thanhvien"){
     const hangTV=users.length?users.map(u=>`<tr>
-      <td><b>${u.ten}</b></td><td>${u.sdt}</td><td>${u.email||"—"}</td><td class="nho">${u.ngay.split("-").reverse().join("/")}</td>
+      <td><b>${u.ten}</b></td><td>${u.sdt}</td><td>${u.email||"—"}</td><td class="nho">${(u.ngay?String(u.ngay).slice(0,10).split("-").reverse().join("/"):"")}</td>
       <td><a class="nut-min" style="display:inline-block;text-decoration:none" href="https://zalo.me/${u.sdt.replace(/\D/g,"")}" target="_blank" rel="noopener">Zalo</a>
       <button class="nut-min" style="color:var(--do)" onclick="xoaTV('${u.id}')">Xóa</button></td></tr>`).join("")
       :'<tr><td colspan="5" style="text-align:center;color:var(--xam)">Chưa có thành viên đăng ký trên trình duyệt này</td></tr>';
@@ -4208,7 +4208,7 @@ window.addEventListener("hashchange",theoHash);
     var tv={ id:s.user.id, email:s.user.email, ten:(p&&p.full_name)||s.user.email, sdt:(p&&p.phone)||'',
       tier:(p&&p.membership_tier)||'free', tier_het:(p&&p.membership_expires_at)||null, is_admin:!!(p&&p.is_admin),
       avatar:(p&&p.avatar_url)||'', cover:(p&&p.cover_url)||'', tuoi:(p&&p.age)||'', gioitinh:(p&&p.gender)||'',
-      diachi:(p&&p.address)||'', gioithieu:(p&&p.bio)||'' };
+      diachi:(p&&p.address)||'', gioithieu:(p&&p.bio)||'', ngay:(s.user.created_at||'').slice(0,10) };
     saveTV(tv); paintUI(tv); return tv;
   }
   function tierBadge(tier){ var t=tier||'free'; if(t==='free') return ''; return '<span class="nnp-tier-badge '+(TIER_CLASS[t]||'')+'">'+(TIER_LABEL[t]||t)+'</span>'; }
