@@ -4156,18 +4156,15 @@ window.addEventListener("hashchange",theoHash);
   window.dangKyTV=async function(){
     var ten=val("tvTen"), sdt=val("tvSDT"), email=val("tvEmail"), mk=val("tvMK");
     if(!ten){bao("Vui long nhap ho ten");return;}
-    if(!/^0\d{9}$/.test(sdt.replace(/\s/g,""))){bao("So dien thoai chua hop le (VD: 0987654321)");return;}
+    if(!laEmail(email)){bao("Vui long nhap email that (Gmail) — email la bat buoc de dang ky");var e=$id("tvEmail");if(e)e.focus();return;}
+    if(sdt && !/^0\d{9}$/.test(sdt.replace(/\s/g,""))){bao("So dien thoai chua hop le (VD: 0987654321)");return;}
     if(mk.length<6){bao("Mat khau can toi thieu 6 ky tu");return;}
-    var authEmail = laEmail(email)? email : sdt2email(sdt);
     try{
-      var r=await sb.auth.signUp({email:authEmail,password:mk,options:{data:{full_name:ten,phone:sdt}}});
-      if(r.error){ bao(r.error.message.match(/already/i)?"Tai khoan da ton tai — moi anh/chi dang nhap":("Loi: "+r.error.message)); return; }
-      // luu ho so
-      if(r.data&&r.data.user){
-        try{ await sb.from("profiles").upsert({id:r.data.user.id,full_name:ten,phone:sdt,email:(laEmail(email)?email:null)},{onConflict:"id"}); }catch(e){}
-      }
+      var r=await sb.auth.signUp({email:email,password:mk,options:{data:{full_name:ten,phone:sdt}}});
+      if(r.error){ bao(r.error.message.match(/already/i)?"Email nay da dang ky — moi anh/chi dang nhap":("Loi: "+r.error.message)); return; }
+      if(r.data&&r.data.user){ try{ await sb.from("profiles").upsert({id:r.data.user.id,full_name:ten,phone:(sdt||null),email:email},{onConflict:"id"}); }catch(e){} }
       if(r.data&&r.data.session){ PHIEN=r.data.session; await taiHoSo(); bao("Chao mung "+ten+"! Tai khoan da tao xong."); }
-      else { bao("Da tao tai khoan! Neu he thong yeu cau xac nhan email, vui long kiem tra hop thu roi dang nhap."); }
+      else { bao("Da tao tai khoan! Vui long mo email ("+email+") de xac nhan, sau do dang nhap."); }
       try{capNhatNutQT&&capNhatNutQT();}catch(e){}
       try{veTaiKhoan&&veTaiKhoan();}catch(e){}
     }catch(e){ bao("Loi dang ky: "+(e&&e.message||e)); }
@@ -4176,11 +4173,16 @@ window.addEventListener("hashchange",theoHash);
   // ---- DANG NHAP ----
   window.dangNhapTV=async function(){
     var id=val("tvSDT"), mk=val("tvMK");
-    if(!id||!mk){bao("Nhap so dien thoai/email va mat khau");return;}
-    var authEmail = laEmail(id)? id : sdt2email(id);
+    if(!id||!mk){bao("Nhap email va mat khau de dang nhap");return;}
+    var authEmail=id;
+    if(!laEmail(id)){
+      try{ var q=await sb.from("profiles").select("email").eq("phone",id.replace(/\s/g,"")).not("email","is",null).limit(1).maybeSingle();
+        if(q&&q.data&&q.data.email){ authEmail=q.data.email; } else { bao("Vui long dang nhap bang email da dang ky"); return; } }
+      catch(e){ bao("Vui long dang nhap bang email da dang ky"); return; }
+    }
     try{
       var r=await sb.auth.signInWithPassword({email:authEmail,password:mk});
-      if(r.error){ bao("Sai so dien thoai/email hoac mat khau"); return; }
+      if(r.error){ bao("Sai email hoac mat khau (neu vua dang ky, hay xac nhan email truoc)"); return; }
       PHIEN=r.data.session; await taiHoSo();
       bao("Chao "+((HOSO&&HOSO.full_name)||"anh/chi")+"!");
       try{capNhatNutQT&&capNhatNutQT();}catch(e){}
