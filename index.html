@@ -2844,14 +2844,14 @@ function denTrang(t,neo,idNha){
     veBangGia();history.replaceState(null,"","#/bang-gia");window.scrollTo(0,0);
   }else if(t==="taikhoan"){
     var _tv=(typeof readTV==="function")?readTV():null;
-    if(docKho("nnp_qt",0)||(_tv&&_tv.email&&_tv.email.toLowerCase()==="daoduykhuyen2@gmail.com")){denTrang("quantri");return;}
+    /* admin & member accounts are separate now; do not force-redirect */
     $("trangTV").classList.remove("an");
     veTaiKhoan();history.replaceState(null,"","#/tai-khoan");window.scrollTo(0,0);
   }else if(t==="dangnhap"){
     $("trangDN").classList.remove("an");
     history.replaceState(null,"","#/dang-nhap");window.scrollTo(0,0);
   }else if(t==="quantri"){
-    if(!docKho("nnp_qt",0)){denTrang("dangnhap");return}
+    var _qtv=(typeof readTV==="function")?readTV():null;if(!(_qtv&&_qtv.is_admin===true)){denTrang(_qtv?"taikhoan":"dangnhap");return}
     $("trangQT").classList.remove("an");
     veQuanTri();history.replaceState(null,"","#/quan-tri");window.scrollTo(0,0);
   }else if(t==="lienhe"){
@@ -3629,7 +3629,7 @@ function muaGoi(ma){
   $("noiDungQR").innerHTML=`
     <h2 style="font-size:18px">${g.ten}</h2>
     <div class="gia-goi" style="font-size:24px;color:var(--do);font-weight:800">${vnd(g.gia)}</div>
-    ${coBank?`<img class="qr" alt="Mã QR chuyển khoản" src="https://img.vietqr.io/image/${b.nh}-${b.stk}-compact2.png?amount=${g.gia}&addInfo=${donDangMua.maDon}&accountName=${encodeURIComponent(b.ten||"NGUON NHA PHO HCM")}">
+    ${coBank?`<img class="qr" alt="Mã QR chuyển khoản" src="https://qr.sepay.vn/img?acc=${b.stk}&bank=${encodeURIComponent(b.nh)}&amount=${g.gia}&des=${encodeURIComponent(donDangMua.maDon)}">
     <p style="font-size:13px;color:var(--xam)">Quét QR bằng app ngân hàng — số tiền & nội dung đã điền sẵn</p>`
     :`<p style="font-size:13.5px;color:var(--xam);margin:12px 0">Chuyển khoản theo thông tin sẽ được xác nhận qua Zalo sau khi gửi đơn.</p>`}
     <p style="font-size:13px;margin-top:8px">Nội dung chuyển khoản:</p>
@@ -3909,10 +3909,9 @@ function dangNhap(){
 function dangXuat(){luuKho("nnp_qt",0);capNhatNutQT();baoNhanh("Đã đăng xuất");denTrang("home")}
 function capNhatNutQT(){
   const b=$("nutQT");if(!b)return;
-  if(docKho("nnp_qt",0)){b.textContent="⚙ Quản trị";b.onclick=()=>denTrang("quantri")}
+  const u=tvHienTai();
+  if(u&&u.is_admin===true){b.textContent="⚙ Quản trị";b.onclick=()=>denTrang("quantri");return;}
   else{
-    const u=tvHienTai();
-    if(u&&u.email&&u.email.toLowerCase()==="daoduykhuyen2@gmail.com"){b.textContent="⚙ Quản trị";b.onclick=()=>denTrang("quantri");return;}
     b.textContent=u?"👤 "+u.ten.split(" ").pop():"Đăng nhập / Đăng ký";
     b.onclick=()=>denTrang("taikhoan");
   }
