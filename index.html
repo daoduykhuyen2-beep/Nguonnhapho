@@ -4351,7 +4351,7 @@ window.addEventListener("hashchange",theoHash);
     if(!mk||mk.length<6){ alert('Mật khẩu tối thiểu 6 ký tự'); return; }
     var r=await sb.auth.signUp({ email:email, password:mk, options:{ data:{ full_name:ten, phone:sdt } } });
     if(r.error){ alert('Lỗi đăng ký: '+r.error.message); return; }
-    try{ await sb.from('profiles').upsert({ id:r.data.user.id, full_name:ten, phone:sdt, email:email }); }catch(e){}
+
     if(!r.data.session){ alert('đăng ký thành công! Vui lòng mở Gmail và bấm link xác nhận, sau đó đăng nhập.'); }
     else{ await refreshSession(); alert('đăng ký & đăng nhập thành công!'); }
   };
