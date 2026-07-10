@@ -3860,35 +3860,6 @@ function veTaiKhoan(tab){
     
   </div>`;
 }
-function dangKyTV(){
-  const ten=$("tvTen").value.trim(),sdt=$("tvSDT").value.trim(),email=$("tvEmail").value.trim(),mk=$("tvMK").value;
-  if(!ten){baoNhanh("Vui lòng nhập họ tên");return}
-  if(sdt.replace(/\D/g,"").length<9){baoNhanh("Số điện thoại chưa hợp lệ");return}
-  if(mk.length<4){baoNhanh("Mật khẩu cần tối thiểu 6 ký tự");return}
-  const users=docKho("nnp_users",[]);
-  if(users.some(u=>u.sdt===sdt)){baoNhanh("Số điện thoại này đã đăng ký — anh/chị đăng nhập nhé");veTaiKhoan("dangnhap");return}
-  const u={id:"TV"+Date.now().toString(36).toUpperCase(),ten,sdt,email,mk:bam(sdt+"|"+mk),ngay:new Date().toISOString().slice(0,10)};
-  users.unshift(u);luuKho("nnp_users",users);luuKho("nnp_tv",u.id);
-  ghiLead({t:"Đăng ký TV",can:"—",nd:ten+" — "+sdt+(email?" — "+email:"")});
-  capNhatNutQT();baoNhanh("Chào mừng "+ten+" đến với Nguồn Nhà Phố HCM!");veTaiKhoan();
-}
-function dangNhapTV(){
-  const sdt=$("tvSDT").value.trim(),mk=$("tvMK").value;
-  const u=docKho("nnp_users",[]).find(x=>x.sdt===sdt&&x.mk===bam(sdt+"|"+mk));
-  if(!u){baoNhanh("Sai số điện thoại hoặc mật khẩu");return}
-  luuKho("nnp_tv",u.id);capNhatNutQT();baoNhanh("Chào "+u.ten+"!");veTaiKhoan();
-}
-function quenMK(){
-  const sdt=($("tvSDT")?$("tvSDT").value:"").trim();
-  const users=docKho("nnp_users",[]);
-  const co=users.some(u=>u.sdt===sdt);
-  ghiLead({t:"Yêu cầu đặt lại mật khẩu",can:"—",nd:"SĐT: "+(sdt||"(chưa nhập)")+(co?" — có tài khoản":" — chưa thấy tài khoản")});
-  const yc=docKho("nnp_quenmk",[]);
-  yc.unshift({sdt:sdt||"(chưa nhập)",luc:new Date().toISOString()});
-  luuKho("nnp_quenmk",yc);
-  baoNhanh("Đã ghi nhận yêu cầu. Vui lòng bấm nút Gọi/Zalo góc màn hình hoặc liên hệ 0987.645.314 để được cấp lại mật khẩu.");
-}
-function dangXuatTV(){luuKho("nnp_tv",0);capNhatNutQT();baoNhanh("Đã đăng xuất");denTrang("home")}
 function xoaTV(id){
   let users=docKho("nnp_users",[]);users=users.filter(u=>u.id!==id);
   luuKho("nnp_users",users);
@@ -4411,7 +4382,7 @@ window.addEventListener("hashchange",theoHash);
     var _tv=await refreshSession();
     try{ if(_tv && _tv.is_admin){ localStorage.setItem('nnp_qt','1'); denTrang('quantri'); } else { denTrang('taikhoan'); } }catch(e){ denTrang('taikhoan'); }
   };
-  window.dangXuatTV=async function(){ await sb.auth.signOut(); clearTV(); paintUI(null); alert('✅ Đã đăng xuất.'); };
+  window.dangXuatTV=async function(){ await sb.auth.signOut(); clearTV(); paintUI(null); alert('✅ Đã đăng xuất.'); location.hash='#/'; };
   window.nnpMuaGoi=async function(code){
     var tv=readTV(); if(!tv){ alert('Bạn cần đăng nhập trước khi mua gói'); return null; }
     var r=await sb.rpc('tao_don_mua_goi',{ p_code:code });
@@ -4758,13 +4729,13 @@ sb.auth.onAuthStateChange(function(evt,session){ if(session){ refreshSession(); 
   }
   function wrapLogout(){
     try{
-      if(window.dangXuat && !window.dangXuat.__nnpWrapped){
-        var orig = window.dangXuat;
+      if(window.dangXuatTV && !window.dangXuatTV.__nnpWrapped){
+        var orig = window.dangXuatTV;
         var wrapped = function(){ var r; try{ r=orig.apply(this, arguments); }catch(e){}
           setTimeout(function(){ try{ location.hash='#/'; }catch(e){} }, 60);
           return r; };
         wrapped.__nnpWrapped = true;
-        window.dangXuat = wrapped;
+        window.dangXuatTV = wrapped;
       }
     }catch(e){}
   }
