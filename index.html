@@ -4783,5 +4783,65 @@ sb.auth.onAuthStateChange(function(evt,session){ if(session){ refreshSession(); 
   }, true);
 })();
 </script>
-</body>
+<script>
+/* NNP: chong XSS - lam sach du lieu nguoi dung tu Supabase truoc khi render */
+(function(){
+  function escHtml(v){
+    if (v === null || v === undefined) return v;
+    if (typeof v !== "string") return v;
+    return v.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/\x27/g,"&#39;");
+  }
+  window.escHtml = escHtml;
+  var FIELDS = ["title","mota","duong","quan","phuong","contact_name","contact_phone",
+                "full_name","bio","address","ten","sdt","diachi","gioithieu"];
+  function sanitizeRow(row){
+    if (!row || typeof row !== "object") return row;
+    for (var i=0;i<FIELDS.length;i++){
+      var f = FIELDS[i];
+      if (typeof row[f] === "string") row[f] = escHtml(row[f]);
+    }
+    return row;
+  }
+  function sanitizeData(data){
+    if (Array.isArray(data)) return data.map(sanitizeRow);
+    return sanitizeRow(data);
+  }
+  function wrapSb(){
+    try{
+      if (!window.sb || !window.sb.from || window.sb.__nnpWrapped) return false;
+      var realFrom = window.sb.from.bind(window.sb);
+      window.sb.from = function(table){
+        var builder = realFrom(table);
+        var SAFE = (table === "web_posts" || table === "profiles" || table === "profiles_public");
+        if (!SAFE) return builder;
+        return new Proxy(builder, {
+          get: function(target, prop, recv){
+            if (prop === "then"){
+              return function(onF, onR){
+                return target.then(function(res){
+                  try{ if (res && res.data) res.data = sanitizeData(res.data); }catch(e){}
+                  return onF ? onF(res) : res;
+                }, onR);
+              };
+            }
+            var val = target[prop];
+            if (typeof val === "function"){
+              return function(){
+                var out = val.apply(target, arguments);
+                return (out === target) ? recv : out;
+              };
+            }
+            return val;
+          }
+        });
+      };
+      window.sb.__nnpWrapped = true;
+      return true;
+    }catch(e){ return false; }
+  }
+  if (!wrapSb()){
+    var n=0, iv=setInterval(function(){ if (wrapSb() || ++n>40) clearInterval(iv); }, 150);
+  }
+})();
+</script></body>
 </html>
