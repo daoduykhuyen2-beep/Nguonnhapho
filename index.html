@@ -4347,7 +4347,7 @@ window.addEventListener("hashchange",theoHash);
     if(!ten){ alert('Vui lòng nhập họ tên'); return; }
     if(!isEmail(email)){ alert('Vui lòng nhập Gmail/email hợp lệ (bắt buộc)'); return; }
     if(!mk||mk.length<6){ alert('Mật khẩu tối thiểu 6 ký tự'); return; }
-    var r=await sb.auth.signUp({ email:email, password:mk, options:{ data:{ full_name:ten, phone:sdt } } });
+    var r=await sb.auth.signUp({ email:email, password:mk, options:{ data:{ full_name:ten, phone:sdt }, emailRedirectTo: location.origin } });
     if(r.error){ alert('Lỗi đăng ký: '+r.error.message); return; }
 
     if(!r.data.session){ alert('đăng ký thành công! Vui lòng mở Gmail và bấm link xác nhận, sau đó đăng nhập.'); }
