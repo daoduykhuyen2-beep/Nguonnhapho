@@ -2843,14 +2843,14 @@ function denTrang(t,neo,idNha){
     const a=document.querySelector('nav.menu a[data-trang="bangia"]');if(a)a.classList.add("on");
     veBangGia();history.replaceState(null,"","#/bang-gia");window.scrollTo(0,0);
   }else if(t==="taikhoan"){
-    var _tv=(typeof readTV==="function")?readTV():null;
+    var _tv=(typeof tvHienTai==="function")?tvHienTai():null;
     /* admin & member accounts are separate now; do not force-redirect */
     $("trangTV").classList.remove("an");
     veTaiKhoan();history.replaceState(null,"","#/tai-khoan");window.scrollTo(0,0);
   }else if(t==="dangnhap"){
     denTrang("taikhoan");return;
   }else if(t==="quantri"){
-    var _qtv=(typeof readTV==="function")?readTV():null;if(!(_qtv&&(_qtv.is_admin===true||(_qtv.email||"").toLowerCase()==="daoduykhuyen2@gmail.com"))){denTrang(_qtv?"taikhoan":"taikhoan");return}
+    var _qtv=(typeof tvHienTai==="function")?tvHienTai():null;if(!(_qtv&&(_qtv.is_admin===true||(_qtv.email||"").toLowerCase()==="daoduykhuyen2@gmail.com"))){denTrang(_qtv?"taikhoan":"taikhoan");return}
     $("trangQT").classList.remove("an");
     veQuanTri();history.replaceState(null,"","#/quan-tri");window.scrollTo(0,0);
   }else if(t==="lienhe"){
