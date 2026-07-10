@@ -3548,13 +3548,13 @@ const GOI_MD={
   pro:{ten:"Chuyên nghiệp",gia:2490000,ql:{thuong:20,vang:5,kc:0,day:15}},
   vip:{ten:"VIP Toàn diện",gia:7490000,ql:{thuong:30,vang:10,kc:3,day:30}}
  },
- bank:{nh:"",stk:"",ten:""}
+ bank:{nh:"MB",stk:"VQRQAKHFP8264",ten:"DAO DUY KHUYEN"}
 };
 function cauHinhGoi(){
   const c=docKho("nnp_goicfg",null);
   if(!c)return JSON.parse(JSON.stringify(GOI_MD));
   const m=JSON.parse(JSON.stringify(GOI_MD));
-  Object.assign(m.le,c.le||{});Object.assign(m.bank,c.bank||{});
+  Object.assign(m.le,c.le||{});if(c.bank){for(const bk in c.bank){if(c.bank[bk])m.bank[bk]=c.bank[bk];}}
   for(const k of ["cb","pro","vip"])if(c.combo&&c.combo[k]&&c.combo[k].gia)m.combo[k].gia=c.combo[k].gia;
   return m;
 }
