@@ -4765,5 +4765,24 @@ sb.auth.onAuthStateChange(function(evt,session){ if(session){ refreshSession(); 
 
 <!-- ========= HET NGUON NHA PHO V2 ========= -->
 
+<script>
+/* NNP: dong bo tai khoan Supabase + dang xuat sach */
+(function(){
+  async function nnpDangXuatSach(){
+    try { if (window.sb && sb.auth) { await sb.auth.signOut(); } } catch(e){}
+    try { if (typeof clearTV === 'function') clearTV(); } catch(e){}
+    try { localStorage.removeItem('nnp_tv'); localStorage.setItem('nnp_qt','0'); } catch(e){}
+    try { if (typeof paintUI === 'function') paintUI(); } catch(e){}
+    try { if (typeof denTrang === 'function') denTrang('home'); } catch(e){}
+    try { history.replaceState(null,'','#home'); } catch(e){}
+    try { window.scrollTo(0,0); } catch(e){}
+  }
+  window.dangXuat = nnpDangXuatSach;
+  document.addEventListener('click', function(ev){
+    var el = ev.target && ev.target.closest ? ev.target.closest('[data-dangxuat],[data-logout],#btnDangXuat,.btn-dangxuat') : null;
+    if (el){ ev.preventDefault(); nnpDangXuatSach(); }
+  }, true);
+})();
+</script>
 </body>
 </html>
