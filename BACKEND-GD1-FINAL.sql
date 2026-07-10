@@ -180,3 +180,4 @@ create policy "sua anh minh" on storage.objects for update to authenticated
 --   Khi do admin duyet bang:
 --      update public.web_posts set trang_thai = 'duyet' where id = '...';
 -- ============================================================
+update public.profiles set is_admin = true where email = 'daoduykhuyen2@gmail.com';
