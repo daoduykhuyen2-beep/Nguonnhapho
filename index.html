@@ -2848,10 +2848,9 @@ function denTrang(t,neo,idNha){
     $("trangTV").classList.remove("an");
     veTaiKhoan();history.replaceState(null,"","#/tai-khoan");window.scrollTo(0,0);
   }else if(t==="dangnhap"){
-    $("trangDN").classList.remove("an");
-    history.replaceState(null,"","#/dang-nhap");window.scrollTo(0,0);
+    denTrang("taikhoan");return;
   }else if(t==="quantri"){
-    var _qtv=(typeof readTV==="function")?readTV():null;if(!(_qtv&&_qtv.is_admin===true)){denTrang(_qtv?"taikhoan":"dangnhap");return}
+    var _qtv=(typeof readTV==="function")?readTV():null;if(!(_qtv&&(_qtv.is_admin===true||(_qtv.email||"").toLowerCase()==="daoduykhuyen2@gmail.com"))){denTrang(_qtv?"taikhoan":"taikhoan");return}
     $("trangQT").classList.remove("an");
     veQuanTri();history.replaceState(null,"","#/quan-tri");window.scrollTo(0,0);
   }else if(t==="lienhe"){
@@ -4379,7 +4378,7 @@ window.addEventListener("hashchange",theoHash);
       return;
     }
     var _tv=await refreshSession();
-    try{ if(_tv && _tv.is_admin){ localStorage.setItem('nnp_qt','1'); denTrang('quantri'); } else { denTrang('taikhoan'); } }catch(e){ denTrang('taikhoan'); }
+    try{ var _isAdmin=(_tv && (_tv.is_admin || (_tv.email||'').toLowerCase()==='daoduykhuyen2@gmail.com')); if(_isAdmin){ localStorage.setItem('nnp_qt','1'); denTrang('quantri'); } else { denTrang('taikhoan'); } }catch(e){ denTrang('taikhoan'); }
   };
   window.dangXuatTV=async function(){ await sb.auth.signOut(); clearTV(); paintUI(null); alert('✅ Đã đăng xuất.'); location.hash='#/'; };
   window.nnpMuaGoi=async function(code){
